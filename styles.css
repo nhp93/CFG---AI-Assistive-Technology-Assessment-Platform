@@ -1,0 +1,479 @@
+/* ==========================================================================
+   Lions Services Inc. - Assistive Technology Evaluation
+   Screen 1 Styles: Single-Window No-Scroll Layout with 20% Zoom Steps
+   ========================================================================== */
+
+/* 
+   CHUNK 1: COLOR THEME & SMOOTH TYPOGRAPHY VARIABLES
+   - What is this: Core colors and dynamic zoom multiplier.
+   - What is it for: High contrast (#000000 / #FFD700) with 20% scaling increments up to 200%.
+   - How it works:
+     * Starts at 15.5px base font size.
+     * Scales cleanly across 100%, 120%, 140%, 160%, 180%, 200%.
+     * Guaranteed to stay inside 1 single window with zero scrolling.
+*/
+:root {
+  --zoom-multiplier: 1.0;
+
+  /* Color Palette */
+  --bg-canvas: #000000;
+  --bg-surface: #0e0e0e;
+  --bg-surface-elevated: #181818;
+  --text-primary: #FFD700;       /* Golden Yellow (19.5:1 contrast) */
+  --text-muted: #D4B000;
+  --border-primary: #FFD700;
+  --border-focus: #39FF14;         /* Neon Green Focus */
+  --focus-glow: rgba(57, 255, 20, 0.45);
+  --accent-glow: rgba(255, 215, 0, 0.12);
+
+  /* Compact Aesthetic Base Typography */
+  --base-font-size: 15.5px;
+  --calculated-font-size: calc(var(--base-font-size) * var(--zoom-multiplier));
+}
+
+/* 
+   CHUNK 2: GIGANTIC NEON GREEN CURSOR (56px)
+   - Extra-large glowing arrow that never gets lost on the screen.
+*/
+html, body, button, a, [role="button"], input {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'><path d='M8 4 L8 46 L20 34 L32 52 L40 47 L28 29 L44 29 Z' fill='%2339FF14' stroke='%23000000' stroke-width='4' stroke-linejoin='round'/></svg>") 8 4, auto;
+}
+
+button:hover, a:hover, [role="button"]:hover {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'><path d='M8 4 L8 46 L20 34 L32 52 L40 47 L28 29 L44 29 Z' fill='%23FFD700' stroke='%23000000' stroke-width='4' stroke-linejoin='round'/></svg>") 8 4, pointer;
+}
+
+/* 
+   CHUNK 3: RESET & SINGLE-WINDOW VIEWPORT (NO SCROLLING)
+   - Keeps the entire application strictly within 100vh height.
+*/
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden; /* Guaranteed no vertical or horizontal scrollbar */
+}
+
+html {
+  font-size: var(--calculated-font-size);
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.45;
+  letter-spacing: 0.012em;
+  
+  /* Smooth Font Antialiasing */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+}
+
+/* Screen reader only utility */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Focus indicator for interactive elements only */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+[role="button"]:focus-visible,
+[tabindex="0"]:focus-visible {
+  outline: 4px solid var(--border-focus) !important;
+  outline-offset: 4px !important;
+  box-shadow: 0 0 16px var(--focus-glow) !important;
+  border-radius: 6px;
+}
+
+.welcome-heading:focus,
+.welcome-heading:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* 
+   CHUNK 4: TOP HEADER & 20% ZOOM CONTROLS
+*/
+.app-header {
+  border-bottom: 2px solid #222222;
+  background-color: rgba(14, 14, 14, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 0.55rem 1.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-shrink: 0;
+}
+
+.brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-badge {
+  background: var(--text-primary);
+  color: var(--bg-canvas);
+  font-weight: 800;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.75rem;
+  border-radius: 4px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.brand-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.zoom-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  opacity: 0.85;
+  margin-right: 0.15rem;
+}
+
+.zoom-btn {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1.5px solid #444444;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-radius: 5px;
+  transition: all 0.12s ease-in-out;
+}
+
+.zoom-btn:hover {
+  border-color: var(--text-primary);
+  background-color: rgba(255, 215, 0, 0.1);
+}
+
+.zoom-btn.active {
+  background-color: var(--border-focus);
+  color: #000000;
+  border-color: var(--border-focus);
+  font-weight: 800;
+}
+
+.staff-help-btn {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1.5px dashed var(--border-primary);
+  padding: 0.25rem 0.7rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-radius: 5px;
+  margin-left: 0.25rem;
+  transition: all 0.12s ease;
+}
+
+.staff-help-btn:hover {
+  background-color: #241d00;
+  border-style: solid;
+}
+
+/* 
+   CHUNK 5: MAIN CENTERED CARD (FITS 100vh)
+*/
+.main-viewport {
+  flex: 1;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.card-container {
+  background-color: var(--bg-surface);
+  border: 2px solid var(--border-primary);
+  border-radius: 14px;
+  padding: clamp(1.8rem, 4.2vh, 2.8rem) clamp(1.5rem, 3.2vw, 2.5rem);
+  box-shadow: 0 10px 40px var(--accent-glow);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: clamp(320px, 46vh, 440px);
+}
+
+.card-badge-row {
+  margin-bottom: clamp(0.75rem, 1.8vh, 1.25rem);
+}
+
+.step-pill {
+  display: inline-block;
+  background-color: #221c00;
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
+  padding: 0.2rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.welcome-heading {
+  font-size: clamp(1.4rem, 3.2vh, 1.85rem);
+  font-weight: 700;
+  line-height: 1.28;
+  margin-bottom: clamp(0.75rem, 1.8vh, 1.2rem);
+  color: var(--text-primary);
+}
+
+.instruction-paragraph {
+  font-size: clamp(0.98rem, 2.1vh, 1.15rem);
+  line-height: 1.55;
+  margin-bottom: clamp(1.2rem, 3vh, 2.2rem);
+  color: #e6c800;
+  max-width: 760px;
+}
+
+/* 
+   CHUNK 6: HIGH-APPEAL PRIMARY CTA BUTTON
+*/
+.action-group {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.5rem;
+}
+
+/* Primary Action: Appealing Modern CTA */
+.btn-primary-action {
+  background: linear-gradient(135deg, #FFE853 0%, #FFD700 50%, #FFC107 100%);
+  color: #000000;
+  border: none;
+  padding: clamp(1rem, 2.2vh, 1.35rem) clamp(1.4rem, 2.8vw, 2rem);
+  min-height: clamp(62px, 8.5vh, 76px);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(255, 215, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  background: linear-gradient(135deg, #FFF073 0%, #FFE033 50%, #FFCA28 100%);
+}
+
+.btn-primary-action:hover .btn-arrow-disc {
+  transform: translateX(4px);
+  background-color: #000000;
+  color: #FFD700;
+}
+
+.btn-primary-action:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+}
+
+.btn-content-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.btn-title {
+  font-size: clamp(1.15rem, 2.4vh, 1.35rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #000000;
+}
+
+.btn-subtitle {
+  font-size: clamp(0.82rem, 1.6vh, 0.92rem);
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+/* Arrow Disc */
+.btn-arrow-disc {
+  width: 36px;
+  height: 36px;
+  background-color: rgba(0, 0, 0, 0.9);
+  color: #FFD700;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.arrow-svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Keycap Badges */
+.key-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000000;
+  color: #39FF14;
+  border: 2px solid #39FF14;
+  font-size: clamp(0.95rem, 1.9vh, 1.1rem);
+  font-weight: 800;
+  padding: 0.2rem 0.65rem;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+
+.key-badge.space {
+  padding: 0.18rem 0.7rem;
+  font-size: clamp(0.82rem, 1.6vh, 0.92rem);
+}
+
+.key-badge.esc {
+  border-color: #777777;
+  color: #FFD700;
+  font-size: 0.78rem;
+  padding: 0.12rem 0.45rem;
+}
+
+/* Pulse Dot */
+.pulse-dot {
+  width: 9px;
+  height: 9px;
+  background-color: var(--border-focus);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+
+/* 
+   CHUNK 7: FOOTER & STATUS BAR
+*/
+.app-footer {
+  border-top: 2px solid #222222;
+  background-color: rgba(14, 14, 14, 0.95);
+  padding: 0.55rem 1.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.status-group {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+/* 
+   CHUNK 8: STAFF HELP MODAL
+*/
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.modal-overlay.open {
+  display: flex;
+}
+
+.modal-dialog {
+  background-color: #000000;
+  border: 3px solid var(--border-focus);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 540px;
+  width: 100%;
+  box-shadow: 0 0 35px var(--focus-glow);
+}
+
+.modal-dialog h2 {
+  font-size: 1.6rem;
+  color: var(--border-focus);
+  margin-bottom: 0.85rem;
+}
+
+.modal-dialog p {
+  font-size: 1.05rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-modal-dismiss {
+  background-color: var(--text-primary);
+  color: #000000;
+  border: 2px solid var(--text-primary);
+  padding: 0.75rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 6px;
+}

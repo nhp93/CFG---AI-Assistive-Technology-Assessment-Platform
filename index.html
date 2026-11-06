@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!--
+    CHUNK 1: SCREEN ZOOM PERMISSION (Viewport)
+    - What is this: Responsive viewport settings.
+    - What is it for: Enables smooth browser zoom up to 5x without locking scale.
+    - How it works: 'maximum-scale=5.0' allows users to zoom on any screen.
+  -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <title>Lions Services Inc. - Assistive Technology Check</title>
+  <meta name="description" content="Assistive technology evaluation and sensory comfort check for blind and low-vision individuals.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!--
+    CHUNK 2: SCREEN READER SPEAKER (ARIA Live Region)
+    - What is this: Invisible notification area for screen readers (JAWS, NVDA).
+    - What is it for: Announces changes like zoom or voice status aloud.
+    - How it works: Screen readers automatically read updates placed in this element.
+  -->
+  <div id="aria-live-announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <!--
+    CHUNK 3: TOP BANNER & ZOOM CONTROLS
+    - What is this: Sleek top bar with brand badge and ZoomText magnifier buttons.
+    - What is it for: Allows candidates to quickly choose a comfortable zoom level (100% to 400%).
+    - How it works: Clicking any percentage scales up all text cleanly.
+  -->
+  <header class="app-header" role="banner">
+    <div class="brand-wrapper">
+      <span class="brand-badge" aria-label="Lions Services Incorporated">Lions Services</span>
+      <span class="brand-title">Assistive Tech Check</span>
+    </div>
+
+    <div class="zoom-controls" role="region" aria-label="ZoomText Magnifier Controls">
+      <span class="zoom-label" id="zoom-group-label">Zoom:</span>
+      <button type="button" class="zoom-btn active" data-zoom="1.0" aria-pressed="true" aria-label="Zoom 100 percent">100%</button>
+      <button type="button" class="zoom-btn" data-zoom="1.2" aria-pressed="false" aria-label="Zoom 120 percent">120%</button>
+      <button type="button" class="zoom-btn" data-zoom="1.4" aria-pressed="false" aria-label="Zoom 140 percent">140%</button>
+      <button type="button" class="zoom-btn" data-zoom="1.6" aria-pressed="false" aria-label="Zoom 160 percent">160%</button>
+      <button type="button" class="zoom-btn" data-zoom="1.8" aria-pressed="false" aria-label="Zoom 180 percent">180%</button>
+      <button type="button" class="zoom-btn" data-zoom="2.0" aria-pressed="false" aria-label="Zoom 200 percent">200%</button>
+      
+      <button type="button" class="staff-help-btn" id="btn-staff-help" aria-haspopup="dialog" aria-label="Request staff assistance, shortcut Escape key">
+        <span class="key-badge esc" aria-hidden="true">Esc</span> Staff Help
+      </button>
+    </div>
+  </header>
+
+  <!--
+    CHUNK 4: MAIN QUESTION CARD (Clean & Aesthetic)
+    - What is this: Centered, aesthetic question card.
+    - What is it for: Keeps focus on one clear task with zero distractions.
+    - How it works: Automatically focuses on the title when loaded.
+  -->
+  <main class="main-viewport" id="main-content" role="main">
+    <section class="card-container" aria-labelledby="page-heading">
+      
+      <div class="card-badge-row">
+        <span class="step-pill">Screen 1 of 4 &bull; Sensory Baseline</span>
+      </div>
+
+      <h1 id="page-heading" class="welcome-heading">
+        Welcome to Your Assistive Technology Check
+      </h1>
+
+      <p class="instruction-paragraph">
+        This is not an exam. There are no right or wrong answers. We are finding the screen settings, colors, text sizes, and tools that fit you best.
+      </p>
+
+      <!-- Primary Action: Start Comfort Check (Appealing, Modern CTA) -->
+      <div class="action-group" role="group" aria-label="Primary Actions">
+        <button type="button" class="btn-primary-action" id="btn-start-check" aria-label="Start comfort check">
+          <div class="btn-content-left">
+            <span class="btn-title">Start Comfort Check</span>
+            <span class="btn-subtitle">Find your ideal text size, contrast & screen settings</span>
+          </div>
+          <div class="btn-arrow-disc" aria-hidden="true">
+            <svg class="arrow-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </div>
+        </button>
+      </div>
+
+    </section>
+  </main>
+
+  <!--
+    CHUNK 6: STATUS BAR (Footer)
+    - What is this: Bottom status strip.
+    - What is it for: Real-time feedback on voice, zoom level, and contrast.
+  -->
+  <footer class="app-footer" role="contentinfo">
+    <div class="status-group">
+      <div class="status-badge" id="sound-status">
+        <span class="pulse-dot" aria-hidden="true"></span>
+        <span>Mode: Tactile Navigation Ready</span>
+      </div>
+      <div class="status-badge" id="zoom-status-display">
+        Zoom: 100%
+      </div>
+    </div>
+    <div class="status-badge">
+      <span>High-Contrast Dark &bull; WCAG 2.2 AAA</span>
+    </div>
+  </footer>
+
+  <!--
+    CHUNK 7: STAFF HELP POP-UP (Modal Dialog)
+    - What is this: Emergency pop-up alert for human assessor help.
+  -->
+  <div class="modal-overlay" id="staff-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="staff-dialog-title" aria-hidden="true">
+    <div class="modal-dialog" id="staff-modal-dialog">
+      <h2 id="staff-dialog-title">Staff Assistance Alerted</h2>
+      <p>
+        A Lions Services assessor has been notified and is coming to assist you. Please stay seated.
+      </p>
+      <div class="modal-actions">
+        <button type="button" class="btn-modal-dismiss" id="staff-modal-dismiss">
+          Return to Check [ Press Esc or Enter ]
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
