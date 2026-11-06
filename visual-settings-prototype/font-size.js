@@ -24,6 +24,15 @@
   document.getElementById("font-smaller").addEventListener("click", function () { size = setFontSize(size - STEP); });
   document.getElementById("font-larger").addEventListener("click", function () { size = setFontSize(size + STEP); });
 
+  // raised letters change text size
+  document.addEventListener("keydown", function (e) {
+    var key = e.key.toLowerCase();
+    if ((key !== "f" && key !== "j") || e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) return;
+    if (e.target.matches("input:not([type=range]), textarea, select") || e.target.isContentEditable) return;
+    e.preventDefault();
+    size = setFontSize(size + (key === "j" ? STEP : -STEP));
+  });
+
   document.getElementById("save-font-size").addEventListener("click", function () {
     localStorage.setItem(KEY, size);
     var box = document.getElementById("confirmation-message");
