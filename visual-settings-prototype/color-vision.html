@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Color Vision Settings</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main id="main">
+    <h1>Color Vision Settings</h1>
+    <p class="intro readable">
+      You can adjust these settings at any time.
+    </p>
+
+    <section class="question" aria-labelledby="text-size-heading">
+      <h2 id="text-size-heading">Text Size</h2>
+      <div class="size-controls">
+        <button type="button" id="font-smaller" class="button button-secondary" aria-label="Decrease text size">A−</button>
+        <label for="font-size-slider" class="visually-hidden">Text size</label>
+        <input type="range" id="font-size-slider" min="16" max="32" step="2">
+        <button type="button" id="font-larger" class="button button-secondary" aria-label="Increase text size">A+</button>
+      </div>
+      <p aria-live="polite">Current size: <strong id="font-size-value"></strong></p>
+      <p class="preview readable">
+        The quick brown fox jumps over the lazy dog. Adjust the text size until it feels comfortable to read.
+      </p>
+    </section>
+
+    <div class="actions">
+      <a href="index.html" class="button button-secondary">Back</a>
+      <button type="button" id="save-font-size" class="button button-primary">Next</button>
+    </div>
+
+    <div id="confirmation-message" class="message message-success" role="status" tabindex="-1" hidden></div>
+  </main>
+
+  <script src="font-size.js"></script>
+</body>
+</html>

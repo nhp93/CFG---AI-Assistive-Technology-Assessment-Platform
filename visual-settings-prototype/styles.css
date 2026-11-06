@@ -201,6 +201,63 @@ input[type="radio"]:focus-visible {
   border-width: 5px;
 }
 
+/* Color Vision Settings: text size */
+.readable {
+  font-size: var(--text-size, 1.1rem);
+  overflow-wrap: anywhere;
+}
+
+h2 {
+  font-size: 1.4rem;
+  margin: 0 0 1rem;
+}
+
+.size-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+}
+
+.size-controls .button {
+  flex: 0 1 6rem;
+}
+
+.size-controls input[type="range"] {
+  flex: 1 1 10rem;
+  height: 2.5rem;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.size-controls input[type="range"]:focus-visible {
+  outline: 4px solid var(--focus);
+  outline-offset: 4px;
+}
+
+.preview {
+  border: 3px solid var(--text);
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 0;
+}
+
+a.button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 /* Users who prefer reduced motion: nothing animates anyway, but be explicit */
 @media (prefers-reduced-motion: reduce) {
   * {

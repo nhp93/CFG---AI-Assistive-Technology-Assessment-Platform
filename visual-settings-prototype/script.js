@@ -54,6 +54,16 @@
     });
   }
 
+  // Restore answers saved before leaving this page (e.g. after Back).
+  var saved = JSON.parse(sessionStorage.getItem("visualSettings") || "{}");
+  QUESTIONS.forEach(function (q) {
+    var radio = form.querySelector('input[name="' + q.name + '"][value="' + saved[q.name] + '"]');
+    if (radio) {
+      radio.checked = true;
+      updateSelection(q.name);
+    }
+  });
+
   function formatAnswer(value) {
     return value === "yes" ? "Yes" : "No";
   }
@@ -102,6 +112,12 @@
       colorblind: answers.colorblind
     };
     console.log("Visual settings submitted:", submitted);
+    sessionStorage.setItem("visualSettings", JSON.stringify(answers));
+
+    if (answers.lowVision === "no" && answers.colorblind === "yes") {
+      window.location.href = "color-vision.html";
+      return;
+    }
 
     show(confirmBox,
       "<p><strong>Your answers were submitted.</strong></p>" +
@@ -114,6 +130,7 @@
   // Skip if Blind: bypass questions without recording any answer.
   skipButton.addEventListener("click", function () {
     clearErrors();
+    sessionStorage.removeItem("visualSettings");
 
     var submitted = { skipped: true, lowVision: null, colorblind: null };
     console.log("Visual settings skipped:", submitted);
