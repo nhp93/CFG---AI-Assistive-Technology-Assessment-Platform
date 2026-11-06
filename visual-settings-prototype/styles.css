@@ -1,0 +1,217 @@
+/* Visual Settings prototype: high contrast, large text, no animation */
+
+:root {
+  --bg: #ffffff;
+  --text: #000000;
+  --muted-border: #000000;
+  --accent: #003a8c;        /* dark blue, ~11:1 contrast on white */
+  --accent-text: #ffffff;
+  --focus: #ffbf00;         /* amber focus ring */
+  --error-bg: #fff0f0;
+  --error: #a00000;
+  --success-bg: #eefaf0;
+  --success: #0a5a1f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 125%; /* 20px base, scales with user browser settings */
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+}
+
+main {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+}
+
+h1 {
+  font-size: 2.2rem;
+  margin: 0 0 0.75rem;
+}
+
+.intro {
+  font-size: 1.1rem;
+  margin: 0 0 2rem;
+}
+
+/* Questions */
+.question {
+  border: 3px solid var(--muted-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  margin: 0 0 1.75rem;
+}
+
+legend {
+  font-size: 1.4rem;
+  font-weight: bold;
+  padding: 0 0.5rem;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+/* Each radio is wrapped by a large clickable label that looks like a button */
+.option {
+  flex: 1 1 10rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 4rem;
+  padding: 0.75rem 1.25rem;
+  border: 3px solid var(--text);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 1.3rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Keep the native radio visible: it adds a non-color cue for selection */
+.option input[type="radio"] {
+  width: 1.6rem;
+  height: 1.6rem;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--accent-text);
+  cursor: pointer;
+}
+
+/* Selected: color change plus thicker border and a checkmark (not color alone) */
+.option:has(input:checked),
+.option.is-selected {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+  outline: 3px solid var(--text);
+  outline-offset: 2px;
+}
+
+.option.is-selected .option-text::after {
+  content: " \2713 Selected";
+  /* Empty alt text: screen readers already announce "checked" for the radio */
+  content: " \2713 Selected" / "";
+  font-weight: bold;
+}
+
+/* Focus indicators */
+.option:has(input:focus-visible) {
+  box-shadow: 0 0 0 4px var(--bg), 0 0 0 8px var(--focus);
+}
+
+input[type="radio"]:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+/* Action buttons */
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.button {
+  flex: 1 1 12rem;
+  min-height: 4rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.3rem;
+  font-weight: bold;
+  font-family: inherit;
+  border-radius: 8px;
+  border: 3px solid var(--text);
+  cursor: pointer;
+}
+
+.button-primary {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
+
+.button-secondary {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.button:hover {
+  text-decoration: underline;
+}
+
+.button:focus-visible {
+  outline: 4px solid var(--focus);
+  outline-offset: 4px;
+}
+
+/* Messages */
+.message {
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  border-left: 8px solid;
+  border-radius: 4px;
+  font-size: 1.15rem;
+}
+
+.message:focus {
+  outline: 4px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.message-error {
+  background: var(--error-bg);
+  color: var(--error);
+  border-color: var(--error);
+}
+
+.message-success {
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: var(--success);
+}
+
+.message p {
+  margin: 0 0 0.5rem;
+}
+
+.message ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+/* Question flagged as unanswered: thicker red border plus text in error box */
+.question.has-error {
+  border-color: var(--error);
+  border-width: 5px;
+}
+
+/* Users who prefer reduced motion: nothing animates anyway, but be explicit */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Windows High Contrast / forced colors */
+@media (forced-colors: active) {
+  .option.is-selected {
+    border-width: 6px;
+  }
+}
