@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visual Settings</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main id="main">
+    <h1>Visual Settings</h1>
+    <p class="intro">
+      The following questions will help us customize your experience.
+      Choose Yes or No for each question, then select Next.
+    </p>
+
+    <form id="visual-settings-form" novalidate>
+      <fieldset class="question" id="q-low-vision">
+        <legend>1. Are you low vision?</legend>
+        <div class="options">
+          <label class="option">
+            <input type="radio" name="lowVision" value="yes">
+            <span class="option-text">Yes</span>
+          </label>
+          <label class="option">
+            <input type="radio" name="lowVision" value="no">
+            <span class="option-text">No</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset class="question" id="q-colorblind">
+        <legend>2. Are you colorblind?</legend>
+        <div class="options">
+          <label class="option">
+            <input type="radio" name="colorblind" value="yes">
+            <span class="option-text">Yes</span>
+          </label>
+          <label class="option">
+            <input type="radio" name="colorblind" value="no">
+            <span class="option-text">No</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div id="error-message" class="message message-error" role="alert" tabindex="-1" hidden></div>
+
+      <div class="actions">
+        <button type="button" id="skip-button" class="button button-secondary">Skip if Blind</button>
+        <button type="submit" id="next-button" class="button button-primary">Next</button>
+      </div>
+    </form>
+
+    <div id="confirmation-message" class="message message-success" role="status" tabindex="-1" hidden></div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
