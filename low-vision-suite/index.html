@@ -38,25 +38,16 @@
     <main class="test-viewport" role="main">
 
       <!-- ====================================================================
-           TEST 1: CONTRAST PREFERENCE (A/B SPLIT SCREEN)
+           TEST 1: CONTRAST PREFERENCE (FULLSCREEN 2-OPTION SPLIT)
            ==================================================================== -->
-      <section class="test-card active" id="card-test-1" aria-labelledby="t1-heading">
-        <div>
-          <div class="test-meta">
-            <span class="test-pill">Step 1 of 4 &bull; Visual Contrast</span>
-            <span class="audio-hint"><span>🔊</span> Press Space to Replay Audio Prompt</span>
-          </div>
-          <h1 class="test-heading" id="t1-heading">Contrast Preference Check</h1>
-          <p class="test-instruction">
-            Which side is more comfortable and causes less eye strain? Choose the setting that feels easiest on your eyes.
-          </p>
-        </div>
+      <section class="test-card active test-card-split" id="card-test-1" aria-labelledby="t1-heading">
+        <h1 id="t1-heading" class="sr-only">Contrast Preference: White on Black or Yellow on Black</h1>
 
         <!-- 50/50 Fullscreen Horizontal Split Container -->
         <div class="split-contrast-container">
           <!-- Left Card: White on Black [ F ] -->
           <div class="contrast-card white-on-black" id="card-contrast-white" role="button" tabindex="0" aria-label="Select White text on Black background, shortcut F key">
-            <span style="font-size: 0.85rem; font-weight: 700; opacity: 0.8;">Left Option: Classic High Contrast</span>
+            <span class="card-opt-label">Left Option: Classic High Contrast</span>
             <div class="sample-text">Lions Services</div>
             <div class="card-cta-badge">
               <span class="key-cap">[ F ]</span>
@@ -66,24 +57,13 @@
 
           <!-- Right Card: Yellow on Black [ J ] -->
           <div class="contrast-card yellow-on-black" id="card-contrast-yellow" role="button" tabindex="0" aria-label="Select Yellow text on Black background, shortcut J key">
-            <span style="font-size: 0.85rem; font-weight: 700; opacity: 0.8;">Right Option: Anti-Glare Amber</span>
+            <span class="card-opt-label">Right Option: Anti-Glare Amber</span>
             <div class="sample-text">Lions Services</div>
             <div class="card-cta-badge">
               <span class="key-cap">[ J ]</span>
               <span>Yellow on Black</span>
             </div>
           </div>
-        </div>
-
-        <div class="tactile-button-row">
-          <button type="button" class="tactile-btn secondary-f" onclick="document.getElementById('card-contrast-white').click()">
-            <span>Prefer Left (White on Black)</span>
-            <span class="tactile-key-badge">[ F ]</span>
-          </button>
-          <button type="button" class="tactile-btn primary-j" onclick="document.getElementById('card-contrast-yellow').click()">
-            <span>Prefer Right (Yellow on Black)</span>
-            <span class="tactile-key-badge">[ J ]</span>
-          </button>
         </div>
       </section>
 
