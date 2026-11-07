@@ -3,7 +3,7 @@ import { navigate, useStored } from '../prefs.js'
 import { patchCurrentVision } from '../sessions/store'
 
 export default function Acuity() {
-  const [answer, setAnswer] = useStored('acuityAtLeast2070', '')
+  const [answer, setAnswer] = useState('')
   const [error, setError] = useState(false)
   const headingRef = useRef(null)
   const errorRef = useRef(null)

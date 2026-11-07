@@ -1,75 +1,106 @@
 // Color-vision routing gate before the adaptive vision assessment.
 import { useEffect, useRef, useState } from 'react'
-import { applyPalette, navigate, save, useStored } from '../prefs.js'
+import { applyPalette, navigate, save } from '../prefs.js'
 import { patchCurrentVision } from '../sessions/store'
 
 export default function VisualSettings() {
-  const [flow, setFlow] = useStored('visualFlow', {})
+  const [choice, setChoice] = useState('')
   const [error, setError] = useState(false)
-  const formRef = useRef(null)
+  const headingRef = useRef(null)
   const errorRef = useRef(null)
 
   useEffect(() => {
-    if (flow.colorblind === 'yes' || flow.colorblind === 'no') {
-      patchCurrentVision({ colorVisionDifference: flow.colorblind })
-    }
-  }, [flow.colorblind])
-
-  // F selects Yes, J selects No, and Space advances when focus is outside a control.
-  useEffect(() => {
-    function onKey(e) {
-      if (e.altKey || e.ctrlKey || e.metaKey) return
-      if (e.code === 'Space') {
-        if (e.target.closest('button, input, select, textarea, a')) return
-        e.preventDefault()
-        formRef.current.requestSubmit()
-        return
-      }
-      const value = { f: 'yes', j: 'no' }[e.key.toLowerCase()]
-      if (!value) return
-      e.preventDefault()
-      formRef.current.querySelector(`input[value="${value}"]`).click()
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
+    headingRef.current?.focus()
   }, [])
 
-  function submit(e) {
+  function selectChoice(value) {
+    setChoice(value)
+    patchCurrentVision({ colorVisionDifference: value })
+    setError(false)
+  }
+
+  function handleContinue(e) {
     e.preventDefault()
-    if (!flow.colorblind) {
+    if (!choice) {
       setError(true)
-      return setTimeout(() => errorRef.current?.focus())
+      setTimeout(() => errorRef.current?.focus(), 50)
+      return
     }
-    // Start each person's color palette questions from the neutral palette.
+
     save('palette', 'standard')
     applyPalette('standard')
-    navigate(flow.colorblind === 'yes' ? '/color-vision' : '/assessment')
+    if (choice === 'yes') {
+      navigate('/color-vision')
+    } else {
+      navigate('/assessment')
+    }
   }
 
   return (
-    <main id="main">
-      <h1 tabIndex={-1}>Do you have color blindness or a color-vision difference?</h1>
-      <p className="intro">Your answer helps us personalize the colors used in the assessment. This is not a medical test.</p>
-      <form ref={formRef} onSubmit={submit} noValidate>
-        <fieldset className="question" aria-describedby="shortcut-hint">
-          <legend>Choose one answer</legend>
-          <div className="options">
-            {['yes', 'no'].map((v) => (
-              <label key={v} className="option">
-                <input type="radio" name="colorblind" value={v} checked={flow.colorblind === v}
-                  onChange={() => { setFlow({ colorblind: v }); setError(false) }} />
-                <span className="option-text">{v === 'yes' ? 'Yes' : 'No'}</span>
-              </label>
-            ))}
-          </div>
-          <p id="shortcut-hint" className="shortcut-hint">Keyboard shortcuts: F = Yes, J = No, Space = Next. Standard radio-button keys also work.</p>
-          <div ref={errorRef} className="message message-error" role="alert" tabIndex={-1} hidden={!error}>Please choose Yes or No to continue.</div>
-        </fieldset>
-        <div className="actions">
-          <button type="button" className="button button-secondary" onClick={() => navigate('/acuity')}>Back</button>
-          <button type="submit" className="button button-primary">Next</button>
+    <main id="main-content" role="main" className="page-shell">
+      <article className="tactile-card triage-card" aria-labelledby="colorblind-heading">
+        <div className="mcq-top-row">
+          <span className="step-badge">Visual Comfort Check</span>
+          <span className="branch-badge">Color Vision Check</span>
         </div>
-      </form>
+
+        <h1 id="colorblind-heading" ref={headingRef} tabIndex={-1} className="mcq-question-title">
+          Do you have color blindness or a color-vision difference?
+        </h1>
+
+        <p className="intro readable">
+          Your answer helps us personalize the colors and contrast used in the assessment. This is not a medical test.
+        </p>
+
+        <ul className="mcq-options-list" role="list">
+          <li className="mcq-option-item">
+            <button
+              type="button"
+              className={`tactile-btn mcq-option-btn ${choice === 'yes' ? 'selected' : ''}`}
+              aria-pressed={choice === 'yes'}
+              onClick={() => selectChoice('yes')}
+            >
+              <span className="option-indicator" aria-hidden="true">{choice === 'yes' ? '●' : '○'}</span>
+              <div className="option-content">
+                <span className="option-label">Yes — I have a color-vision difference</span>
+                <span className="option-desc">I have trouble distinguishing certain colors, such as red/green or blue/yellow. Let me choose a custom palette.</span>
+              </div>
+              {choice === 'yes' && <span className="selection-pill" aria-hidden="true">✓ Selected</span>}
+            </button>
+          </li>
+
+          <li className="mcq-option-item">
+            <button
+              type="button"
+              className={`tactile-btn mcq-option-btn ${choice === 'no' ? 'selected' : ''}`}
+              aria-pressed={choice === 'no'}
+              onClick={() => selectChoice('no')}
+            >
+              <span className="option-indicator" aria-hidden="true">{choice === 'no' ? '●' : '○'}</span>
+              <div className="option-content">
+                <span className="option-label">No — Standard color vision</span>
+                <span className="option-desc">I can distinguish colors normally, or I prefer standard high-contrast styling.</span>
+              </div>
+              {choice === 'no' && <span className="selection-pill" aria-hidden="true">✓ Selected</span>}
+            </button>
+          </li>
+        </ul>
+
+        {error && (
+          <div ref={errorRef} className="message message-error" role="alert" tabIndex={-1}>
+            Please select Yes or No to continue.
+          </div>
+        )}
+
+        <div className="mcq-footer-actions">
+          <button type="button" className="tactile-btn secondary-btn" onClick={() => navigate('/acuity')}>
+            ← Back
+          </button>
+          <button type="button" className="tactile-btn primary-btn mcq-next-btn" onClick={handleContinue}>
+            Continue →
+          </button>
+        </div>
+      </article>
     </main>
   )
 }

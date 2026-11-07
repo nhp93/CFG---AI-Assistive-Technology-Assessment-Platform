@@ -62,6 +62,33 @@ export default function McqQuestionCard({
           <span className="branch-badge">Adaptive Assessment</span>
         </div>
 
+        {/* Tactile Segmented Progress Pill Bar */}
+        <div
+          className="segmented-progress-track"
+          role="progressbar"
+          aria-valuenow={step}
+          aria-valuemin={1}
+          aria-valuemax={totalSteps}
+          aria-label={`Question progress: ${step} of ${totalSteps}`}
+        >
+          {Array.from({ length: totalSteps }, (_, i) => {
+            const stepNum = i + 1
+            const isCompleted = stepNum < step
+            const isCurrent = stepNum === step
+            return (
+              <div
+                key={i}
+                className={`progress-segment ${isCompleted ? 'segment-completed' : ''} ${isCurrent ? 'segment-current' : ''}`}
+                title={`Step ${stepNum} of ${totalSteps}${isCompleted ? ' (Completed)' : isCurrent ? ' (Current)' : ''}`}
+              >
+                <span className="segment-label" aria-hidden="true">
+                  {isCompleted ? '✓' : stepNum}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+
         <h1
           id="question-heading"
           ref={headingRef}

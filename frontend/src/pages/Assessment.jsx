@@ -192,75 +192,120 @@ export default function Assessment() {
   else sample = <p className="sample" style={option[1]}>{TEXT}</p>
 
   return (
-    <main id="main">
-      <h1 tabIndex={-1}>Adaptive Vision Assessment</h1>
-      <p className="intro readable">
-        Try a few settings and tell us whether each one feels comfortable. Your answers help set up the website for you.
-        This is a comfort check, not a medical or vision test.
-      </p>
+    <main id="main-content" role="main" className="page-shell">
+      <article className="tactile-card mcq-card" aria-labelledby="assessment-heading">
+        <div className="mcq-top-row">
+          <span className="step-badge">Module {m + 1} of {MODULES.length}</span>
+          <span className="branch-badge">{mod.name} Calibration</span>
+        </div>
 
-      <p className="progress" aria-live="polite">Module {m + 1} of {MODULES.length}: {mod.name}</p>
-      {!confirming && <p className="shortcut-hint">Select Yes or No with your mouse or keyboard.</p>}
-      {speechChoice !== null && window.speechSynthesis && (
-        <>
-          <div className="actions">
-            <button type="button" className="button button-secondary"
-              onClick={() => speak(titleRef.current.textContent + '. ' + bodyRef.current.textContent, MODULES[2].options[speechChoice][1])}>
-              Hear these instructions at {MODULES[2].options[speechChoice][0]}
-            </button>
-            <button type="button" className="button button-secondary" onClick={stopSpeech}>Stop speech</button>
+        <h1 id="assessment-heading" tabIndex={-1} className="mcq-question-title">
+          Adaptive Vision Calibration
+        </h1>
+        <p className="intro readable">
+          Try a few settings and tell us whether each one feels comfortable. Your answers help set up the website for you.
+          This is a comfort check, not a medical or vision test.
+        </p>
+
+        {speechChoice !== null && window.speechSynthesis && (
+          <div style={{ margin: '1rem 0' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <button
+                type="button"
+                className="tactile-btn secondary-btn"
+                onClick={() => speak(titleRef.current.textContent + '. ' + bodyRef.current.textContent, MODULES[2].options[speechChoice][1])}
+              >
+                🔊 Hear these instructions at {MODULES[2].options[speechChoice][0]}
+              </button>
+              <button type="button" className="tactile-btn secondary-btn" onClick={stopSpeech}>Stop speech</button>
+            </div>
+            <small style={{ color: 'var(--text-muted)', display: 'block', marginTop: '0.35rem' }}>Pause your screen reader before playing speech.</small>
           </div>
-          <p>Pause your screen reader before playing speech.</p>
-        </>
-      )}
-      <section className="applied-settings" aria-live="polite" hidden={!progress.length}>
-        <h2>Progress and saved settings</h2>
-        <ul>{progress.map((line) => <li key={line}>{line}</li>)}</ul>
-      </section>
+        )}
 
-      <section className="question" aria-labelledby="step-title">
-        <h2 id="step-title" tabIndex={-1} ref={titleRef}>
-          {confirming ? `Choose your preferred ${mod.name.toLowerCase()} setting` : mod.q}
-        </h2>
-        <div ref={bodyRef}>
-          {confirming ? (
-            <>
-              <p>{firstYes
-                ? 'Pick the option you prefer. It does not have to be the smallest or fastest one that worked.'
-                : 'None of the options you tried felt comfortable. Choose the closest one, or select Skip.'}</p>
-              <div className="options" role="radiogroup" aria-labelledby="step-title">
-                {mod.options.map(([label], k) => {
-                  const t = rec.tested.find((x) => x[0] === k)
-                  return (
-                    <label key={label} className="option">
-                      <input type="radio" name="choice" checked={k === cur}
-                        onChange={() => update((s, r) => { r.draftChoice = k }, false)} />
-                      <span className="option-text">{label} ({t ? (t[1] ? 'comfortable' : 'not comfortable') : 'not tried'})</span>
-                    </label>
-                  )
-                })}
-              </div>
-            </>
-          ) : <p>Now showing: <strong>{option[0]}</strong></p>}
+        <section className="applied-settings" aria-live="polite" hidden={!progress.length} style={{ margin: '1rem 0', padding: '0.85rem', backgroundColor: 'var(--bg-elevated)', borderRadius: '0.4rem', border: '0.12rem solid var(--border-color)' }}>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '0.4rem' }}>Progress and saved settings</h2>
+          <ul style={{ paddingLeft: '1.2rem', margin: 0 }}>{progress.map((line) => <li key={line}>{line}</li>)}</ul>
+        </section>
+
+        <section className="question" aria-labelledby="step-title" style={{ margin: '1.5rem 0' }}>
+          <h2 id="step-title" tabIndex={-1} ref={titleRef} style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '0.75rem' }}>
+            {confirming ? `Choose your preferred ${mod.name.toLowerCase()} setting` : mod.q}
+          </h2>
+          <div ref={bodyRef}>
+            {confirming ? (
+              <>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '1rem' }}>
+                  {firstYes
+                    ? 'Pick the option you prefer. It does not have to be the smallest or fastest one that worked.'
+                    : 'None of the options you tried felt comfortable. Choose the closest one, or select Skip.'}
+                </p>
+                <ul className="mcq-options-list" role="radiogroup" aria-labelledby="step-title">
+                  {mod.options.map(([label], k) => {
+                    const t = rec.tested.find((x) => x[0] === k)
+                    const isChecked = k === cur
+                    return (
+                      <li key={label} className="mcq-option-item">
+                        <button
+                          type="button"
+                          className={`tactile-btn mcq-option-btn ${isChecked ? 'selected' : ''}`}
+                          aria-pressed={isChecked}
+                          onClick={() => update((s, r) => { r.draftChoice = k }, false)}
+                        >
+                          <span className="option-indicator" aria-hidden="true">{isChecked ? '●' : '○'}</span>
+                          <div className="option-content">
+                            <span className="option-label" style={{ fontWeight: 800 }}>{label}</span>
+                            <span className="option-desc" style={{ color: 'var(--text-muted)' }}>
+                              {t ? (t[1] ? '✓ Comfortable' : '✕ Not comfortable') : 'Not tried yet'}
+                            </span>
+                          </div>
+                          {isChecked && <span className="selection-pill" aria-hidden="true">✓ Selected</span>}
+                        </button>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </>
+            ) : <p style={{ fontSize: '1.15rem', marginBottom: '1rem' }}>Now testing: <strong>{option[0]}</strong></p>}
+          </div>
+          <div style={{ padding: '1rem', backgroundColor: 'var(--bg-elevated)', border: '0.12rem solid var(--border-color)', borderRadius: '0.45rem', margin: '1rem 0' }}>
+            {sample}
+          </div>
+        </section>
+
+        <div ref={errorRef} className="message message-error" role="alert" tabIndex={-1} hidden={!error}>{error}</div>
+
+        {!confirming && (
+          <div style={{ display: 'flex', gap: '1rem', margin: '1.25rem 0' }}>
+            <button
+              type="button"
+              className="tactile-btn primary-btn"
+              style={{ minWidth: '7rem', fontSize: '1.15rem' }}
+              onClick={() => answer(true)}
+            >
+              ✓ Yes (Comfortable)
+            </button>
+            <button
+              type="button"
+              className="tactile-btn secondary-btn"
+              style={{ minWidth: '7rem', fontSize: '1.15rem' }}
+              onClick={() => answer(false)}
+            >
+              ✕ No (Not Comfortable)
+            </button>
+          </div>
+        )}
+
+        <div className="mcq-footer-actions">
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button type="button" className="tactile-btn secondary-btn" onClick={back}>Back</button>
+            <button type="button" className="tactile-btn secondary-btn" onClick={skip}>Skip</button>
+          </div>
+          <button type="button" className="tactile-btn primary-btn mcq-next-btn" onClick={next}>
+            {!confirming ? 'Choose preference' : m === LAST ? 'See results →' : 'Next module →'}
+          </button>
         </div>
-        {sample}
-      </section>
-
-      <div ref={errorRef} className="message message-error" role="alert" tabIndex={-1} hidden={!error}>{error}</div>
-
-      {!confirming && (
-        <div className="actions">
-          <button type="button" className="button button-secondary" onClick={() => answer(true)}>Yes</button>
-          <button type="button" className="button button-secondary" onClick={() => answer(false)}>No</button>
-        </div>
-      )}
-      <div className="actions">
-        <button type="button" className="button button-secondary" onClick={back}>Back</button>
-        <button type="button" className="button button-secondary" onClick={skip}>Skip</button>
-        <button type="button" className="button button-primary" onClick={next}>
-          {!confirming ? 'Choose preference' : m === LAST ? 'See results' : 'Next module'}
-        </button>
-      </div>
+      </article>
     </main>
   )
 }
@@ -305,22 +350,33 @@ export function Results() {
   }
 
   return (
-    <main id="main">
-      <h1 tabIndex={-1}>Your Results</h1>
-      <p className="intro readable">Here are the visual comfort settings you selected.</p>
+    <main id="main-content" role="main" className="page-shell">
+      <article className="tactile-card mcq-card" aria-labelledby="results-heading">
+        <div className="mcq-top-row">
+          <span className="step-badge">Visual Check Complete</span>
+          <span className="branch-badge">Confirmed Preferences</span>
+        </div>
 
-      <section className="question" aria-labelledby="results-heading">
-        <h2 id="results-heading">Your visual comfort preferences</h2>
-        {visualPreferences.length
-          ? <ul>{visualPreferences.map(({ label, value }) => <li key={label}>{label}: <strong>{value}</strong></li>)}</ul>
-          : <p>No preferences were confirmed. You can return to the vision assessment to choose settings.</p>}
-      </section>
+        <h1 id="results-heading" tabIndex={-1} className="mcq-question-title">Your Visual Comfort Settings</h1>
+        <p className="intro readable">Here are the screen and comfort preferences you selected.</p>
 
-      <div className="actions">
-        <button type="button" className="button button-secondary" onClick={() => navigate('/assessment')}>Back</button>
-        <button type="button" className="button button-primary" onClick={startSkillsAssessment}>Continue to Adaptive Assessment →</button>
-        <button type="button" className="button button-secondary" onClick={startOver}>Start over</button>
-      </div>
+        <section style={{ margin: '1.5rem 0', padding: '1.25rem', backgroundColor: 'var(--bg-elevated)', borderRadius: '0.5rem', border: '0.12rem solid var(--border-color)' }}>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '0.75rem' }}>Your visual comfort preferences</h2>
+          {visualPreferences.length
+            ? <ul style={{ paddingLeft: '1.4rem' }}>{visualPreferences.map(({ label, value }) => <li key={label} style={{ marginBottom: '0.4rem' }}>{label}: <strong>{value}</strong></li>)}</ul>
+            : <p>No preferences were confirmed. You can return to the vision assessment to choose settings.</p>}
+        </section>
+
+        <div className="mcq-footer-actions">
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            <button type="button" className="tactile-btn secondary-btn" onClick={() => navigate('/assessment')}>Back</button>
+            <button type="button" className="tactile-btn secondary-btn" onClick={startOver}>Start over</button>
+          </div>
+          <button type="button" className="tactile-btn primary-btn mcq-next-btn" onClick={startSkillsAssessment}>
+            Continue to Adaptive Assessment →
+          </button>
+        </div>
+      </article>
     </main>
   )
 }

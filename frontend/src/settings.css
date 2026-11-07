@@ -434,7 +434,47 @@ html[data-theme="dark"] select {
 .mcq-option-btn.selected {
   background-color: var(--bg-elevated);
   border-color: var(--border-color);
+  border-left: 0.45rem solid var(--btn-accent-bg);
   box-shadow: -0.45rem 0.45rem 0px var(--border-color);
+}
+
+/* 7b. Segmented Progress Pill Bar */
+.segmented-progress-track {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  margin: 0.85rem 0 1.5rem 0;
+}
+
+.progress-segment {
+  flex: 1;
+  height: 2.2rem;
+  background-color: var(--bg-elevated);
+  border: 0.15rem solid var(--border-color);
+  border-radius: 0.45rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  box-shadow: -0.15rem 0.15rem 0px var(--shadow-color);
+  transition: all 0.15s ease;
+}
+
+.progress-segment.segment-completed {
+  background-color: var(--btn-accent-bg);
+  color: var(--btn-accent-fg);
+  border-color: var(--border-color);
+  box-shadow: -0.25rem 0.25rem 0px var(--shadow-color);
+}
+
+.progress-segment.segment-current {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  border: 0.2rem solid var(--focus-color);
+  box-shadow: -0.3rem 0.3rem 0px var(--focus-color);
+  transform: scale(1.03);
 }
 
 .option-indicator {
