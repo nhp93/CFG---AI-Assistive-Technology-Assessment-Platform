@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { load, navigate, save } from './prefs.js'
+import { applyFontSize, load, navigate, save } from './prefs.js'
 import Home from './pages/Home.jsx'
 import Acuity from './pages/Acuity.jsx'
 import AcuityNotRequired from './pages/AcuityNotRequired.jsx'
@@ -101,6 +101,10 @@ export default function App() {
     const savedCursor = load('cursorPreference', 'high')
     if (savedCursor) {
       document.documentElement.dataset.assessmentCursor = savedCursor
+    }
+    const savedFontSize = load('fontSize', null)
+    if (savedFontSize) {
+      applyFontSize(Number(savedFontSize))
     }
   }, [])
 

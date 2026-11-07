@@ -135,14 +135,14 @@ html[data-assessment-cursor="high"] textarea {
 }
 
 html.home {
-  font-size: 112.5%;
+  font-size: var(--app-base-font-size, 112.5%);
   min-height: 100vh;
   overflow-x: hidden; /* Prevent horizontal overflow */
 }
 
 html.home.large-text,
 html.large-text {
-  font-size: 150% !important;
+  font-size: var(--app-large-font-size, 150%) !important;
 }
 
 html.home body {

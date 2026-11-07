@@ -30,7 +30,17 @@ export function useStored(key, initial) {
 }
 
 const root = document.documentElement
-export const applyFontSize = (px) => root.style.setProperty('--text-size', px + 'px')
+export const applyFontSize = (px) => {
+  if (!px) return
+  const num = typeof px === 'number' ? px : parseInt(px, 10)
+  if (isNaN(num)) return
+  const basePct = (num / 16) * 100
+  const largePct = basePct * 1.33
+  root.style.setProperty('--app-base-font-size', `${basePct}%`)
+  root.style.setProperty('--app-large-font-size', `${largePct}%`)
+  root.style.setProperty('--text-size', num + 'px')
+  save('fontSize', num)
+}
 export const applyPalette = (name) => { root.dataset.palette = name }
 export const applyZoom = (level) => root.style.setProperty('--zoom-multiplier', level)
 

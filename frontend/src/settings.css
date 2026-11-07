@@ -4,7 +4,7 @@
 
 /* 1. Proportional Root Sizing */
 html {
-  font-size: 112.5%; /* 1rem = 18px base */
+  font-size: var(--app-base-font-size, 112.5%); /* 1rem = 18px base fallback */
   box-sizing: border-box;
   -webkit-text-size-adjust: 100%;
 }
@@ -12,7 +12,7 @@ html {
 html.large-text,
 html.home.large-text,
 html.staff.large-text {
-  font-size: 150% !important; /* 1rem = 24px - proportional scaling across the entire UI */
+  font-size: var(--app-large-font-size, 150%) !important; /* proportional scaling across the entire UI */
 }
 
 *, *::before, *::after {

@@ -91,6 +91,10 @@ export default function Assessment() {
 
   useEffect(() => {
     applyAssessment(state, baseFontSize)
+    if (m === 0 && cur !== null && MODULES[0]?.options?.[cur]) {
+      const activeSize = MODULES[0].options[cur][1].fontSize
+      applyFontSize(activeSize)
+    }
     if (m === 3 && cur !== null && MODULES[3]?.options?.[cur]) {
       const activeCursor = MODULES[3].options[cur][1]
       document.documentElement.dataset.assessmentCursor = activeCursor
@@ -186,8 +190,15 @@ export default function Assessment() {
       <p>If you use a screen reader, pause it before playing the sample.</p>
       {window.speechSynthesis ? (
         <div className="actions">
-          <button type="button" className="button button-secondary" onClick={() => speak(SPEECH, option[1])}>Play sample at {option[0]}</button>
-          <button type="button" className="button button-secondary" onClick={stopSpeech}>Stop</button>
+          <button 
+  type="button" 
+  className="button button-secondary" 
+  style={{ padding: '12px 24px', fontSize: '18px' }}
+  onClick={() => speak(SPEECH, option[1])}
+>
+  Play sample at {option[0]}
+</button>
+          <button type="button" className="button button-secondary" style={{ padding: '12px 24px', fontSize: '18px' }} onClick={stopSpeech}>Stop</button>
         </div>
       ) : <p>Speech is not available in this browser. Please select Skip.</p>}
     </>
