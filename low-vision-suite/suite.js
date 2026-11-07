@@ -168,7 +168,8 @@
       } else if (testNumber === 2) {
         this.renderLadderStep(1);
       } else if (testNumber === 3) {
-        document.body.className = 'cursor-giant-green';
+        document.body.classList.remove('cursor-giant-yellow');
+        document.body.classList.add('cursor-giant-green');
         store.cursor_profile = "giant-green-48px";
         this.playPrompt(
           "Test 3: Mouse Cursor Locator. Can you clearly see the large neon-green mouse cursor on the screen? " +
@@ -218,10 +219,14 @@
       store.contrast_theme = choice;
 
       if (choice === 'white-on-black') {
+        document.body.classList.remove('theme-yellow-on-black');
+        document.body.classList.add('theme-white-on-black');
         document.documentElement.style.setProperty('--bg-primary', '#000000');
         document.documentElement.style.setProperty('--text-primary', '#FFFFFF');
         document.documentElement.style.setProperty('--border-primary', '#FFFFFF');
       } else {
+        document.body.classList.remove('theme-white-on-black');
+        document.body.classList.add('theme-yellow-on-black');
         document.documentElement.style.setProperty('--bg-primary', '#000000');
         document.documentElement.style.setProperty('--text-primary', '#FFD700');
         document.documentElement.style.setProperty('--border-primary', '#FFD700');
@@ -277,13 +282,15 @@
         // [ J ]: Clearly visible
         store.cursor_profile = "giant-green-48px";
         store.mouse_tracking_difficulty = false;
-        document.body.className = 'cursor-giant-green';
+        document.body.classList.remove('cursor-giant-yellow');
+        document.body.classList.add('cursor-giant-green');
         this.goToTest(4);
       } else {
         // [ F ]: Cannot see easily -> Upscale to 64px Giant Amber
         store.cursor_profile = "giant-yellow-64px";
         store.mouse_tracking_difficulty = true;
-        document.body.className = 'cursor-giant-yellow';
+        document.body.classList.remove('cursor-giant-green');
+        document.body.classList.add('cursor-giant-yellow');
 
         const flagBanner = document.getElementById('tracking-difficulty-banner');
         flagBanner.classList.add('show');

@@ -19,6 +19,27 @@
   --cursor-yellow-64: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'><path d='M8 4 L8 52 L22 38 L36 58 L44 53 L30 33 L48 33 Z' fill='%23FFD700' stroke='%23000000' stroke-width='4' stroke-linejoin='round'/></svg>") 8 4, auto;
 }
 
+/* Dynamic Theme Profiles (White-on-Black vs Yellow-on-Black) */
+body.theme-white-on-black {
+  --bg-primary: #000000;
+  --text-primary: #FFFFFF;
+  --border-primary: #FFFFFF;
+  --ladder-badge-bg: #222222;
+  --btn-primary-bg: linear-gradient(135deg, #FFFFFF 0%, #D4D4D4 100%);
+  --btn-primary-text: #000000;
+  --btn-primary-glow: rgba(255, 255, 255, 0.4);
+}
+
+body.theme-yellow-on-black {
+  --bg-primary: #000000;
+  --text-primary: #FFD700;
+  --border-primary: #FFD700;
+  --ladder-badge-bg: #221c00;
+  --btn-primary-bg: linear-gradient(135deg, #FFE853 0%, #FFD700 100%);
+  --btn-primary-text: #000000;
+  --btn-primary-glow: rgba(255, 215, 0, 0.4);
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -328,13 +349,19 @@ body.cursor-giant-yellow a {
   font-weight: 600;
 }
 
+.ladder-instruction {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
 .ladder-badge {
-  background-color: #221c00;
-  color: #FFD700;
-  border: 1px solid #FFD700;
+  background-color: var(--ladder-badge-bg, #221c00);
+  color: var(--text-primary);
+  border: 1px solid var(--border-primary);
   padding: 0.2rem 0.6rem;
   border-radius: 4px;
   font-weight: 800;
+  transition: all 0.2s ease;
 }
 
 /* ==========================================================================
@@ -447,14 +474,20 @@ body.cursor-giant-yellow a {
 }
 
 .tactile-btn.primary-j {
-  border-color: #FFD700;
-  background: linear-gradient(135deg, #FFE853 0%, #FFD700 100%);
-  color: #000000;
+  border-color: var(--border-primary);
+  background: var(--btn-primary-bg, linear-gradient(135deg, #FFE853 0%, #FFD700 100%));
+  color: var(--btn-primary-text, #000000);
   font-weight: 800;
 }
 
 .tactile-btn.primary-j:hover {
-  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+  box-shadow: 0 6px 20px var(--btn-primary-glow, rgba(255, 215, 0, 0.4));
+}
+
+.tactile-btn.primary-j .tactile-key-badge {
+  border-color: #000000;
+  background-color: #000000;
+  color: var(--text-primary);
 }
 
 .tactile-btn.secondary-f {
