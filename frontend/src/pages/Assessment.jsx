@@ -32,8 +32,14 @@ function applyAssessment(state, baseFontSize) {
   else root.dataset.assessmentContrast = contrast
   if (speech === null) localStorage.removeItem('speechRate')
   else save('speechRate', MODULES[2].options[speech][1])
-  if (cursor === null) delete root.dataset.assessmentCursor
-  else root.dataset.assessmentCursor = MODULES[3].options[cursor][1]
+  if (cursor === null) {
+    const fallback = load('cursorPreference', 'high')
+    root.dataset.assessmentCursor = fallback
+  } else {
+    const cursorVal = MODULES[3].options[cursor][1]
+    root.dataset.assessmentCursor = cursorVal
+    save('cursorPreference', cursorVal)
+  }
 }
 
 function speak(text, rate) {
@@ -82,7 +88,14 @@ export default function Assessment() {
   const speechChoice = selected(state.recs[2])
   const colorblind = load('visualFlow', {}).colorblind
 
-  useEffect(() => applyAssessment(state, baseFontSize), [state, baseFontSize])
+  useEffect(() => {
+    applyAssessment(state, baseFontSize)
+    if (m === 3 && cur !== null && MODULES[3]?.options?.[cur]) {
+      const activeCursor = MODULES[3].options[cur][1]
+      document.documentElement.dataset.assessmentCursor = activeCursor
+      save('cursorPreference', activeCursor)
+    }
+  }, [state, baseFontSize, m, cur])
   useEffect(() => stopSpeech, [m, cur])
   useEffect(() => {
     trialStartRef.current = Date.now()
