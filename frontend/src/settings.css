@@ -9,8 +9,10 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
-html.large-text {
-  font-size: 150%; /* 1rem = 24px - proportional scaling across the entire UI */
+html.large-text,
+html.home.large-text,
+html.staff.large-text {
+  font-size: 150% !important; /* 1rem = 24px - proportional scaling across the entire UI */
 }
 
 *, *::before, *::after {

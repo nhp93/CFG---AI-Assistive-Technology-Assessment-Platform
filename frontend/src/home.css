@@ -40,17 +40,24 @@ html.home button:hover, html.home a:hover, html.home [role="button"]:hover {
   padding: 0;
 }
 
-html.home, html.home body {
+html.home {
+  font-size: 112.5%;
   min-height: 100vh;
   overflow-x: hidden; /* Prevent horizontal overflow */
 }
 
-html.home, html.home body {
-  font-size: var(--calculated-font-size);
+html.home.large-text,
+html.large-text {
+  font-size: 150% !important;
+}
+
+html.home body {
+  min-height: 100vh;
+  font-size: 1rem;
   background-color: var(--bg-canvas);
   color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  line-height: 1.45;
+  line-height: 1.5;
   letter-spacing: 0.012em;
   
   /* Smooth Font Antialiasing */
@@ -60,7 +67,7 @@ html.home, html.home body {
 }
 
 html.home #root {
-  height: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -227,32 +234,32 @@ html.home #root {
 */
 .main-viewport {
   flex: 1;
-  max-width: 900px;
+  max-width: 52rem;
   width: 100%;
   margin: 0 auto;
-  padding: 0.5rem 1.25rem;
+  padding: 1.5rem 1.25rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: stretch;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .card-container {
   background-color: var(--bg-surface);
   border: 0.15rem solid var(--border-color);
   border-radius: 0.5rem;
-  padding: clamp(1.8rem, 4.2vh, 2.8rem) clamp(1.5rem, 3.2vw, 2.5rem);
+  padding: 2.2rem 2.4rem;
   box-shadow: -0.35rem 0.35rem 0px var(--shadow-color);
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: clamp(320px, 46vh, 440px);
+  min-height: auto;
 }
 
 .card-badge-row {
-  margin-bottom: clamp(0.75rem, 1.8vh, 1.25rem);
+  margin-bottom: 1rem;
 }
 
 .step-pill {
@@ -262,25 +269,25 @@ html.home #root {
   border: 0.12rem solid var(--border-color);
   padding: 0.25rem 0.85rem;
   border-radius: 9999px;
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 800;
   letter-spacing: 0.04em;
 }
 
 .welcome-heading {
-  font-size: clamp(1.4rem, 3.2vh, 1.85rem);
+  font-size: 1.85rem;
   font-weight: 800;
   line-height: 1.28;
-  margin-bottom: clamp(0.75rem, 1.8vh, 1.2rem);
+  margin-bottom: 1rem;
   color: var(--text-primary);
 }
 
 .instruction-paragraph {
-  font-size: clamp(0.98rem, 2.1vh, 1.15rem);
+  font-size: 1.15rem;
   line-height: 1.55;
-  margin-bottom: clamp(0.8rem, 2vh, 1.4rem);
+  margin-bottom: 1.25rem;
   color: var(--text-primary);
-  max-width: 760px;
+  max-width: 48rem;
 }
 
 .participant-field {
@@ -341,7 +348,7 @@ html[data-theme="dark"] .participant-field input {
 .action-group {
   display: flex;
   flex-direction: column;
-  margin-top: 0.5rem;
+  margin-top: 0.8rem;
 }
 
 /* Primary Action: Appealing Modern CTA */
@@ -349,8 +356,8 @@ html[data-theme="dark"] .participant-field input {
   background-color: var(--btn-accent-bg) !important;
   color: var(--btn-accent-fg) !important;
   border: 0.15rem solid var(--border-color) !important;
-  padding: clamp(1rem, 2.2vh, 1.35rem) clamp(1.4rem, 2.8vw, 2rem);
-  min-height: clamp(62px, 8.5vh, 76px);
+  padding: 1.15rem 1.75rem;
+  min-height: 4.5rem;
   border-radius: 0.5rem;
   display: flex;
   align-items: center;
