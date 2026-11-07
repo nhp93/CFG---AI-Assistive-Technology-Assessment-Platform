@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lions Services - Low-Vision Calibration Suite (20/70)</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="cursor-giant-green">
+
+  <div class="suite-app">
+    
+    <!-- Top Progress & Routing Simulation Bar -->
+    <header class="suite-header" role="banner">
+      <div class="suite-title-group">
+        <span class="brand-badge">Lions Services</span>
+        <span class="suite-title">Low-Vision Calibration Suite</span>
+      </div>
+
+      <!-- Step Indicator Pips -->
+      <div class="step-tracker" role="navigation" aria-label="Calibration Steps">
+        <div class="step-pip active" data-step="1" title="Step 1: Contrast Preference">1</div>
+        <div class="step-pip" data-step="2" title="Step 2: 20/70 Font Ladder">2</div>
+        <div class="step-pip" data-step="3" title="Step 3: Giant Cursor Check">3</div>
+        <div class="step-pip" data-step="4" title="Step 4: Amsler Grid Check">4</div>
+        <div class="step-pip" data-step="5" title="Summary Telemetry">✓</div>
+      </div>
+
+      <!-- Routing Simulator & Staff Emergency Button -->
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <button type="button" class="staff-btn" id="route-force-suite" title="Simulate Candidate with 20/70 or worse acuity">
+          [ 20/70 Route ]
+        </button>
+        <button type="button" class="staff-btn" id="route-force-bypass" title="Simulate Candidate with better than 20/70 acuity">
+          [ Bypass Route ]
+        </button>
+        <button type="button" class="staff-btn" id="btn-staff-help" aria-haspopup="dialog" style="border-color: #39FF14; color: #39FF14;">
+          [ Esc ] Staff Help
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Viewport containing the 4 Sequential Test Cards -->
+    <main class="test-viewport" role="main">
+
+      <!-- ====================================================================
+           TEST 1: CONTRAST PREFERENCE (A/B SPLIT SCREEN)
+           ==================================================================== -->
+      <section class="test-card active" id="card-test-1" aria-labelledby="t1-heading">
+        <div>
+          <div class="test-meta">
+            <span class="test-pill">Step 1 of 4 &bull; Visual Contrast</span>
+            <span class="audio-hint"><span>🔊</span> Press Space to Replay Audio Prompt</span>
+          </div>
+          <h1 class="test-heading" id="t1-heading">Contrast Preference Check</h1>
+          <p class="test-instruction">
+            Which side is more comfortable and causes less eye strain? Choose the setting that feels easiest on your eyes.
+          </p>
+        </div>
+
+        <!-- 50/50 Fullscreen Horizontal Split Container -->
+        <div class="split-contrast-container">
+          <!-- Left Card: White on Black [ F ] -->
+          <div class="contrast-card white-on-black" id="card-contrast-white" role="button" tabindex="0" aria-label="Select White text on Black background, shortcut F key">
+            <span style="font-size: 0.85rem; font-weight: 700; opacity: 0.8;">Left Option: Classic High Contrast</span>
+            <div class="sample-text">Lions Services</div>
+            <div class="card-cta-badge">
+              <span class="key-cap">[ F ]</span>
+              <span>White on Black</span>
+            </div>
+          </div>
+
+          <!-- Right Card: Yellow on Black [ J ] -->
+          <div class="contrast-card yellow-on-black" id="card-contrast-yellow" role="button" tabindex="0" aria-label="Select Yellow text on Black background, shortcut J key">
+            <span style="font-size: 0.85rem; font-weight: 700; opacity: 0.8;">Right Option: Anti-Glare Amber</span>
+            <div class="sample-text">Lions Services</div>
+            <div class="card-cta-badge">
+              <span class="key-cap">[ J ]</span>
+              <span>Yellow on Black</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="tactile-button-row">
+          <button type="button" class="tactile-btn secondary-f" onclick="document.getElementById('card-contrast-white').click()">
+            <span>Prefer Left (White on Black)</span>
+            <span class="tactile-key-badge">[ F ]</span>
+          </button>
+          <button type="button" class="tactile-btn primary-j" onclick="document.getElementById('card-contrast-yellow').click()">
+            <span>Prefer Right (Yellow on Black)</span>
+            <span class="tactile-key-badge">[ J ]</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TEST 2: MAGNIFICATION 20/70 NEAR-VISION LADDER
+           ==================================================================== -->
+      <section class="test-card" id="card-test-2" aria-labelledby="t2-heading">
+        <div>
+          <div class="test-meta">
+            <span class="test-pill">Step 2 of 4 &bull; 20/70 Acuity Ladder</span>
+            <span class="audio-hint"><span>🔊</span> Press Space to Replay Audio Prompt</span>
+          </div>
+          <h1 class="test-heading" id="t2-heading">Near-Vision Reading Ladder</h1>
+          <p class="test-instruction" style="color: #FFD700; font-weight: 600;">
+            Instruction: Sit at arm's length (about 16 inches / 40 cm). Keep prescription reading glasses on.
+          </p>
+        </div>
+
+        <!-- Dynamic Optometrist Stepping Box -->
+        <div class="ladder-display-box">
+          <p class="ladder-preview-text" id="ladder-sentence">
+            "Assistive technology helps me work independently."
+          </p>
+          <div class="ladder-step-indicator">
+            <span id="ladder-step-label">Step 1 of 4: 24px (1.5x Zoom)</span>
+            <span class="ladder-badge" id="ladder-acuity-badge">~20/50 acuity</span>
+          </div>
+        </div>
+
+        <div class="tactile-button-row">
+          <button type="button" class="tactile-btn secondary-f" id="ladder-btn-f">
+            <span>No &mdash; Too Small / Hard to Read</span>
+            <span class="tactile-key-badge">[ F ]</span>
+          </button>
+          <button type="button" class="tactile-btn primary-j" id="ladder-btn-j">
+            <span>Yes &mdash; Clearly Readable</span>
+            <span class="tactile-key-badge">[ J ]</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TEST 3: GIANT MOUSE POINTER & LOCATOR CHECK
+           ==================================================================== -->
+      <section class="test-card" id="card-test-3" aria-labelledby="t3-heading">
+        <div>
+          <div class="test-meta">
+            <span class="test-pill">Step 3 of 4 &bull; Pointer Tracking</span>
+            <span class="audio-hint"><span>🔊</span> Press Space to Replay Audio Prompt</span>
+          </div>
+          <h1 class="test-heading" id="t3-heading">Giant Mouse Pointer & Radar Check</h1>
+          <p class="test-instruction">
+            Can you clearly see the large neon-green mouse cursor on the screen? Move your mouse around this box to test tracking.
+          </p>
+        </div>
+
+        <!-- Radar Locator Stage -->
+        <div class="cursor-test-stage">
+          <div class="radar-locator-ring"></div>
+          <svg class="cursor-preview-icon" viewBox="0 0 48 48">
+            <path d="M6 3 L6 39 L16 29 L26 44 L32 40 L22 25 L36 25 Z" fill="#39FF14" stroke="#000000" stroke-width="3" stroke-linejoin="round"/>
+          </svg>
+          <p style="margin-top: 0.75rem; font-weight: 700; color: #FFFFFF;">
+            Giant Neon-Green Cursor (48px) with Active Locator Radar
+          </p>
+          <div class="tracking-flag-banner" id="tracking-difficulty-banner">
+            ⚠️ Pointer tracking difficulty detected &bull; Upscaled to 64px Giant Amber &bull; Keyboard shortcut navigation recommended.
+          </div>
+        </div>
+
+        <div class="tactile-button-row">
+          <button type="button" class="tactile-btn secondary-f" id="cursor-btn-f">
+            <span>No &mdash; Hard to Track</span>
+            <span class="tactile-key-badge">[ F ]</span>
+          </button>
+          <button type="button" class="tactile-btn primary-j" id="cursor-btn-j">
+            <span>Yes &mdash; Clearly Visible</span>
+            <span class="tactile-key-badge">[ J ]</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           TEST 4: DISTORTION & AMSLER GRID CHECK
+           ==================================================================== -->
+      <section class="test-card" id="card-test-4" aria-labelledby="t4-heading">
+        <div>
+          <div class="test-meta">
+            <span class="test-pill">Step 4 of 4 &bull; Metamorphopsia Check</span>
+            <span class="audio-hint"><span>🔊</span> Press Space to Replay Audio Prompt</span>
+          </div>
+          <h1 class="test-heading" id="t4-heading">Amsler Grid Distortion Check</h1>
+          <p class="test-instruction">
+            Look directly at the center white dot. Do any of the straight grid lines around it look wavy, bent, broken, or missing?
+          </p>
+        </div>
+
+        <!-- High-Contrast Amsler Grid SVG Simulation -->
+        <div class="amsler-stage">
+          <svg class="amsler-grid-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="gridPattern" width="20" height="20" patternUnits="userSpaceOnUse">
+                <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#FFFFFF" stroke-width="1.2"/>
+              </pattern>
+            </defs>
+            <rect width="200" height="200" fill="url(#gridPattern)" />
+            <!-- Bold Center Fixation Dot -->
+            <circle cx="100" cy="100" r="5" fill="#FFFFFF" stroke="#000000" stroke-width="1.5" />
+          </svg>
+        </div>
+
+        <div class="tactile-button-row">
+          <button type="button" class="tactile-btn secondary-f" id="amsler-btn-f">
+            <span>No &mdash; Lines Look Straight</span>
+            <span class="tactile-key-badge">[ F ]</span>
+          </button>
+          <button type="button" class="tactile-btn primary-j" id="amsler-btn-j">
+            <span>Yes &mdash; Lines Look Wavy or Broken</span>
+            <span class="tactile-key-badge">[ J ]</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           STEP 5: TELEMETRY SUMMARY & ASSESSOR COCKPIT PAYLOAD
+           ==================================================================== -->
+      <section class="test-card" id="card-test-5" aria-labelledby="t5-heading">
+        <div>
+          <div class="test-meta">
+            <span class="test-pill" style="border-color: #39FF14; color: #39FF14;">Calibration Complete</span>
+            <span class="audio-hint">Assessor Cockpit Telemetry Synchronized</span>
+          </div>
+          <h1 class="test-heading" id="t5-heading">Low-Vision Calibration Results</h1>
+          <p class="test-instruction">
+            The candidate's visual accommodation baseline has been determined and packaged for the assessor cockpit.
+          </p>
+        </div>
+
+        <!-- Telemetry Metrics Grid -->
+        <div class="telemetry-summary-grid">
+          <div class="telemetry-box">
+            <span class="telemetry-label">Contrast Theme</span>
+            <span class="telemetry-val" id="sum-contrast">yellow-on-black</span>
+          </div>
+          <div class="telemetry-box">
+            <span class="telemetry-label">Reading Font Scale</span>
+            <span class="telemetry-val" id="sum-font">24px (1.5x)</span>
+          </div>
+          <div class="telemetry-box">
+            <span class="telemetry-label">20/70 Threshold</span>
+            <span class="telemetry-val" id="sum-threshold">NO (&lt; 20/70)</span>
+          </div>
+          <div class="telemetry-box">
+            <span class="telemetry-label">Cursor Profile</span>
+            <span class="telemetry-val" id="sum-cursor">giant-green-48px</span>
+          </div>
+          <div class="telemetry-box">
+            <span class="telemetry-label">Tracking Difficulty</span>
+            <span class="telemetry-val" id="sum-tracking">Normal</span>
+          </div>
+          <div class="telemetry-box">
+            <span class="telemetry-label">Amsler Distortion</span>
+            <span class="telemetry-val" id="sum-amsler">Normal</span>
+          </div>
+          <div class="telemetry-box">
+            <span class="telemetry-label">Hover-to-Speech</span>
+            <span class="telemetry-val" id="sum-hoverspeech">Disabled</span>
+          </div>
+        </div>
+
+        <!-- Raw JSON for Staff Cockpit / IPE Generator -->
+        <div>
+          <span style="font-size: 0.75rem; text-transform: uppercase; color: #888888; font-weight: 700;">
+            JSON Telemetry Payload (Exportable):
+          </span>
+          <pre class="telemetry-json-preview" id="telemetry-json-display"></pre>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+          <button type="button" class="tactile-btn primary-j" style="flex: 1;" onclick="location.reload()">
+            <span>Restart Calibration Suite</span>
+            <span class="tactile-key-badge">[ J ]</span>
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Footer with Physical Key Grounding Legend -->
+    <footer class="suite-footer" role="contentinfo">
+      <div class="key-legend">
+        <span class="key-pill"><span class="key-cap">[ J ]</span> Affirmative / Clear / Confirm</span>
+        <span class="key-pill"><span class="key-cap">[ F ]</span> Negative / Too Small / Reject</span>
+        <span class="key-pill"><span class="key-cap">[ Space ]</span> Replay Audio Prompt</span>
+        <span class="key-pill"><span class="key-cap">[ Esc ]</span> Staff Help</span>
+      </div>
+      <div>
+        <span style="color: #39FF14;">WCAG 2.2 AAA Low-Vision Protocol</span>
+      </div>
+    </footer>
+
+    <!-- Emergency Staff Assistance Modal -->
+    <div class="modal-overlay" id="staff-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="staff-title" aria-hidden="true">
+      <div class="modal-dialog">
+        <h2 id="staff-title">Assessor Assistance Requested</h2>
+        <p>A Lions Services staff assessor has been notified and is coming to assist you. Please remain seated.</p>
+        <button type="button" class="modal-dismiss-btn" id="btn-staff-dismiss">Return to Calibration [ Press Enter or Esc ]</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="suite.js"></script>
+</body>
+</html>
