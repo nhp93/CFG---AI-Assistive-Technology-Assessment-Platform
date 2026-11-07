@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adaptive Vision Assessment</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main id="main">
+    <h1>Adaptive Vision Assessment</h1>
+    <p class="intro readable">
+      Try a few settings and tell us whether each one feels comfortable. Your answers help set up the website for you.
+      This is a comfort check, not a medical or vision test.
+    </p>
+
+    <p id="progress" class="progress" aria-live="polite"></p>
+    <section class="question" aria-labelledby="step-title">
+      <h2 id="step-title" tabindex="-1"></h2>
+      <div id="step-body"></div>
+      <div id="sample"></div>
+    </section>
+
+    <div id="error-message" class="message message-error" role="alert" tabindex="-1" hidden></div>
+
+    <div class="actions">
+      <button type="button" id="yes" class="button button-secondary">Yes</button>
+      <button type="button" id="no" class="button button-secondary">No</button>
+    </div>
+    <div class="actions">
+      <button type="button" id="back" class="button button-secondary">Back</button>
+      <button type="button" id="skip" class="button button-secondary">Skip</button>
+      <button type="button" id="next" class="button button-primary">Next</button>
+    </div>
+
+    <div id="confirmation-message" class="message message-success" role="status" tabindex="-1" hidden></div>
+  </main>
+
+  <script src="font-size.js"></script>
+  <script src="palette.js"></script>
+  <script src="vision-assessment.js"></script>
+</body>
+</html>
