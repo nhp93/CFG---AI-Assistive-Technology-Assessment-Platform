@@ -28,7 +28,7 @@
   document.addEventListener("keydown", function (e) {
     var key = e.key.toLowerCase();
     if ((key !== "f" && key !== "j") || e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) return;
-    if (e.target.matches("input:not([type=range]), textarea, select") || e.target.isContentEditable) return;
+    if (e.target.matches("input:not([type=range]):not([type=radio]), textarea, select") || e.target.isContentEditable) return;
     e.preventDefault();
     size = setFontSize(size + (key === "j" ? STEP : -STEP));
   });
