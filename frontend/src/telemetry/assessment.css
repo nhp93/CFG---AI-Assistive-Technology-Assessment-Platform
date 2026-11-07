@@ -1,0 +1,105 @@
+.mcq-page {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+
+.mcq-shell {
+  --mcq-bg: #000;
+  --mcq-fg: #fff;
+  --mcq-border: #fff;
+  --mcq-accent: #ff0;
+  color: var(--mcq-fg);
+  background: var(--mcq-bg);
+  border: 3px solid var(--mcq-border);
+  border-radius: 1rem;
+  padding: clamp(1rem, 3vw, 2rem);
+  font-size: 1rem;
+}
+
+.mcq-shell[data-theme="yellow-on-black"] {
+  --mcq-fg: #ff0;
+  --mcq-border: #ff0;
+  --mcq-accent: #fff;
+}
+.mcq-shell[data-theme="black-on-white"] { --mcq-bg: #fff; --mcq-fg: #000; --mcq-border: #000; --mcq-accent: #003a8c; }
+.mcq-shell[data-theme="black-on-yellow"] { --mcq-bg: #ff0; --mcq-fg: #000; --mcq-border: #000; --mcq-accent: #003a8c; }
+.mcq-shell[data-theme="dim"] { --mcq-bg: #333; --mcq-fg: #ddd; --mcq-border: #ddd; --mcq-accent: #ffbf00; }
+.mcq-shell[data-theme="blue-orange"] { --mcq-bg: #0a2a4a; --mcq-fg: #fff; --mcq-border: #56b4e9; --mcq-accent: #e69f00; }
+.mcq-shell[data-theme="blue-yellow"] { --mcq-bg: #0b1f4d; --mcq-fg: #fff; --mcq-border: #93c5fd; --mcq-accent: #facc15; }
+.mcq-shell[data-theme="monochrome"] { --mcq-bg: #121212; --mcq-fg: #fff; --mcq-border: #bdbdbd; --mcq-accent: #fff; }
+
+.mcq-shell :is(button, h1, h2, p, dt, dd, span) { color: inherit; }
+.mcq-shell button { font: inherit; }
+
+.mcq-header, .mcq-display-controls, .mcq-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.mcq-header { justify-content: space-between; border-bottom: 2px solid var(--mcq-border); padding-bottom: 1rem; }
+.mcq-brand { margin: 0; font-weight: 800; font-size: 1.2em; }
+.mcq-progress { margin: .2rem 0 0; }
+.mcq-display-controls { margin: 1.25rem 0; }
+.mcq-display-controls button, .mcq-help, .mcq-secondary, .mcq-next {
+  min-height: 3.5rem;
+  padding: .65rem 1rem;
+  border: 3px solid var(--mcq-border);
+  border-radius: .5rem;
+  color: var(--mcq-bg) !important;
+  background: var(--mcq-fg);
+  font-weight: 800;
+  cursor: pointer;
+}
+.mcq-display-controls button:disabled { opacity: .55; cursor: not-allowed; }
+.mcq-help { color: #000 !important; background: #ffbf00; border-color: #ffbf00; }
+.mcq-title { margin: 1.5rem 0 .5rem; font-size: 1.8em; line-height: 1.2; }
+.mcq-instruction { margin: 0 0 1rem; }
+.mcq-options { display: grid; gap: 1rem; margin-top: 1.5rem; }
+.mcq-option {
+  position: relative;
+  display: flex;
+  min-height: 76px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: .3rem;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: 3px solid var(--mcq-border);
+  border-radius: .65rem;
+  color: var(--mcq-fg) !important;
+  background: var(--mcq-bg);
+  text-align: left;
+  cursor: pointer;
+}
+.mcq-option:hover, .mcq-option:focus-visible {
+  border: 4px solid #39ff14;
+  outline: 3px solid #39ff14;
+  outline-offset: 2px;
+}
+.mcq-option[aria-checked="true"] { border-color: var(--mcq-accent); box-shadow: inset 0 0 0 2px var(--mcq-accent); }
+.mcq-option-label { font-size: 1.15em; font-weight: 800; }
+.mcq-option-description { font-size: .95em; }
+.mcq-selected { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); font-weight: 800; }
+.mcq-actions { justify-content: space-between; margin-top: 1.5rem; }
+.mcq-next { min-width: 17rem; color: #000 !important; background: #ffbf00; border-color: #ffbf00; }
+.mcq-next:disabled { opacity: .5; cursor: not-allowed; }
+.mcq-shell :focus-visible { outline-color: #39ff14; }
+
+.skills-result { max-width: 64rem; margin: 0 auto; padding: 2rem 1rem 4rem; }
+.skills-result-card { padding: 1.5rem; margin: 1.25rem 0; border: 3px solid var(--muted-border); border-radius: .75rem; background: var(--surface); }
+.skills-score { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; }
+.skills-score strong { font-size: 2.6rem; }
+.skills-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: .75rem; }
+.skills-metrics div { padding: 1rem; border: 2px solid var(--muted-border); border-radius: .5rem; }
+.skills-metrics dt { font-weight: 700; }
+.skills-metrics dd { margin: .25rem 0 0; font-size: 1.4rem; font-weight: 800; }
+@media (max-width: 40rem) {
+  .mcq-header { align-items: flex-start; }
+  .mcq-actions { align-items: stretch; }
+  .mcq-next { width: 100%; min-width: 0; }
+  .mcq-selected { position: static; transform: none; }
+}
