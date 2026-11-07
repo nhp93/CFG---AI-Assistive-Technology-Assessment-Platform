@@ -13,6 +13,7 @@
   
   --font-ladder-size: 24px;
   --zoom-scale: 1.0;
+  --ui-font-scale: 1.0;
 
   /* Custom Cursors */
   --cursor-green-48: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><path d='M6 3 L6 39 L16 29 L26 44 L32 40 L22 25 L36 25 Z' fill='%2339FF14' stroke='%23000000' stroke-width='3' stroke-linejoin='round'/></svg>") 6 3, auto;
@@ -44,6 +45,11 @@ body.theme-yellow-on-black {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+html {
+  font-size: calc(16px * var(--ui-font-scale, 1.0));
+  transition: font-size 0.25s ease;
 }
 
 html, body {

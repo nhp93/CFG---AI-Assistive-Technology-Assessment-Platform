@@ -35,10 +35,10 @@
   let currentTest = 1; // 1, 2, 3, 4, 5 (5 is summary)
   let ladderStep = 1;  // 1: 24px, 2: 32px, 3: 44px, 4: 56px
   const LADDER_CONFIG = [
-    { step: 1, px: 24, scale: 1.5, acuityLabel: "~20/50 acuity", is20_70: false },
-    { step: 2, px: 32, scale: 2.0, acuityLabel: "20/70 Low-Vision Boundary", is20_70: true },
-    { step: 3, px: 44, scale: 2.75, acuityLabel: "~20/120 acuity", is20_70: true },
-    { step: 4, px: 56, scale: 3.5, acuityLabel: "~20/200 Legal Blindness Boundary", is20_70: true }
+    { step: 1, px: 24, uiScale: 1.0, scale: 1.5, acuityLabel: "~20/50 acuity", is20_70: false },
+    { step: 2, px: 32, uiScale: 1.15, scale: 2.0, acuityLabel: "20/70 Low-Vision Boundary", is20_70: true },
+    { step: 3, px: 44, uiScale: 1.30, scale: 2.75, acuityLabel: "~20/120 acuity", is20_70: true },
+    { step: 4, px: 56, uiScale: 1.45, scale: 3.5, acuityLabel: "~20/200 Legal Blindness Boundary", is20_70: true }
   ];
 
   // --- 2. AUDIO SYNTHESIZER & EARCON ---
@@ -232,7 +232,9 @@
       ladderStep = stepNum;
       const config = LADDER_CONFIG[stepNum - 1];
 
+      // Update both preview sentence and overall UI font scale dynamically
       document.documentElement.style.setProperty('--font-ladder-size', `${config.px}px`);
+      document.documentElement.style.setProperty('--ui-font-scale', `${config.uiScale}`);
       document.getElementById('ladder-step-label').textContent = `Step ${config.step} of 4: ${config.px}px (${config.scale}x Zoom)`;
       document.getElementById('ladder-acuity-badge').textContent = config.acuityLabel;
 
