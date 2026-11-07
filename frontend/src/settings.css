@@ -72,6 +72,33 @@ body {
   min-height: 100vh;
 }
 
+/* Explicit Global Form Control Accessibility */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  border: 0.15rem solid var(--border-color) !important;
+  font-family: inherit;
+  font-size: 1.1rem;
+}
+
+html[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme="light"] textarea,
+html[data-theme="light"] select {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] select {
+  background-color: #0A0A0A !important;
+  color: #FFD700 !important;
+  border-color: #FFD700 !important;
+}
+
 /* 3. WCAG Skip Link */
 .skip-link {
   position: absolute;
