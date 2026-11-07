@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { PALETTES, applyFontSize, applyPalette, load, navigate, save, useStored } from '../prefs.js'
+import { patchCurrentVision } from '../sessions/store'
 
 const MIN = 16, MAX = 32, STEP = 2
 const clamp = (px) => Math.min(MAX, Math.max(MIN, px))
@@ -10,6 +11,7 @@ export default function ColorVision() {
   const step = (d) => setSize((s) => clamp(s + d))
 
   useEffect(() => applyFontSize(size), [size])
+  useEffect(() => { patchCurrentVision({ palette, baseFontSizePx: size }) }, [palette, size])
   // Text size is only saved by Next; leaving another way restores the saved size.
   useEffect(() => () => applyFontSize(load('fontSize', 20)), [])
   useEffect(() => applyPalette(palette), [palette])

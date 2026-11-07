@@ -1,9 +1,19 @@
 import { applyFontSize, load, navigate, save } from '../prefs.js'
+import { getCurrentSession } from '../sessions/store'
 import { FOLLOW_UPS, getFocusLabel, getVisionImpactQuestion, GOALS, LIMITATIONS } from '../telemetry/assessmentTree'
 import './skillsResults.css'
 
 export default function SkillsResults() {
-  const flow = load('skillsAssessment', null)
+  const session = getCurrentSession()
+  const flow = session?.skills ? {
+    ...session.skills,
+    metrics: session.skills.questions,
+    skillResponses: session.skills.responses,
+    initialFontScale: 20,
+    initialTheme: 'white-on-black',
+    theme: session.skills.display?.theme ?? 'white-on-black',
+    fontScale: session.skills.display?.fontScale ?? 20,
+  } : load('skillsAssessment', null)
   const goal = flow?.goal ?? 'explore'
   const detail = flow?.detail ?? 'device_basics'
   const focus = getFocusLabel(goal, detail)

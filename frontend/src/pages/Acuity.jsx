@@ -1,11 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
 import { navigate, useStored } from '../prefs.js'
+import { patchCurrentVision } from '../sessions/store'
 
 export default function Acuity() {
   const [answer, setAnswer] = useStored('acuityAtLeast2070', '')
   const [error, setError] = useState(false)
   const formRef = useRef(null)
   const errorRef = useRef(null)
+
+  useEffect(() => {
+    if (answer === 'yes' || answer === 'no') patchCurrentVision({ acuityAtLeast2070: answer })
+  }, [answer])
 
   useEffect(() => {
     function onKey(e) {
@@ -23,6 +28,7 @@ export default function Acuity() {
       if (radio) {
         radio.checked = true
         setAnswer(value)
+        patchCurrentVision({ acuityAtLeast2070: value })
         setError(false)
       }
     }
@@ -50,7 +56,7 @@ export default function Acuity() {
             {['yes', 'no'].map((value) => (
               <label key={value} className="option">
                 <input type="radio" name="acuity" value={value} checked={answer === value}
-                  onChange={() => { setAnswer(value); setError(false) }} />
+                      onChange={() => { setAnswer(value); setError(false) }} />
                 <span className="option-text">{value === 'yes' ? 'Yes' : 'No'}</span>
               </label>
             ))}
