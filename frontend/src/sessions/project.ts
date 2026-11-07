@@ -66,8 +66,8 @@ export function projectVision(visionAssessmentState: any, visualFlow: any, prefs
     palette: prefs.palette ?? 'standard',
     baseFontSizePx: Number(prefs.baseFontSizePx ?? 20),
     zoom: Number(prefs.zoom ?? 1),
-    startedAt: now,
-    completedAt: null,
+    startedAt: visionAssessmentState?.startedAt ?? visualFlow?.startedAt ?? now,
+    completedAt: visionAssessmentState?.completedAt ?? visualFlow?.completedAt ?? null,
     modules,
   } satisfies AssessmentSession['vision']
 }

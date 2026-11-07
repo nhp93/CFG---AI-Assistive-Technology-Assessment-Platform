@@ -195,8 +195,8 @@ function TimeTab({ clients, timeStats }) {
       <div className="kpi-row">
         <Kpi label="Avg. online assessment" value={fmtMin(timeStats.online)} note={`Self-guided · ${timeStats.n} finished clients`} />
         <Kpi label="Avg. in-person assessment" value={timeStats.inPersonN ? fmtMin(timeStats.inPerson) : 'Not recorded'} note={`Staff time · ${timeStats.inPersonN} clients with recorded minutes`} />
-        <Kpi label="Est. staff time saved / client" value={timeStats.inPersonN ? fmtMin(timeStats.savedAvg) : 'Not recorded'} note={`vs. assumed ${BASELINE_MIN}-min baseline`} />
-        <Kpi label="Est. staff time saved, total" value={timeStats.inPersonN ? fmtMin(timeStats.savedTotal) : 'Not recorded'} note={`${timeStats.inPersonN} clients · demo estimate`} />
+        <Kpi label="Est. staff time saved / client" value={timeStats.inPersonN ? fmtMin(timeStats.savedAvg) : 'Not recorded'} note={`vs. traditional ${BASELINE_MIN}-min (3-hr) baseline`} />
+        <Kpi label="Est. staff time saved, total" value={timeStats.inPersonN ? fmtMin(timeStats.savedTotal) : 'Not recorded'} note={`${timeStats.inPersonN} clients · 3-hr baseline estimate`} />
       </div>
       <article className="s-card">
         <h3>Assessment time by client</h3>
@@ -219,7 +219,7 @@ function TimeTab({ clients, timeStats }) {
             ))}</tbody>
           </table>
         </details>
-        <p className="s-footnote">Estimated time saved = assumed {BASELINE_MIN}-minute fully in-person evaluation (a mock baseline for this demo) minus each
+        <p className="s-footnote">Estimated time saved = assumed traditional {BASELINE_MIN}-minute (3-hour) clinical evaluation minus each
           client's actual in-person time. The gap between online and in-person time is not counted as saved time. Averages exclude
           clients whose online assessment is still in progress.</p>
       </article>

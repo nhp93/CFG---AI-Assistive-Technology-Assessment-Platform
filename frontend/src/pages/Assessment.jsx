@@ -61,6 +61,8 @@ export default function Assessment() {
       vision: {
         ...session.vision,
         ...projected,
+        startedAt: session.vision?.startedAt || projected.startedAt,
+        completedAt: session.vision?.completedAt ?? (state.completedAt ?? null),
         acuityAtLeast2070: projected.acuityAtLeast2070 ?? session.vision.acuityAtLeast2070,
         colorVisionDifference: projected.colorVisionDifference ?? session.vision.colorVisionDifference,
       },
@@ -70,6 +72,7 @@ export default function Assessment() {
   const titleRef = useRef(null)
   const bodyRef = useRef(null)
   const errorRef = useRef(null)
+  const trialStartRef = useRef(Date.now())
 
   const m = Math.min(state.m, LAST), mod = MODULES[m], rec = state.recs[m]
   const i = nextIndex(mod, rec), confirming = rec.confirm || i < 0
@@ -81,6 +84,9 @@ export default function Assessment() {
 
   useEffect(() => applyAssessment(state, baseFontSize), [state, baseFontSize])
   useEffect(() => stopSpeech, [m, cur])
+  useEffect(() => {
+    trialStartRef.current = Date.now()
+  }, [m, cur])
 
   // Save a new step, reset per-step UI, and move focus to the new question.
   function update(change, focus = true) {
@@ -92,11 +98,18 @@ export default function Assessment() {
     if (focus) setTimeout(() => titleRef.current?.focus())
   }
 
-  const answer = (yes) => update((s, r) => r.tested.push([cur, yes]))
+  const answer = (yes) => {
+    const elapsed = Date.now() - trialStartRef.current
+    update((s, r) => r.tested.push([cur, yes, { timeSpentMs: elapsed }]))
+  }
 
   function finishModule(s) {
-    if (m === LAST) navigate('/results')
-    else s.m = m + 1
+    if (m === LAST) {
+      s.completedAt = new Date().toISOString()
+      navigate('/results')
+    } else {
+      s.m = m + 1
+    }
   }
 
   function skip() {
@@ -270,6 +283,21 @@ export default function Assessment() {
 
 export function Results() {
   const [state, setState] = useStored(KEY, fresh())
+
+  useEffect(() => {
+    const current = ensureSession()
+    const now = new Date().toISOString()
+    sessionRepository.patch(current.id, (session) => ({
+      ...session,
+      updatedAt: now,
+      completedAt: session.completedAt ?? now,
+      vision: {
+        ...session.vision,
+        completedAt: session.vision?.completedAt ?? now,
+      },
+    }))
+  }, [])
+
   const visualPreferences = MODULES.map((module, index) => {
     const choice = state.recs[index].choice
     return choice !== null && !state.recs[index].skipped

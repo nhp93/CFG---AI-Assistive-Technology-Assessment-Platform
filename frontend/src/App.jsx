@@ -9,7 +9,7 @@ import Assessment, { Results } from './pages/Assessment.jsx'
 import AssessmentScreen from './pages/AssessmentScreen.tsx'
 import SkillsResults from './pages/SkillsResults.tsx'
 import StaffDashboard, { StaffLogin } from './pages/Staff.jsx'
-import { useSessionDatabaseStatus } from './sessions/store'
+import { getCurrentSession, useSessionDatabaseStatus } from './sessions/store'
 
 // Hash routes work on refresh and direct links without server configuration or a router dependency.
 const ROUTES = {
@@ -33,6 +33,7 @@ applyPalette(load('palette', 'standard'))
 
 export default function App() {
   const [path, setPath] = useState(getPath)
+  const currentSession = getCurrentSession()
   const databaseStatus = useSessionDatabaseStatus()
   const [zoom, setZoom] = useState(() => load('zoom', 1))
   const [helpOpen, setHelpOpen] = useState(false)
@@ -111,6 +112,13 @@ export default function App() {
         <div className="brand-wrapper">
           <span className="brand-badge" aria-label="Lions Services Incorporated">Lions Services</span>
           <span className="brand-title">Assistive Tech Check</span>
+          {!isHome && !isStaff && currentSession?.displayName && (
+            <div className="participant-session-pill" role="status" aria-label={`Current candidate: ${currentSession.displayName}`}>
+              <span className="participant-dot" aria-hidden="true">●</span>
+              <span className="participant-name">{currentSession.displayName}</span>
+              <span className="participant-code">({currentSession.code})</span>
+            </div>
+          )}
         </div>
         <div className="zoom-controls" role="region" aria-label="ZoomText Magnifier Controls">
           <span className="zoom-label">Zoom:</span>

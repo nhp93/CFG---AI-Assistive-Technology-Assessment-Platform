@@ -1,5 +1,5 @@
 import { MODULES } from '../prefs.js'
-import { REASONS } from '../staff/data.js'
+import { BASELINE_MIN, REASONS } from '../staff/data.js'
 import type { AssessmentSession } from './types'
 
 const sum = (values: number[]) => values.reduce((total, value) => total + value, 0)
@@ -74,7 +74,7 @@ export function computeStats(clients: any[]) {
   const inPersonValues = completed
     .filter((client) => client.inPerson !== null && client.inPerson !== undefined && Number.isFinite(Number(client.inPerson)))
     .map((client) => Number(client.inPerson))
-  const savedValues = inPersonValues.map((minutes) => Math.max(0, 60 - minutes))
+  const savedValues = inPersonValues.map((minutes) => Math.max(0, BASELINE_MIN - minutes))
   const byModule = MODULES.map((module, index) => ({
     name: module.name,
     flagged: sum(clients.map((client) => client.modules[index]?.flagged ?? 0)),
@@ -126,5 +126,7 @@ export function computeStats(clients: any[]) {
 }
 
 export function calculateDurationMinutes(start: string, end: string): number {
-  return Number(((new Date(end).getTime() - new Date(start).getTime()) / 60000).toFixed(1))
+  const durationMs = new Date(end).getTime() - new Date(start).getTime()
+  if (isNaN(durationMs) || durationMs <= 0) return 0.1
+  return Number((durationMs / 60000).toFixed(1))
 }

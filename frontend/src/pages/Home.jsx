@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
-import { navigate } from '../prefs.js'
-import { ensureSession } from '../sessions/store'
+import { applyFontSize, applyPalette, applyZoom, navigate, save } from '../prefs.js'
+import { ensureSession, sessionRepository } from '../sessions/store'
 
 export default function Home() {
   const [participant, setParticipant] = useState('')
@@ -15,6 +15,31 @@ export default function Home() {
       participantInput.current?.focus()
       return
     }
+
+    // Auto-rehydrate previously confirmed visual settings for returning participants
+    try {
+      const allSessions = sessionRepository.list()
+      const previous = allSessions.find(
+        (s) => s.displayName && s.displayName.trim().toLowerCase() === displayName.toLowerCase() && s.vision
+      )
+      if (previous?.vision) {
+        if (previous.vision.baseFontSizePx && typeof previous.vision.baseFontSizePx === 'number') {
+          applyFontSize(previous.vision.baseFontSizePx)
+          save('fontSize', previous.vision.baseFontSizePx)
+        }
+        if (previous.vision.palette) {
+          applyPalette(previous.vision.palette)
+          save('palette', previous.vision.palette)
+        }
+        if (previous.vision.zoom) {
+          applyZoom(previous.vision.zoom)
+          save('zoom', previous.vision.zoom)
+        }
+      }
+    } catch {
+      // Graceful fallback to default settings if session query fails
+    }
+
     ensureSession(displayName)
     navigate('/acuity')
   }

@@ -150,6 +150,31 @@ html.home #root {
   letter-spacing: 0.02em;
 }
 
+.participant-session-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background-color: #162032;
+  border: 1.5px solid #2563EB;
+  color: #93C5FD;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.2rem 0.65rem;
+  border-radius: 9999px;
+  letter-spacing: 0.02em;
+}
+
+.participant-session-pill .participant-dot {
+  color: #38BDF8;
+  font-size: 0.65rem;
+}
+
+.participant-session-pill .participant-code {
+  color: #60A5FA;
+  font-weight: 500;
+  font-size: 0.8rem;
+}
+
 .zoom-controls {
   display: flex;
   align-items: center;
