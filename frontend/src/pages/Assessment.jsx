@@ -261,24 +261,17 @@ export default function Assessment() {
   )
 }
 
-const ANSWER = { yes: 'Yes', no: 'No' }
-
 export function Results() {
   const [state, setState] = useStored(KEY, fresh())
-  const [message, setMessage] = useState('')
-  const flow = load('visualFlow', {})
-  const magChoice = state.recs[0].choice
-  const magLabel = magChoice === null ? null : MODULES[0].options[magChoice][0]
+  const visualPreferences = MODULES.map((module, index) => {
+    const choice = state.recs[index].choice
+    return choice !== null && !state.recs[index].skipped
+      ? { label: module.name, value: module.options[choice][0] }
+      : null
+  }).filter(Boolean)
 
   // Keep the assessment's chosen contrast, cursor, and text size active on this page too.
   useEffect(() => applyAssessment(state, load('fontSize', 20)), [state])
-
-  function applySize() {
-    const px = parseInt(magLabel, 10)
-    save('fontSize', px)
-    applyFontSize(px)
-    setMessage('Text size saved to your Visual Settings.')
-  }
 
   function startOver() {
     applyAssessment(fresh(), load('fontSize', 20))
@@ -287,34 +280,26 @@ export function Results() {
     navigate('/')
   }
 
+  function startSkillsAssessment() {
+    localStorage.removeItem('skillsAssessment')
+    navigate('/telemetry-assessment')
+  }
+
   return (
     <main id="main">
       <h1 tabIndex={-1}>Your Results</h1>
-      <p className="intro readable">These are your comfort preferences, not a medical result or a measure of your vision.</p>
+      <p className="intro readable">Here are the visual comfort settings you selected.</p>
 
       <section className="question" aria-labelledby="results-heading">
-        <h2 id="results-heading">Your preferred settings</h2>
-        <ul>
-          <li>Color-vision question: <strong>{ANSWER[flow.colorblind] ?? 'Not answered'}</strong></li>
-          {flow.colorblind === 'yes' && <li>Color palette: <strong>{paletteLabel()}</strong></li>}
-          {MODULES.map((mod, k) => {
-            const r = state.recs[k]
-            return (
-              <li key={mod.name}>
-                {mod.name}: <strong>{r.choice !== null ? mod.options[r.choice][0] : r.skipped ? 'Skipped' : 'Not completed'}</strong>
-              </li>
-            )
-          })}
-        </ul>
-        {magLabel && (
-          <button type="button" className="button button-secondary" onClick={applySize}>Use {magLabel} text in Visual Settings</button>
-        )}
+        <h2 id="results-heading">Your visual comfort preferences</h2>
+        {visualPreferences.length
+          ? <ul>{visualPreferences.map(({ label, value }) => <li key={label}>{label}: <strong>{value}</strong></li>)}</ul>
+          : <p>No preferences were confirmed. You can return to the vision assessment to choose settings.</p>}
       </section>
-
-      <div className="message message-success" role="status" hidden={!message}>{message}</div>
 
       <div className="actions">
         <button type="button" className="button button-secondary" onClick={() => navigate('/assessment')}>Back</button>
+        <button type="button" className="button button-secondary" onClick={startSkillsAssessment}>Continue to Skills Assessment</button>
         <button type="button" className="button button-primary" onClick={startOver}>Start over</button>
       </div>
     </main>

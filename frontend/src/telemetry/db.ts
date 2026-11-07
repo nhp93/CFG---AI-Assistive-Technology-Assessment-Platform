@@ -1,6 +1,6 @@
 interface QuestionTelemetry {
   questionId: string;
-  selectedOption: string;
+  selectedOption: string | null;
   timeSpentMs: number;
   hoverSwitches: number;
   answerChanges: number;
