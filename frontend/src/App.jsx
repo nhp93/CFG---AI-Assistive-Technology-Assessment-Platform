@@ -94,6 +94,14 @@ export default function App() {
     }
   }, [colorTheme])
 
+  // Apply chosen/default cursor preference globally
+  useEffect(() => {
+    const savedCursor = load('cursorPreference', 'high')
+    if (savedCursor) {
+      document.documentElement.dataset.assessmentCursor = savedCursor
+    }
+  }, [])
+
   // Route changes: manage classes, scroll, and auto-focus <h1> for screen readers
   useEffect(() => {
     const root = document.documentElement

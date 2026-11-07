@@ -477,6 +477,64 @@ html[data-theme="dark"] select {
   transform: scale(1.03);
 }
 
+/* 8. Cursor Practice Area & Pointer Styles */
+.cursor-area {
+  position: relative !important;
+  width: 100% !important;
+  height: 14rem !important;
+  margin: 1rem 0 !important;
+  border: 0.15rem solid var(--border-color) !important;
+  border-radius: 0.5rem !important;
+  background-color: var(--bg-surface) !important;
+  cursor: none !important;
+  overflow: hidden !important;
+}
+
+.cursor-area:focus-visible {
+  outline: 0.2rem solid var(--focus-color) !important;
+  outline-offset: 0.15rem !important;
+}
+
+.cursor-area .pointer {
+  position: absolute !important;
+  pointer-events: none !important;
+  transition: width 0.1s ease, height 0.1s ease;
+  transform: translate(0, 0);
+}
+
+.cursor-area .pointer.pointer-normal {
+  width: 1.2rem !important;
+  height: 1.6rem !important;
+  fill: #FFFFFF !important;
+  stroke: #000000 !important;
+  stroke-width: 1.5 !important;
+}
+
+.cursor-area .pointer.pointer-large {
+  width: 2rem !important;
+  height: 2.6rem !important;
+  fill: #FFFFFF !important;
+  stroke: #000000 !important;
+  stroke-width: 2 !important;
+}
+
+.cursor-area .pointer.pointer-xl {
+  width: 2.8rem !important;
+  height: 3.6rem !important;
+  fill: #FFFFFF !important;
+  stroke: #000000 !important;
+  stroke-width: 2.5 !important;
+}
+
+.cursor-area .pointer.pointer-high {
+  width: 3.5rem !important;
+  height: 4.5rem !important;
+  fill: #FFD700 !important;
+  stroke: #000000 !important;
+  stroke-width: 3 !important;
+  filter: drop-shadow(0 0 6px rgba(57, 255, 20, 0.7));
+}
+
 .option-indicator {
   font-size: 1.4rem;
   font-weight: 900;

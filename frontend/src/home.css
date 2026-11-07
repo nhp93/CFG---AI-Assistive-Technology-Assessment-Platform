@@ -19,15 +19,67 @@
 }
 
 /* 
-   CHUNK 2: GIGANTIC NEON GREEN CURSOR (56px)
+   CHUNK 2: GIGANTIC NEON GREEN CURSOR (Persistent Across Entire Site)
    - Extra-large glowing arrow that never gets lost on the screen.
 */
-html.home, html.home body, html.home button, html.home a, html.home [role="button"], html.home input {
-  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'><path d='M8 4 L8 46 L20 34 L32 52 L40 47 L28 29 L44 29 Z' fill='%2339FF14' stroke='%23000000' stroke-width='4' stroke-linejoin='round'/></svg>") 8 4, auto;
+:root:not([data-assessment-cursor="normal"]),
+:root:not([data-assessment-cursor="normal"]) body,
+:root:not([data-assessment-cursor="normal"]) input,
+:root:not([data-assessment-cursor="normal"]) label {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 56 56'><path d='M8 4 L8 46 L20 34 L32 52 L40 47 L28 29 L44 29 Z' fill='%2339FF14' stroke='%23000000' stroke-width='4' stroke-linejoin='round'/></svg>") 6 3, auto;
 }
 
-html.home button:hover, html.home a:hover, html.home [role="button"]:hover {
-  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'><path d='M8 4 L8 46 L20 34 L32 52 L40 47 L28 29 L44 29 Z' fill='%23FFD700' stroke='%23000000' stroke-width='4' stroke-linejoin='round'/></svg>") 8 4, pointer;
+:root:not([data-assessment-cursor="normal"]) button,
+:root:not([data-assessment-cursor="normal"]) a,
+:root:not([data-assessment-cursor="normal"]) [role="button"],
+:root:not([data-assessment-cursor="normal"]) button:hover,
+:root:not([data-assessment-cursor="normal"]) a:hover,
+:root:not([data-assessment-cursor="normal"]) [role="button"]:hover {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 56 56'><path d='M8 4 L8 46 L20 34 L32 52 L40 47 L28 29 L44 29 Z' fill='%23FFD700' stroke='%23000000' stroke-width='4' stroke-linejoin='round'/></svg>") 6 3, pointer !important;
+}
+
+html[data-assessment-cursor="normal"],
+html[data-assessment-cursor="normal"] body,
+html[data-assessment-cursor="normal"] * {
+  cursor: default !important;
+}
+
+html[data-assessment-cursor="normal"] button,
+html[data-assessment-cursor="normal"] a,
+html[data-assessment-cursor="normal"] [role="button"],
+html[data-assessment-cursor="normal"] button:hover,
+html[data-assessment-cursor="normal"] a:hover {
+  cursor: pointer !important;
+}
+
+html[data-assessment-cursor="large"],
+html[data-assessment-cursor="large"] body {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 36 36'><path d='M4 3 L4 30 L11 23 L17 34 L23 31 L17 20 L27 20 Z' fill='%23ffffff' stroke='%23000000' stroke-width='2.5' stroke-linejoin='round'/></svg>") 4 3, auto !important;
+}
+html[data-assessment-cursor="large"] button,
+html[data-assessment-cursor="large"] a,
+html[data-assessment-cursor="large"] [role="button"] {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 36 36'><path d='M4 3 L4 30 L11 23 L17 34 L23 31 L17 20 L27 20 Z' fill='%23FFD700' stroke='%23000000' stroke-width='2.5' stroke-linejoin='round'/></svg>") 4 3, pointer !important;
+}
+
+html[data-assessment-cursor="xl"],
+html[data-assessment-cursor="xl"] body {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 48 48'><path d='M6 4 L6 40 L16 30 L24 45 L32 41 L24 26 L38 26 Z' fill='%23ffffff' stroke='%23000000' stroke-width='3' stroke-linejoin='round'/></svg>") 6 4, auto !important;
+}
+html[data-assessment-cursor="xl"] button,
+html[data-assessment-cursor="xl"] a,
+html[data-assessment-cursor="xl"] [role="button"] {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 48 48'><path d='M6 4 L6 40 L16 30 L24 45 L32 41 L24 26 L38 26 Z' fill='%23FFD700' stroke='%23000000' stroke-width='3' stroke-linejoin='round'/></svg>") 6 4, pointer !important;
+}
+
+html[data-assessment-cursor="high"],
+html[data-assessment-cursor="high"] body {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'><path d='M8 4 L8 46 L20 34 L32 52 L40 47 L28 29 L44 29 Z' fill='%2339FF14' stroke='%23000000' stroke-width='4' stroke-linejoin='round'/></svg>") 8 4, auto !important;
+}
+html[data-assessment-cursor="high"] button,
+html[data-assessment-cursor="high"] a,
+html[data-assessment-cursor="high"] [role="button"] {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'><path d='M8 4 L8 46 L20 34 L32 52 L40 47 L28 29 L44 29 Z' fill='%23FFD700' stroke='%23000000' stroke-width='4' stroke-linejoin='round'/></svg>") 8 4, pointer !important;
 }
 
 /* 
