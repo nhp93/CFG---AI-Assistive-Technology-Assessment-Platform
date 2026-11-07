@@ -1,142 +1,132 @@
-// Visual Settings prototype: vanilla JavaScript, no dependencies.
-
+// Small branching prototype for the visual settings flow.
 (function () {
   "use strict";
 
-  var QUESTIONS = [
-    { name: "lowVision", label: "Are you low vision?", fieldsetId: "q-low-vision" },
-    { name: "colorblind", label: "Are you colorblind?", fieldsetId: "q-colorblind" }
-  ];
-
-  var form = document.getElementById("visual-settings-form");
-  var skipButton = document.getElementById("skip-button");
-  var errorBox = document.getElementById("error-message");
-  var confirmBox = document.getElementById("confirmation-message");
-
-  // Current answers. null means "not answered".
+  var acuityForm = document.getElementById("acuity-form");
+  var acuityError = document.getElementById("acuity-error");
+  var visualForm = document.getElementById("visual-settings-form");
+  var visualError = document.getElementById("error-message");
+  var acuityScreen = document.getElementById("acuity-screen");
+  var testScreen = document.getElementById("visual-test-screen");
+  var questionnaireScreen = document.getElementById("questionnaire-screen");
+  var routeSummary = document.getElementById("route-summary");
+  var questionnaireBack = document.getElementById("questionnaire-back");
   var answers = { lowVision: null, colorblind: null };
+  var acuityAnswer = null;
+  var cameFromTest = false;
 
-  // Mark the selected option label visually and keep `answers` in sync.
-  function updateSelection(name) {
-    var radios = form.querySelectorAll('input[name="' + name + '"]');
-    answers[name] = null;
-    radios.forEach(function (radio) {
-      var label = radio.closest(".option");
-      if (radio.checked) {
-        answers[name] = radio.value;
-        label.classList.add("is-selected");
-      } else {
-        label.classList.remove("is-selected");
-      }
+  function goTo(screen, heading) {
+    [acuityScreen, testScreen, questionnaireScreen].forEach(function (item) {
+      item.hidden = item !== screen;
+    });
+    document.getElementById(heading).focus();
+  }
+
+  function clearMessage(message) {
+    message.hidden = true;
+    message.textContent = "";
+  }
+
+  function readVisualAnswers() {
+    ["lowVision", "colorblind"].forEach(function (name) {
+      var selected = visualForm.querySelector('input[name="' + name + '"]:checked');
+      answers[name] = selected ? selected.value : null;
     });
   }
 
-  function hide(el) {
-    el.hidden = true;
-    el.innerHTML = "";
-  }
-
-  function show(el, html) {
-    el.innerHTML = html;
-    el.hidden = false;
-    el.focus();
-  }
-
-  function clearErrors() {
-    hide(errorBox);
-    QUESTIONS.forEach(function (q) {
-      var fieldset = document.getElementById(q.fieldsetId);
-      fieldset.classList.remove("has-error");
-      fieldset.querySelectorAll("input").forEach(function (input) {
-        input.removeAttribute("aria-invalid");
-        input.removeAttribute("aria-describedby");
-      });
-    });
-  }
-
-  // Restore answers saved before leaving this page (e.g. after Back).
-  var saved = JSON.parse(sessionStorage.getItem("visualSettings") || "{}");
-  QUESTIONS.forEach(function (q) {
-    var radio = form.querySelector('input[name="' + q.name + '"][value="' + saved[q.name] + '"]');
-    if (radio) {
-      radio.checked = true;
-      updateSelection(q.name);
-    }
+  acuityForm.addEventListener("change", function (event) {
+    if (event.target.name !== "acuity") return;
+    acuityAnswer = event.target.value;
+    clearMessage(acuityError);
   });
 
-  function formatAnswer(value) {
-    return value === "yes" ? "Yes" : "No";
-  }
+  document.addEventListener("keydown", function (event) {
+    if (acuityScreen.hidden || event.altKey || event.ctrlKey || event.metaKey) return;
+    // Preserve standard Space behavior on controls; otherwise Space advances.
+    if (event.code === "Space" && event.target.closest("button, input, select, textarea, a")) return;
 
-  // Radio change: update highlight and clear stale messages.
-  form.addEventListener("change", function (event) {
-    if (event.target.type !== "radio") return;
-    updateSelection(event.target.name);
-    hide(confirmBox);
-
-    // If this question was flagged as missing, clear its error state.
-    if (!errorBox.hidden) {
-      var stillMissing = QUESTIONS.some(function (q) { return answers[q.name] === null; });
-      if (!stillMissing) clearErrors();
+    var key = event.key.toLowerCase();
+    if (event.code === "Space") {
+      event.preventDefault();
+      acuityForm.requestSubmit();
+      return;
     }
-  });
+    var value = key === "f" ? "yes" : key === "j" ? "no" : null;
+    if (!value) return;
 
-  // Next: validate and confirm.
-  form.addEventListener("submit", function (event) {
     event.preventDefault();
-    clearErrors();
-    hide(confirmBox);
+    var radio = acuityForm.querySelector('input[name="acuity"][value="' + value + '"]');
+    radio.checked = true;
+    radio.dispatchEvent(new Event("change", { bubbles: true }));
+  });
 
-    var missing = QUESTIONS.filter(function (q) { return answers[q.name] === null; });
-
-    if (missing.length > 0) {
-      var items = missing.map(function (q) {
-        var fieldset = document.getElementById(q.fieldsetId);
-        fieldset.classList.add("has-error");
-        fieldset.querySelectorAll("input").forEach(function (input) {
-          input.setAttribute("aria-invalid", "true");
-          input.setAttribute("aria-describedby", "error-message");
-        });
-        return "<li>Please answer: " + q.label + "</li>";
-      }).join("");
-
-      show(errorBox,
-        "<p><strong>Error:</strong> Please answer both questions before continuing.</p>" +
-        "<ul>" + items + "</ul>");
+  acuityForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    if (!acuityAnswer) {
+      acuityError.hidden = false;
+      acuityError.focus();
       return;
     }
 
-    var submitted = {
-      skipped: false,
-      lowVision: answers.lowVision,
-      colorblind: answers.colorblind
-    };
-    console.log("Visual settings submitted:", submitted);
-    sessionStorage.setItem("visualSettings", JSON.stringify(answers));
+    if (acuityAnswer === "yes") {
+      // At or below the stated acuity threshold: bypass visual settings and check.
+      cameFromTest = false;
+      sessionStorage.setItem("visualFlow", JSON.stringify({ acuity: acuityAnswer, visualCheckSkipped: true }));
+      sessionStorage.removeItem("visualSettings");
+      routeSummary.textContent = "You answered yes, so this flow skips visual settings and the vision check.";
+      goTo(questionnaireScreen, "questionnaire-title");
+      return;
+    }
 
+    // No or not sure: take the full visual settings and vision check path.
+    goTo(testScreen, "visual-test-title");
+  });
+
+  visualForm.addEventListener("change", function (event) {
+    if (event.target.type !== "radio") return;
+    readVisualAnswers();
+    event.target.closest(".question").querySelectorAll(".option").forEach(function (label) {
+      label.classList.toggle("is-selected", label.querySelector("input").checked);
+    });
+    clearMessage(visualError);
+  });
+
+  visualForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+    readVisualAnswers();
+    var missing = ["lowVision", "colorblind"].filter(function (name) { return answers[name] === null; });
+    if (missing.length) {
+      visualError.textContent = "Please answer both questions before continuing.";
+      visualError.hidden = false;
+      visualError.focus();
+      return;
+    }
+
+    console.log("Visual check answers:", answers);
+    sessionStorage.setItem("visualFlow", JSON.stringify({ acuity: acuityAnswer, visualCheckSkipped: false }));
+    sessionStorage.setItem("visualSettings", JSON.stringify(answers));
     if (answers.lowVision === "no" && answers.colorblind === "yes") {
       window.location.href = "color-vision.html";
       return;
     }
-
-    show(confirmBox,
-      "<p><strong>Your answers were submitted.</strong></p>" +
-      "<ul>" +
-      "<li>Low vision: " + formatAnswer(submitted.lowVision) + "</li>" +
-      "<li>Colorblind: " + formatAnswer(submitted.colorblind) + "</li>" +
-      "</ul>");
+    cameFromTest = true;
+    routeSummary.textContent = "Your visual check answers have been saved for this prototype.";
+    goTo(questionnaireScreen, "questionnaire-title");
   });
 
-  // Skip if Blind: bypass questions without recording any answer.
-  skipButton.addEventListener("click", function () {
-    clearErrors();
+  document.getElementById("skip-test").addEventListener("click", function () {
+    cameFromTest = true;
+    sessionStorage.setItem("visualFlow", JSON.stringify({ acuity: acuityAnswer, visualCheckSkipped: true }));
     sessionStorage.removeItem("visualSettings");
+    routeSummary.textContent = "You skipped the visual settings and vision check.";
+    goTo(questionnaireScreen, "questionnaire-title");
+  });
 
-    var submitted = { skipped: true, lowVision: null, colorblind: null };
-    console.log("Visual settings skipped:", submitted);
-
-    show(confirmBox,
-      "<p><strong>Visual questions skipped.</strong> " +
-      "No answers were recorded for these questions.</p>");
+  document.getElementById("back-to-acuity").addEventListener("click", function () {
+    goTo(acuityScreen, "acuity-title");
+  });
+  questionnaireBack.addEventListener("click", function () {
+    if (cameFromTest) goTo(testScreen, "visual-test-title");
+    else goTo(acuityScreen, "acuity-title");
   });
 })();
