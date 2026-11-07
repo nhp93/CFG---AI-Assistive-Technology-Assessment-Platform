@@ -10,7 +10,7 @@
   <main id="main">
     <h1>Color Vision Settings</h1>
     <p class="intro readable">
-      You can adjust these settings at any time.
+      Choose the colors that are easiest for you to distinguish. After these questions, you’ll continue to the visual comfort check.
     </p>
 
     <section class="question" aria-labelledby="text-size-heading">
@@ -28,6 +28,28 @@
       </p>
     </section>
 
+    <section class="question" aria-labelledby="palette-heading">
+      <h2 id="palette-heading">Color Palette</h2>
+      <p id="palette-desc">Choose the colors that are easiest for you to distinguish. You can preview each option before continuing.</p>
+      <div class="options palettes" role="radiogroup" aria-labelledby="palette-heading" aria-describedby="palette-desc">
+        <label class="option"><input type="radio" name="palette" value="standard"><span class="option-text">Standard</span>
+          <span class="swatches" aria-hidden="true"><span class="swatch" style="background:#003a8c"></span><span class="swatch" style="background:#ffbf00"></span><span class="swatch" style="background:#ffffff"></span></span></label>
+        <label class="option"><input type="radio" name="palette" value="blue-orange"><span class="option-text">Blue &amp; Orange</span>
+          <span class="swatches" aria-hidden="true"><span class="swatch" style="background:#0072B2"></span><span class="swatch" style="background:#E69F00"></span><span class="swatch" style="background:#56B4E9"></span></span></label>
+        <label class="option"><input type="radio" name="palette" value="blue-yellow"><span class="option-text">Blue &amp; Yellow</span>
+          <span class="swatches" aria-hidden="true"><span class="swatch" style="background:#2563EB"></span><span class="swatch" style="background:#FACC15"></span><span class="swatch" style="background:#475569"></span></span></label>
+        <label class="option"><input type="radio" name="palette" value="monochrome"><span class="option-text">Monochrome</span>
+          <span class="swatches" aria-hidden="true"><span class="swatch" style="background:#000000"></span><span class="swatch" style="background:#767676"></span><span class="swatch" style="background:#ffffff"></span></span></label>
+      </div>
+
+      <div class="preview" role="region" aria-labelledby="palette-preview-heading">
+        <h3 id="palette-preview-heading">Preview: Sample Heading</h3>
+        <p class="readable">This is how text, buttons, and status labels will look with the selected palette.</p>
+        <span class="badge badge-primary">✓ Complete</span>
+        <span class="badge badge-highlight">! Needs review</span>
+      </div>
+    </section>
+
     <div class="actions">
       <a href="index.html" class="button button-secondary">Back</a>
       <button type="button" id="save-font-size" class="button button-primary">Next</button>
@@ -37,5 +59,6 @@
   </main>
 
   <script src="font-size.js"></script>
+  <script src="palette.js"></script>
 </body>
 </html>
