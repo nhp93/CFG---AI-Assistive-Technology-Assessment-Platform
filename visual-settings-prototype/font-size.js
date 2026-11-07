@@ -9,6 +9,7 @@
   function setFontSize(px) {
     px = Math.min(MAX, Math.max(MIN, Number(px) || DEFAULT));
     document.documentElement.style.setProperty("--text-size", px + "px");
+    document.documentElement.style.fontSize = px + "px";
     if (slider) {
       slider.value = px;
       slider.setAttribute("aria-valuetext", px + " pixels");
@@ -35,9 +36,6 @@
 
   document.getElementById("save-font-size").addEventListener("click", function () {
     localStorage.setItem(KEY, size);
-    var box = document.getElementById("confirmation-message");
-    box.textContent = "Text size saved: " + size + "px.";
-    box.hidden = false;
-    box.focus();
+    window.location.href = "vision-assessment.html";
   });
 })();

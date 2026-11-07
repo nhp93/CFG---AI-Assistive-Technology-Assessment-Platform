@@ -3,67 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visual Settings</title>
+  <title>Color Vision Check</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main id="main">
-    <section id="acuity-screen" aria-labelledby="acuity-title">
-      <h1 id="acuity-title" tabindex="-1">A question about your vision</h1>
-      <p class="intro">Has an eye-care professional told you that your visual acuity is 20/70 or worse, such as 20/200?</p>
-      <p>If you don’t know your visual acuity, choose No to continue through the visual check.</p>
-      <form id="acuity-form" novalidate>
-        <fieldset class="question" aria-describedby="acuity-shortcuts">
-          <legend>Choose one answer</legend>
-          <div class="options">
-            <label class="option"><input type="radio" name="acuity" value="yes"><span class="option-text">Yes</span></label>
-            <label class="option"><input type="radio" name="acuity" value="no"><span class="option-text">No</span></label>
-          </div>
-          <p id="acuity-shortcuts" class="shortcut-hint">Shortcuts when focus is outside a control: F = Yes, J = No, Space = Next. You can also use the standard radio-button keys.</p>
-          <div id="acuity-error" class="message message-error" role="alert" tabindex="-1" hidden>Please choose an answer to continue.</div>
-        </fieldset>
-        <div class="actions">
-          <button type="submit" class="button button-primary">Next</button>
-        </div>
-      </form>
-    </section>
+    <h1 id="question-title" tabindex="-1">Do you have color blindness or a color-vision difference?</h1>
+    <p class="intro">Your answer helps us personalize the colors used in the assessment. This is not a medical test.</p>
 
-    <section id="visual-test-screen" aria-labelledby="visual-test-title" hidden>
-      <h1 id="visual-test-title" tabindex="-1">Visual settings and vision check</h1>
-      <p class="intro">Answer these questions to continue through the visual settings and vision check.</p>
-      <form id="visual-settings-form" novalidate>
-        <fieldset class="question" id="q-low-vision">
-          <legend>1. Do you have low vision?</legend>
-          <div class="options">
-            <label class="option"><input type="radio" name="lowVision" value="yes"><span class="option-text">Yes</span></label>
-            <label class="option"><input type="radio" name="lowVision" value="no"><span class="option-text">No</span></label>
-          </div>
-        </fieldset>
-        <fieldset class="question" id="q-colorblind">
-          <legend>2. Do you have color blindness or a color-vision difference?</legend>
-          <div class="options">
-            <label class="option"><input type="radio" name="colorblind" value="yes"><span class="option-text">Yes</span></label>
-            <label class="option"><input type="radio" name="colorblind" value="no"><span class="option-text">No</span></label>
-          </div>
-        </fieldset>
-        <div id="error-message" class="message message-error" role="alert" tabindex="-1" hidden></div>
-        <div class="actions">
-          <button type="button" id="back-to-acuity" class="button button-secondary">Back</button>
-          <button type="button" id="skip-test" class="button button-secondary">Skip this section</button>
-          <button type="submit" class="button button-primary">Continue to questionnaire</button>
+    <form id="color-vision-form" novalidate>
+      <fieldset class="question" aria-describedby="shortcut-hint">
+        <legend>Choose one answer</legend>
+        <div class="options">
+          <label class="option"><input type="radio" name="colorblind" value="yes"><span class="option-text">Yes</span></label>
+          <label class="option"><input type="radio" name="colorblind" value="no"><span class="option-text">No</span></label>
         </div>
-      </form>
-    </section>
-
-    <section id="questionnaire-screen" aria-labelledby="questionnaire-title" hidden>
-      <h1 id="questionnaire-title" tabindex="-1">Questionnaire</h1>
-      <p class="intro">You can continue to the questionnaire.</p>
-      <p id="route-summary" role="status"></p>
+        <p id="shortcut-hint" class="shortcut-hint">Keyboard shortcuts: F = Yes, J = No, Space = Next. Standard radio-button keys also work.</p>
+        <div id="error-message" class="message message-error" role="alert" tabindex="-1" hidden>Please choose Yes or No to continue.</div>
+      </fieldset>
       <div class="actions">
-        <button type="button" id="questionnaire-back" class="button button-secondary">Back</button>
-        <button type="button" class="button button-primary" disabled>Questionnaire coming next</button>
+        <a href="../index.html" class="button button-secondary">Back to welcome</a>
+        <button type="submit" class="button button-primary">Next</button>
       </div>
-    </section>
+    </form>
   </main>
   <script src="script.js"></script>
 </body>

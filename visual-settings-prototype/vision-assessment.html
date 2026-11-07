@@ -15,6 +15,16 @@
     </p>
 
     <p id="progress" class="progress" aria-live="polite"></p>
+    <p id="shortcut-hint" class="shortcut-hint" hidden>Keyboard shortcuts: F = Yes, J = No, Space = Next.</p>
+    <div id="saved-speech-controls" class="actions" hidden>
+      <button type="button" id="play-instructions" class="button button-secondary">Hear these instructions</button>
+      <button type="button" id="stop-instructions" class="button button-secondary">Stop speech</button>
+    </div>
+    <p id="speech-screen-reader-note" hidden>Pause your screen reader before playing speech.</p>
+    <section id="applied-settings" class="applied-settings" aria-live="polite" hidden>
+      <h2>Progress and saved settings</h2>
+      <ul id="applied-settings-list"></ul>
+    </section>
     <section class="question" aria-labelledby="step-title">
       <h2 id="step-title" tabindex="-1"></h2>
       <div id="step-body"></div>
