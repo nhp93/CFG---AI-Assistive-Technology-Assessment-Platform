@@ -14,34 +14,114 @@
      * Guaranteed to stay inside 1 single window with zero scrolling.
 */
 :root {
-  --zoom-multiplier: 1.0;
-
-  /* Color Palette */
-  --bg-canvas: #000000;
-  --bg-surface: #0e0e0e;
-  --bg-surface-elevated: #181818;
-  --text-primary: #FFD700;       /* Golden Yellow (19.5:1 contrast) */
-  --text-muted: #D4B000;
-  --border-primary: #FFD700;
-  --border-focus: #39FF14;         /* Neon Green Focus */
-  --focus-glow: rgba(57, 255, 20, 0.45);
-  --accent-glow: rgba(255, 215, 0, 0.12);
-
-  /* Compact Aesthetic Base Typography */
-  --base-font-size: 15.5px;
-  --calculated-font-size: calc(var(--base-font-size) * var(--zoom-multiplier));
+  --border-primary: var(--border-color);
+  --border-focus: var(--focus-color);
 }
 
 /* 
-   CHUNK 2: GIGANTIC NEON GREEN CURSOR (56px)
-   - Extra-large glowing arrow that never gets lost on the screen.
+   CHUNK 2: ACCESSIBLE TACTILE CURSORS (WCAG 2.1 AAA High Visibility)
+   - Distinct, non-conflicting cursors for Normal, Large (32px), Extra-large (48px), and High-visibility (64px Neon).
 */
-html.home, html.home body, html.home button, html.home a, html.home [role="button"], html.home input {
-  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'><path d='M8 4 L8 46 L20 34 L32 52 L40 47 L28 29 L44 29 Z' fill='%2339FF14' stroke='%23000000' stroke-width='4' stroke-linejoin='round'/></svg>") 8 4, auto;
+
+/* 1. Normal (Standard System Pointer) */
+html[data-assessment-cursor="normal"],
+html[data-assessment-cursor="normal"] * {
+  cursor: default !important;
+}
+html[data-assessment-cursor="normal"] button,
+html[data-assessment-cursor="normal"] a,
+html[data-assessment-cursor="normal"] [role="button"],
+html[data-assessment-cursor="normal"] input[type="submit"],
+html[data-assessment-cursor="normal"] input[type="button"],
+html[data-assessment-cursor="normal"] button *,
+html[data-assessment-cursor="normal"] a *,
+html[data-assessment-cursor="normal"] [role="button"] *,
+html[data-assessment-cursor="normal"] button:hover,
+html[data-assessment-cursor="normal"] a:hover {
+  cursor: pointer !important;
+}
+html[data-assessment-cursor="normal"] input[type="text"],
+html[data-assessment-cursor="normal"] textarea {
+  cursor: text !important;
 }
 
-html.home button:hover, html.home a:hover, html.home [role="button"]:hover {
-  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'><path d='M8 4 L8 46 L20 34 L32 52 L40 47 L28 29 L44 29 Z' fill='%23FFD700' stroke='%23000000' stroke-width='4' stroke-linejoin='round'/></svg>") 8 4, pointer;
+/* 2. Large (32px High-Contrast White / Yellow Arrow) */
+html[data-assessment-cursor="large"],
+html[data-assessment-cursor="large"] * {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><path d='M3 2 L3 24 L9 18 L14 28 L19 25 L14 16 L22 16 Z' fill='%23FFFFFF' stroke='%23000000' stroke-width='2' stroke-linejoin='round'/></svg>") 3 2, auto !important;
+}
+html[data-assessment-cursor="large"] button,
+html[data-assessment-cursor="large"] a,
+html[data-assessment-cursor="large"] [role="button"],
+html[data-assessment-cursor="large"] input[type="submit"],
+html[data-assessment-cursor="large"] input[type="button"],
+html[data-assessment-cursor="large"] button *,
+html[data-assessment-cursor="large"] a *,
+html[data-assessment-cursor="large"] [role="button"] *,
+html[data-assessment-cursor="large"] button:hover,
+html[data-assessment-cursor="large"] a:hover {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><path d='M3 2 L3 24 L9 18 L14 28 L19 25 L14 16 L22 16 Z' fill='%23FFDE2E' stroke='%23000000' stroke-width='2' stroke-linejoin='round'/></svg>") 3 2, pointer !important;
+}
+html[data-assessment-cursor="large"] input[type="text"],
+html[data-assessment-cursor="large"] textarea {
+  cursor: text !important;
+}
+
+/* 3. Extra-Large (48px Extra-Large White / Yellow Arrow) */
+html[data-assessment-cursor="xl"],
+html[data-assessment-cursor="xl"] * {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><path d='M5 3 L5 38 L14 29 L22 44 L29 40 L21 26 L34 26 Z' fill='%23FFFFFF' stroke='%23000000' stroke-width='3' stroke-linejoin='round'/></svg>") 5 3, auto !important;
+}
+html[data-assessment-cursor="xl"] button,
+html[data-assessment-cursor="xl"] a,
+html[data-assessment-cursor="xl"] [role="button"],
+html[data-assessment-cursor="xl"] input[type="submit"],
+html[data-assessment-cursor="xl"] input[type="button"],
+html[data-assessment-cursor="xl"] button *,
+html[data-assessment-cursor="xl"] a *,
+html[data-assessment-cursor="xl"] [role="button"] *,
+html[data-assessment-cursor="xl"] button:hover,
+html[data-assessment-cursor="xl"] a:hover {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><path d='M5 3 L5 38 L14 29 L22 44 L29 40 L21 26 L34 26 Z' fill='%23FFDE2E' stroke='%23000000' stroke-width='3' stroke-linejoin='round'/></svg>") 5 3, pointer !important;
+}
+html[data-assessment-cursor="xl"] input[type="text"],
+html[data-assessment-cursor="xl"] textarea {
+  cursor: text !important;
+}
+
+/* 4. High-Visibility (64px Gigantic Glowing Neon Green Arrow & Default) */
+html[data-assessment-cursor="high"],
+html[data-assessment-cursor="high"] *,
+:root:not([data-assessment-cursor]),
+:root:not([data-assessment-cursor]) * {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'><path d='M7 4 L7 52 L19 40 L30 60 L40 55 L28 35 L46 35 Z' fill='%2339FF14' stroke='%23000000' stroke-width='4' stroke-linejoin='round'/></svg>") 7 4, auto !important;
+}
+html[data-assessment-cursor="high"] button,
+html[data-assessment-cursor="high"] a,
+html[data-assessment-cursor="high"] [role="button"],
+html[data-assessment-cursor="high"] input[type="submit"],
+html[data-assessment-cursor="high"] input[type="button"],
+html[data-assessment-cursor="high"] button *,
+html[data-assessment-cursor="high"] a *,
+html[data-assessment-cursor="high"] [role="button"] *,
+html[data-assessment-cursor="high"] button:hover,
+html[data-assessment-cursor="high"] a:hover,
+:root:not([data-assessment-cursor]) button,
+:root:not([data-assessment-cursor]) a,
+:root:not([data-assessment-cursor]) [role="button"],
+:root:not([data-assessment-cursor]) button:hover,
+:root:not([data-assessment-cursor]) a:hover {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'><path d='M7 4 L7 52 L19 40 L30 60 L40 55 L28 35 L46 35 Z' fill='%23FFDE2E' stroke='%23000000' stroke-width='4' stroke-linejoin='round'/></svg>") 7 4, pointer !important;
+}
+html[data-assessment-cursor="high"] input[type="text"],
+html[data-assessment-cursor="high"] textarea {
+  cursor: text !important;
+}
+
+/* Practice Area: Suppress system cursor so SVG preview pointer shines */
+.cursor-area,
+.cursor-area * {
+  cursor: none !important;
 }
 
 /* 
@@ -54,18 +134,24 @@ html.home button:hover, html.home a:hover, html.home [role="button"]:hover {
   padding: 0;
 }
 
-html.home, html.home body {
-  height: 100vh;
-  max-height: 100vh;
-  overflow: hidden; /* Guaranteed no vertical or horizontal scrollbar */
+html.home {
+  font-size: 112.5%;
+  min-height: 100vh;
+  overflow-x: hidden; /* Prevent horizontal overflow */
 }
 
-html.home, html.home body {
-  font-size: var(--calculated-font-size);
+html.home.large-text,
+html.large-text {
+  font-size: 150% !important;
+}
+
+html.home body {
+  min-height: 100vh;
+  font-size: 1rem;
   background-color: var(--bg-canvas);
   color: var(--text-primary);
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  line-height: 1.45;
+  line-height: 1.5;
   letter-spacing: 0.012em;
   
   /* Smooth Font Antialiasing */
@@ -75,7 +161,7 @@ html.home, html.home body {
 }
 
 html.home #root {
-  height: 100%;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -115,10 +201,9 @@ html.home #root {
 */
 .app-header {
   color: var(--text-primary);
-  border-bottom: 2px solid #222222;
-  background-color: rgba(14, 14, 14, 0.95);
-  backdrop-filter: blur(8px);
-  padding: 0.55rem 1.75rem;
+  border-bottom: 0.15rem solid var(--border-color);
+  background-color: var(--bg-surface);
+  padding: 0.75rem 1.75rem;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -243,60 +328,60 @@ html.home #root {
 */
 .main-viewport {
   flex: 1;
-  max-width: 900px;
+  max-width: 52rem;
   width: 100%;
   margin: 0 auto;
-  padding: 0.5rem 1.25rem;
+  padding: 1.5rem 1.25rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: stretch;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .card-container {
   background-color: var(--bg-surface);
-  border: 2px solid var(--border-primary);
-  border-radius: 14px;
-  padding: clamp(1.8rem, 4.2vh, 2.8rem) clamp(1.5rem, 3.2vw, 2.5rem);
-  box-shadow: 0 10px 40px var(--accent-glow);
+  border: 0.15rem solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 2.2rem 2.4rem;
+  box-shadow: -0.35rem 0.35rem 0px var(--shadow-color);
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: clamp(320px, 46vh, 440px);
+  min-height: auto;
 }
 
 .card-badge-row {
-  margin-bottom: clamp(0.75rem, 1.8vh, 1.25rem);
+  margin-bottom: 1rem;
 }
 
 .step-pill {
   display: inline-block;
-  background-color: #221c00;
+  background-color: var(--bg-elevated);
   color: var(--text-primary);
-  border: 1px solid var(--border-primary);
-  padding: 0.2rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  border: 0.12rem solid var(--border-color);
+  padding: 0.25rem 0.85rem;
+  border-radius: 9999px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
 }
 
 .welcome-heading {
-  font-size: clamp(1.4rem, 3.2vh, 1.85rem);
-  font-weight: 700;
+  font-size: 1.85rem;
+  font-weight: 800;
   line-height: 1.28;
-  margin-bottom: clamp(0.75rem, 1.8vh, 1.2rem);
+  margin-bottom: 1rem;
   color: var(--text-primary);
 }
 
 .instruction-paragraph {
-  font-size: clamp(0.98rem, 2.1vh, 1.15rem);
+  font-size: 1.15rem;
   line-height: 1.55;
-  margin-bottom: clamp(0.8rem, 2vh, 1.4rem);
-  color: #e6c800;
-  max-width: 760px;
+  margin-bottom: 1.25rem;
+  color: var(--text-primary);
+  max-width: 48rem;
 }
 
 .participant-field {
@@ -307,27 +392,48 @@ html.home #root {
 }
 
 .participant-field label {
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text-primary);
 }
 
 .participant-field input {
-  min-height: 2.8rem;
-  padding: 0.55rem 0.75rem;
-  border: 2px solid var(--border-primary);
-  border-radius: 6px;
-  background: #000;
-  color: var(--text-primary);
+  min-height: 3.2rem;
+  padding: 0.65rem 0.95rem;
+  border: 0.15rem solid var(--border-color) !important;
+  border-radius: 0.4rem;
+  background-color: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
   font: inherit;
+  font-size: 1.15rem;
+}
+
+html[data-theme="light"] .participant-field input {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+html[data-theme="dark"] .participant-field input {
+  background-color: #0A0A0A !important;
+  color: #FFD700 !important;
+  border-color: #FFD700 !important;
+}
+
+.participant-field input:focus {
+  outline: 0.2rem solid var(--focus-color) !important;
+  outline-offset: 0.15rem !important;
 }
 
 .participant-field p {
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
 }
 
 .participant-field .participant-error {
-  color: #ff8a80;
-  font-weight: 700;
+  color: #D32F2F;
+  font-weight: 800;
+  font-size: 0.95rem;
 }
 
 /* 
@@ -336,43 +442,35 @@ html.home #root {
 .action-group {
   display: flex;
   flex-direction: column;
-  margin-top: 0.5rem;
+  margin-top: 0.8rem;
 }
 
 /* Primary Action: Appealing Modern CTA */
 .btn-primary-action {
-  background: linear-gradient(135deg, #FFE853 0%, #FFD700 50%, #FFC107 100%);
-  color: #000000;
-  border: none;
-  padding: clamp(1rem, 2.2vh, 1.35rem) clamp(1.4rem, 2.8vw, 2rem);
-  min-height: clamp(62px, 8.5vh, 76px);
-  border-radius: 12px;
+  background-color: var(--btn-accent-bg) !important;
+  color: var(--btn-accent-fg) !important;
+  border: 0.15rem solid var(--border-color) !important;
+  padding: 1.15rem 1.75rem;
+  min-height: 4.5rem;
+  border-radius: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1.25rem;
   text-align: left;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  position: relative;
-  overflow: hidden;
+  box-shadow: -0.35rem 0.35rem 0px var(--shadow-color) !important;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .btn-primary-action:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(255, 215, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  background: linear-gradient(135deg, #FFF073 0%, #FFE033 50%, #FFCA28 100%);
+  transform: translate(-0.1rem, 0.1rem);
+  box-shadow: -0.2rem 0.2rem 0px var(--shadow-color) !important;
 }
 
-.btn-primary-action:hover .btn-arrow-disc {
-  transform: translateX(4px);
-  background-color: #000000;
-  color: #FFD700;
-}
-
-.btn-primary-action:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+.btn-primary-action:focus-visible {
+  outline: 0.2rem solid var(--focus-color) !important;
+  outline-offset: 0.15rem !important;
 }
 
 .btn-content-left {
@@ -382,31 +480,28 @@ html.home #root {
 }
 
 .btn-title {
-  font-size: clamp(1.15rem, 2.4vh, 1.35rem);
+  font-size: 1.25rem;
   font-weight: 800;
-  letter-spacing: -0.01em;
-  color: #000000;
+  color: #000000 !important;
 }
 
 .btn-subtitle {
-  font-size: clamp(0.82rem, 1.6vh, 0.92rem);
+  font-size: 0.95rem;
   font-weight: 600;
-  color: rgba(0, 0, 0, 0.8);
+  color: #222222 !important;
 }
 
-/* Arrow Disc */
 .btn-arrow-disc {
-  width: 36px;
-  height: 36px;
-  background-color: rgba(0, 0, 0, 0.9);
-  color: #FFD700;
+  background-color: #000000;
+  color: #FFDE2E;
+  border: 0.1rem solid var(--border-color);
+  width: 2.8rem;
+  height: 2.8rem;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .arrow-svg {
@@ -460,15 +555,16 @@ html.home #root {
    CHUNK 7: FOOTER & STATUS BAR
 */
 .app-footer {
-  border-top: 2px solid #222222;
-  background-color: rgba(14, 14, 14, 0.95);
-  padding: 0.55rem 1.75rem;
+  border-top: 0.15rem solid var(--border-color);
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
+  padding: 1rem 1.75rem;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 0.75rem;
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   font-weight: 600;
   flex-shrink: 0;
 }

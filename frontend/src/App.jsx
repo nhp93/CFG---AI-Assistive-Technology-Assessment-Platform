@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { applyFontSize, applyPalette, applyZoom, load, navigate, save } from './prefs.js'
+import { useEffect, useRef, useState } from 'react'
+import { load, navigate, save } from './prefs.js'
 import Home from './pages/Home.jsx'
 import Acuity from './pages/Acuity.jsx'
 import AcuityNotRequired from './pages/AcuityNotRequired.jsx'
@@ -8,10 +8,11 @@ import ColorVision from './pages/ColorVision.jsx'
 import Assessment, { Results } from './pages/Assessment.jsx'
 import AssessmentScreen from './pages/AssessmentScreen.tsx'
 import SkillsResults from './pages/SkillsResults.tsx'
+import Contact from './pages/Contact.jsx'
+import ParticipantSignIn from './pages/ParticipantSignIn.jsx'
 import StaffDashboard, { StaffLogin } from './pages/Staff.jsx'
-import { getCurrentSession, useSessionDatabaseStatus } from './sessions/store'
+import { getCurrentSession, patchCurrentVision, useSessionDatabaseStatus } from './sessions/store'
 
-// Hash routes work on refresh and direct links without server configuration or a router dependency.
 const ROUTES = {
   '/': Home,
   '/acuity': Acuity,
@@ -20,160 +21,264 @@ const ROUTES = {
   '/color-vision': ColorVision,
   '/assessment': Assessment,
   '/results': Results,
+  '/participant-sign-in': ParticipantSignIn,
   '/telemetry-assessment': AssessmentScreen,
   '/skills-results': SkillsResults,
+  '/contact': Contact,
   '/staff-login': StaffLogin,
   '/staff': StaffDashboard,
 }
-const ZOOMS = [1, 1.2, 1.4, 1.6, 1.8, 2]
-const getPath = () => window.location.hash.slice(1) || '/'
 
-applyFontSize(load('fontSize', 20))
-applyPalette(load('palette', 'standard'))
+const getPath = () => window.location.hash.slice(1) || '/'
 
 export default function App() {
   const [path, setPath] = useState(getPath)
   const currentSession = getCurrentSession()
   const databaseStatus = useSessionDatabaseStatus()
-  const [zoom, setZoom] = useState(() => load('zoom', 1))
-  const [helpOpen, setHelpOpen] = useState(false)
-  const [announcement, setAnnouncement] = useState('')
-  const lastKey = useRef(0)
-  const dismissRef = useRef(null)
+
+  // Braille Institute High-Contrast Settings
+  const [largeText, setLargeText] = useState(() => load('largeText', false))
+  const [colorTheme, setColorTheme] = useState(() => load('colorTheme', 'dark')) // 'dark' | 'light'
+  const [contrastMenuOpen, setContrastMenuOpen] = useState(false)
+  const contrastMenuRef = useRef(null)
+
   const Page = ROUTES[path] || (path.startsWith('/staff/') ? StaffDashboard : Home)
   const isHome = Page === Home
-  const isSkillsAssessment = path === '/telemetry-assessment'
   const isStaff = Page === StaffDashboard || Page === StaffLogin
 
+  // Track hash changes
   useEffect(() => {
     const onHash = () => setPath(getPath())
     window.addEventListener('hashchange', onHash)
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
-  // New page: start at the top and move focus to its heading so screen readers announce it.
+  // Close contrast dropdown on outside click or Escape
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (contrastMenuRef.current && !contrastMenuRef.current.contains(e.target)) {
+        setContrastMenuOpen(false)
+      }
+    }
+    function handleKeyDown(e) {
+      if (e.key === 'Escape' && contrastMenuOpen) {
+        setContrastMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [contrastMenuOpen])
+
+  // Apply Large Text and Theme to <html>
+  useEffect(() => {
+    const root = document.documentElement
+    root.classList.toggle('large-text', largeText)
+    save('largeText', largeText)
+    try {
+      if (getCurrentSession()) patchCurrentVision({ largeText })
+    } catch {
+      // ignore
+    }
+  }, [largeText])
+
+  useEffect(() => {
+    const root = document.documentElement
+    root.dataset.theme = colorTheme
+    save('colorTheme', colorTheme)
+    try {
+      if (getCurrentSession()) patchCurrentVision({ colorTheme })
+    } catch {
+      // ignore
+    }
+  }, [colorTheme])
+
+  // Apply chosen/default cursor preference globally
+  useEffect(() => {
+    const savedCursor = load('cursorPreference', 'high')
+    if (savedCursor) {
+      document.documentElement.dataset.assessmentCursor = savedCursor
+    }
+  }, [])
+
+  // Route changes: manage classes, scroll, and auto-focus <h1> for screen readers
   useEffect(() => {
     const root = document.documentElement
     root.classList.toggle('home', isHome)
     root.classList.toggle('staff', isStaff)
-    if (!['/assessment', '/results', '/telemetry-assessment', '/skills-results'].includes(path)) {
-      delete root.dataset.assessmentContrast
-      delete root.dataset.assessmentCursor
-    }
     window.scrollTo(0, 0)
-    const heading = document.querySelector('main [data-route-focus]') || document.querySelector('main h1')
+
+    // Focus the first heading for screen reader announcement without synthetic voiceover
+    const heading = document.querySelector('main h1, [data-route-focus]')
     heading?.focus()
   }, [path, isHome, isStaff])
 
-  useEffect(() => {
-    applyZoom(zoom)
-    save('zoom', zoom)
-  }, [zoom])
+  function toggleLargeText() {
+    setLargeText((prev) => {
+      const next = !prev
+      window.dispatchEvent(new Event('lions:ui-tweak'))
+      return next
+    })
+  }
 
-  useEffect(() => {
-    if (!helpOpen) return
-    const previous = document.activeElement
-    dismissRef.current.focus()
-    return () => previous?.focus?.()
-  }, [helpOpen])
-
-  const changeZoom = useCallback((level) => {
-    setZoom(level)
-    setAnnouncement(`Zoom ${Math.round(level * 100)} percent`)
-    if (isSkillsAssessment) window.dispatchEvent(new Event('lions:ui-tweak'))
-  }, [isSkillsAssessment])
-
-  // Escape = staff help, + / - = zoom, J on the home screen = start. 300ms tremor guard.
-  useEffect(() => {
-    function onKey(e) {
-      if (Date.now() - lastKey.current < 300 || e.ctrlKey || e.altKey || e.metaKey) return
-      if (e.target.matches('input:not([type=range]):not([type=radio]), textarea, select') || e.target.isContentEditable) return
-      const key = e.key.toLowerCase()
-      let action = null
-      if (key === 'escape' && !isSkillsAssessment && !isStaff) action = () => setHelpOpen((open) => !open)
-      else if (helpOpen) { if (key === 'enter') action = () => setHelpOpen(false) }
-      else if (key === '+' || key === '=') action = () => { const next = ZOOMS.find((l) => l > zoom + 0.05); if (next) changeZoom(next) }
-      else if (key === '-' || key === '_') action = () => { const prev = [...ZOOMS].reverse().find((l) => l < zoom - 0.05); if (prev) changeZoom(prev) }
-      else if (key === 'j' && isHome) action = () => navigate('/acuity')
-      if (!action) return
-      e.preventDefault()
-      lastKey.current = Date.now()
-      action()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [changeZoom, helpOpen, zoom, isHome, isSkillsAssessment, isStaff])
+  function selectTheme(theme) {
+    setColorTheme(theme)
+    window.dispatchEvent(new Event('lions:ui-tweak'))
+  }
 
   return (
-    <>
-      <div id="aria-live-announcer" className="sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</div>
+    <div className="app-shell">
+      {/* 1. WCAG Landmark: Skip to main content */}
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
 
-      <header className="app-header">
+      {/* 2. WCAG Landmark: Header with persistent Braille Institute widget */}
+      <header role="banner" className="app-header">
         <div className="brand-wrapper">
-          <span className="brand-badge" aria-label="Lions Services Incorporated">Lions Services</span>
-          <span className="brand-title">Assistive Tech Check</span>
+          <a href="#/" className="brand-link" aria-label="Lions Services Home">
+            <span className="brand-badge" aria-hidden="true">LIONS SERVICES</span>
+            <span className="brand-title">Assistive Technology Check</span>
+          </a>
+
           {!isHome && !isStaff && currentSession?.displayName && (
-            <div className="participant-session-pill" role="status" aria-label={`Current candidate: ${currentSession.displayName}`}>
+            <div
+              className="participant-session-pill"
+              role="status"
+              aria-label={`Current candidate: ${currentSession.displayName}`}
+            >
               <span className="participant-dot" aria-hidden="true">●</span>
               <span className="participant-name">{currentSession.displayName}</span>
               <span className="participant-code">({currentSession.code})</span>
             </div>
           )}
         </div>
-        <div className="zoom-controls" role="region" aria-label="ZoomText Magnifier Controls">
-          <span className="zoom-label">Zoom:</span>
-          {ZOOMS.map((level) => {
-            const pct = Math.round(level * 100)
-            return (
-              <button key={level} type="button" className={'zoom-btn' + (level === zoom ? ' active' : '')}
-                aria-pressed={level === zoom} aria-label={`Zoom ${pct} percent`} onClick={() => changeZoom(level)}>
-                {pct}%
-              </button>
-            )
-          })}
+
+        <nav role="navigation" aria-label="Accessibility & quick tools" className="header-nav">
+          {/* Braille Institute "Text Size & Contrast" Popover Menu */}
+          <div className="contrast-menu-container" ref={contrastMenuRef}>
+            <button
+              type="button"
+              className="tactile-btn header-contrast-btn"
+              aria-haspopup="true"
+              aria-expanded={contrastMenuOpen}
+              aria-controls="contrast-popover"
+              onClick={() => setContrastMenuOpen((prev) => !prev)}
+            >
+              Text Size & Contrast ▾
+            </button>
+
+            {contrastMenuOpen && (
+              <div
+                id="contrast-popover"
+                className="contrast-popover-menu"
+                role="region"
+                aria-label="Text Size and Contrast Options"
+              >
+                <div className="popover-title">Visual Comfort Settings</div>
+
+                {/* Option 1: Large Text */}
+                <label className="popover-checkbox-label">
+                  <input
+                    type="checkbox"
+                    className="oversized-checkbox"
+                    checked={largeText}
+                    onChange={toggleLargeText}
+                  />
+                  <span className="checkbox-text">
+                    <strong>Large Text (150%)</strong>
+                    <small>Proportionally scales text, cards, and buttons</small>
+                  </span>
+                </label>
+
+                <hr className="popover-divider" />
+
+                <div className="popover-subtitle">Contrast Mode:</div>
+
+                {/* Option 2: Light Mode */}
+                <label className="popover-radio-label">
+                  <input
+                    type="radio"
+                    name="colorTheme"
+                    value="light"
+                    className="oversized-radio"
+                    checked={colorTheme === 'light'}
+                    onChange={() => selectTheme('light')}
+                  />
+                  <span className="radio-text">
+                    <strong>Light Mode</strong>
+                    <small>Black on Soft Cyan/White with Yellow Accents</small>
+                  </span>
+                </label>
+
+                {/* Option 3: Dark Mode */}
+                <label className="popover-radio-label">
+                  <input
+                    type="radio"
+                    name="colorTheme"
+                    value="dark"
+                    className="oversized-radio"
+                    checked={colorTheme === 'dark'}
+                    onChange={() => selectTheme('dark')}
+                  />
+                  <span className="radio-text">
+                    <strong>Dark Mode</strong>
+                    <small>High-Contrast Amber on Pitch Black</small>
+                  </span>
+                </label>
+              </div>
+            )}
+          </div>
+
+          {/* Persistent CTA: Contact / Staff Review */}
           {!isStaff && (
-            <button type="button" className="staff-help-btn" aria-haspopup="dialog"
-              aria-label="Request staff assistance" onClick={() => setHelpOpen(true)}>
-              {!isSkillsAssessment && <span className="key-badge esc" aria-hidden="true">Esc</span>} Staff Help
+            <button
+              type="button"
+              className="tactile-btn header-staff-btn"
+              onClick={() => navigate('/contact')}
+            >
+              👤 Contact / Staff Review
             </button>
           )}
-          {isHome && <a className="staff-login-btn" href="#/staff-login">Staff Login</a>}
-        </div>
+
+          {isHome && (
+            <a className="tactile-btn header-login-link" href="#/staff-login">
+              Staff Portal
+            </a>
+          )}
+        </nav>
       </header>
 
+      {/* Database Status Alert */}
       {databaseStatus.state === 'offline' && (
-        <p className="database-warning" role="alert">
-          The assessment database is unavailable. Answers are cached in this browser but have not been saved to the shared database.
-        </p>
+        <aside className="database-warning" role="alert">
+          The local session database is offline. Answers are saved locally in this browser.
+        </aside>
       )}
 
+      {/* 3. WCAG Landmark: Main Content rendered by active route */}
       <Page path={path} />
 
-      {isHome && (
-        <footer className="app-footer">
-          <div className="status-group">
-            <div className="status-badge">
-              <span className="pulse-dot" aria-hidden="true"></span>
-              <span>Mode: Tactile Navigation Ready</span>
-            </div>
-            <div className="status-badge">Zoom: {Math.round(zoom * 100)}%</div>
+      {/* 4. WCAG Landmark: Footer */}
+      <footer role="contentinfo" className="app-footer">
+        <div className="footer-status-row">
+          <div className="footer-badge">
+            <span className="footer-dot" aria-hidden="true">●</span>
+            <span>Braille Institute High-Visibility Style &bull; WCAG 2.1 AAA</span>
           </div>
-          <div className="status-badge"><span>High-Contrast Dark &bull; WCAG 2.2 AAA</span></div>
-        </footer>
-      )}
-
-      <div className={'modal-overlay' + (helpOpen ? ' open' : '')} role="dialog" aria-modal="true"
-        aria-labelledby="staff-dialog-title" aria-hidden={!helpOpen}>
-        <div className="modal-dialog">
-          <h2 id="staff-dialog-title">Staff Assistance Alerted</h2>
-          <p>A Lions Services assessor has been notified and is coming to assist you. Please stay seated.</p>
-          <div className="modal-actions">
-            <button type="button" className="btn-modal-dismiss" ref={dismissRef} onClick={() => setHelpOpen(false)}>
-              Return to Check [ Press Esc or Enter ]
-            </button>
+          <div className="footer-badge">
+            <span>Text: {largeText ? '150% (Large)' : '112.5% (Default)'} &bull; {colorTheme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
+          </div>
+          <div className="footer-links">
+            <a href="#/contact" className="footer-link">Contact Lions Services</a>
+            <span aria-hidden="true">&bull;</span>
+            <a href="tel:7043324161" className="footer-link">(704) 332-4161</a>
           </div>
         </div>
-      </div>
-    </>
+      </footer>
+    </div>
   )
 }

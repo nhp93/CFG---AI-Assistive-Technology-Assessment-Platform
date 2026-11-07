@@ -8,7 +8,7 @@ export const BASELINE_MIN = 180
 export const REASONS = {
   visual_motor: 'Visual-motor (2+ misclicks or display changes mid-question)',
   cognitive_indecision: 'Indecision (5+ option switches or 2+ answer changes)',
-  slow_reading: 'Slow reading (over 60 seconds on one question)',
+  slow_reading: 'Slow reading (over 15 seconds on one question)',
 }
 
 const T = (opt, yes, sec, misclicks = 0, hovers = 0, changes = 0, tweaks = 0) => ({ opt, yes, sec, misclicks, hovers, changes, tweaks })

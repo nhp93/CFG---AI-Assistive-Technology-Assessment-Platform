@@ -4,6 +4,7 @@ import { navigate } from '../prefs.js'
 import { buildDemoSessions } from '../sessions/demo'
 import { computeStats, deriveClient } from '../sessions/derive'
 import { useSessions } from '../sessions/store'
+import { getStaffNotesData } from '../sessions/notes.js'
 import { BASELINE_MIN, REASONS, fmtMin, initials } from '../staff/data.js'
 import { FOLLOW_UPS, GOALS, LIMITATIONS, SUPPORT_QUESTION, TOOL_QUESTION, getVisionImpactQuestion } from '../telemetry/assessmentTree'
 import { Bars, LineChart, Swatch } from '../staff/charts.jsx'
@@ -29,8 +30,7 @@ const pct = (n, total) => `${Math.round((n / total) * 100)}%`
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`
 const scoreText = (c) => `${c.struggle} of ${c.questions} questions`
 const settingText = (m) => m.choiceLabel ?? (m.state === 'skipped' ? `Skipped: ${m.skipReason ?? 'not captured'}` : m.state === 'not-started' ? 'Not started' : 'No setting confirmed')
-const answerLabel = (question, answer) => question?.options.find((option) => option.id === answer)?.label ?? answer
-
+const answerLabel = (question, answer) => question?.options?.find((option) => option.id === answer)?.label ?? answer
 export function StaffLogin() {
   const [form, setForm] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
@@ -120,14 +120,20 @@ export default function StaffDashboard({ path }) {
                 <span><b>All clients</b><small>Overview and analytics</small></span>
               </a>
             </li>
-            {clients.map((c) => (
-              <li key={c.id}>
-                <a href={`#/staff/${c.id}`} className="side-link" aria-current={client?.id === c.id ? 'page' : undefined}>
-                  <span className="avatar" aria-hidden="true">{initials(c.name)}</span>
-                  <span><b>{c.name}</b><small><StatusDot status={c.status} />{c.status}</small></span>
-                </a>
-              </li>
-            ))}
+            {clients.map((c) => {
+              const req = getStaffNotesData(c.staff).contactRequest
+              return (
+                <li key={c.id}>
+                  <a href={`#/staff/${c.id}`} className="side-link" aria-current={client?.id === c.id ? 'page' : undefined}>
+                    <span className="avatar" aria-hidden="true">{initials(c.name)}</span>
+                    <span>
+                      <b>{c.name} {req ? '📞' : ''}</b>
+                      <small><StatusDot status={c.status} />{c.status}{req ? ' · Review Requested' : ''}</small>
+                    </span>
+                  </a>
+                </li>
+              )
+            })}
           </ul>
         </nav>
 
@@ -294,6 +300,10 @@ function SettingsTab({ clients, settingStats }) {
 }
 
 function Summary({ c }) {
+  const notesData = getStaffNotesData(c.staff)
+  const contactReq = notesData.contactRequest
+  const feedbackData = notesData.feedback
+
   return (
     <>
       <div className="view-head with-actions">
@@ -312,6 +322,40 @@ function Summary({ c }) {
         <Kpi label="Struggle score" value={c.struggle} note={`${scoreText(c)} flagged`} />
         <Kpi label="Settings confirmed" value={`${c.modules.filter((m) => m.state === 'confirmed').length} of 4`} />
       </div>
+
+      {contactReq && (
+        <article className="s-card" style={{ borderLeft: '4px solid #FFD700', backgroundColor: 'rgba(255, 215, 0, 0.05)' }}>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>👤</span> In-Person Staff Review Requested
+          </h3>
+          <dl className="s-dl cols">
+            <div><dt>Full Name</dt><dd><strong>{contactReq.fullName || c.name}</strong></dd></div>
+            <div><dt>Contact Method</dt><dd>{contactReq.contactMethod === 'email' ? 'Email' : 'Phone'}: <strong>{contactReq.contactValue}</strong></dd></div>
+            <div><dt>Appointment Type</dt><dd>{contactReq.appointmentType === 'in_person' ? 'In-Person at Lions Services' : 'Virtual Video Consultation'}</dd></div>
+            <div><dt>Preferred Time</dt><dd>{contactReq.preferredTime === 'morning' ? 'Morning (8:00 AM – 12:00 PM)' : 'Afternoon (12:00 PM – 4:30 PM)'}</dd></div>
+            {contactReq.notes && <div><dt>Candidate Notes</dt><dd>{contactReq.notes}</dd></div>}
+          </dl>
+        </article>
+      )}
+
+      {feedbackData && Object.keys(feedbackData).length > 0 && (
+        <article className="s-card">
+          <h3>Candidate Recommendation Reactions</h3>
+          <ul className="s-list">
+            {Object.entries(feedbackData).map(([recId, fb]) => {
+              if (!fb || !fb.reaction) return null
+              return (
+                <li key={recId}>
+                  <b>{fb.reaction === 'like' ? '👍 Liked' : '👎 Disliked'}</b>: {recId}
+                  {fb.tags?.length > 0 && <span> · Tags: {fb.tags.join(', ')}</span>}
+                  {fb.comment && <i> — “{fb.comment}”</i>}
+                </li>
+              )
+            })}
+          </ul>
+        </article>
+      )}
+
       <div className="s-grid">
         <article className="s-card">
           <h3>Main weak points</h3>
@@ -342,6 +386,8 @@ function Summary({ c }) {
 }
 
 function Advanced({ c }) {
+  const notesData = getStaffNotesData(c.staff)
+  const contactReq = notesData.contactRequest
   const history = c.modules.flatMap((m) => m.trials.map((t) => ({ ...t, module: m.name, question: m.question })))
   const skipped = c.modules.filter((m) => m.state === 'skipped' || m.state === 'not-started')
   return (
@@ -355,6 +401,21 @@ function Advanced({ c }) {
           <a className="s-btn" href={`#/staff/${c.id}`}>← Back to summary</a>
         </div>
       </div>
+
+      {contactReq && (
+        <article className="s-card" style={{ borderLeft: '4px solid #FFD700', backgroundColor: 'rgba(255, 215, 0, 0.05)' }}>
+          <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>👤</span> In-Person Staff Review Requested
+          </h3>
+          <dl className="s-dl cols">
+            <div><dt>Full Name</dt><dd><strong>{contactReq.fullName || c.name}</strong></dd></div>
+            <div><dt>Contact Method</dt><dd>{contactReq.contactMethod === 'email' ? 'Email' : 'Phone'}: <strong>{contactReq.contactValue}</strong></dd></div>
+            <div><dt>Appointment Type</dt><dd>{contactReq.appointmentType === 'in_person' ? 'In-Person at Lions Services' : 'Virtual Video Consultation'}</dd></div>
+            <div><dt>Preferred Time</dt><dd>{contactReq.preferredTime === 'morning' ? 'Morning (8:00 AM – 12:00 PM)' : 'Afternoon (12:00 PM – 4:30 PM)'}</dd></div>
+            {contactReq.notes && <div><dt>Candidate Notes</dt><dd>{contactReq.notes}</dd></div>}
+          </dl>
+        </article>
+      )}
 
       <article className="s-card">
         <h3>General assessment</h3>
@@ -374,14 +435,16 @@ function Advanced({ c }) {
         <article className="s-card">
           <h3>Skills assessment answers</h3>
           <dl className="s-dl cols">
-            {[
+            {c.skills.answers?.length ? c.skills.answers.map((answer) => (
+              <div key={answer.questionId}><dt>{answer.prompt}</dt><dd>{answer.answerLabel}</dd></div>
+            )) : [
               [LIMITATIONS, c.skills.limitation],
               [getVisionImpactQuestion(c.skills.limitation ?? 'not_sure'), c.skills.impact],
               [GOALS, c.skills.goal],
               [FOLLOW_UPS[c.skills.goal ?? ''], c.skills.detail],
               [TOOL_QUESTION, c.skills.tool],
               [SUPPORT_QUESTION, c.skills.support],
-            ].filter(([, answer]) => answer).map(([question, answer]) => (
+            ].filter(([question, answer]) => question && answer).map(([question, answer]) => (
               <div key={question.id}><dt>{question.title}</dt><dd>{answerLabel(question, answer)}</dd></div>
             ))}
           </dl>

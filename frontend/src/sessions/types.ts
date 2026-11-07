@@ -31,6 +31,13 @@ export interface VisionModuleRecord {
   skipReason: string | null
 }
 
+export interface SkillAssessmentAnswer {
+  questionId: string
+  prompt: string
+  answerId: string
+  answerLabel: string
+}
+
 export interface AssessmentSession {
   schemaVersion: 1
   id: string
@@ -48,6 +55,8 @@ export interface AssessmentSession {
     palette: string
     baseFontSizePx: number
     zoom: number
+    largeText?: boolean
+    colorTheme?: string
     startedAt: string | null
     completedAt: string | null
     modules: VisionModuleRecord[]
@@ -61,6 +70,7 @@ export interface AssessmentSession {
     detail: string | null
     tool: string | null
     support: string | null
+    answers?: SkillAssessmentAnswer[]
     responses: ScoredSkillResponse[]
     questions: QuestionTelemetry[]
     score: number | null

@@ -41,7 +41,7 @@ function normalizeTrial(trial: unknown): TrialRecord | null {
   }
 }
 
-export function projectVision(visionAssessmentState: any, visualFlow: any, prefs: { palette?: string; baseFontSizePx?: number; zoom?: number } = {}) {
+export function projectVision(visionAssessmentState: any, visualFlow: any, prefs: { palette?: string; baseFontSizePx?: number; zoom?: number; largeText?: boolean; colorTheme?: string } = {}) {
   const recs = Array.isArray(visionAssessmentState?.recs) ? visionAssessmentState.recs : []
   const modules: VisionModuleRecord[] = moduleKeys.map((moduleKey, index) => {
     const rec = recs[index] ?? { tested: [], choice: null, draftChoice: null, skipped: false }
@@ -66,6 +66,8 @@ export function projectVision(visionAssessmentState: any, visualFlow: any, prefs
     palette: prefs.palette ?? 'standard',
     baseFontSizePx: Number(prefs.baseFontSizePx ?? 20),
     zoom: Number(prefs.zoom ?? 1),
+    largeText: !!prefs.largeText,
+    colorTheme: prefs.colorTheme ?? 'dark',
     startedAt: visionAssessmentState?.startedAt ?? visualFlow?.startedAt ?? now,
     completedAt: visionAssessmentState?.completedAt ?? visualFlow?.completedAt ?? null,
     modules,
@@ -87,6 +89,7 @@ export function projectSkills(flowState: any): AssessmentSession['skills'] {
     detail: flowState.detail ?? null,
     tool: flowState.tool ?? null,
     support: flowState.support ?? null,
+    answers: Array.isArray(flowState.answerDetails) ? flowState.answerDetails : [],
     responses,
     questions,
     score,

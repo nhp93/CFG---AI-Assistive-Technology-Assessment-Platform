@@ -1,3 +1,6 @@
 .skills-result h2 { margin-top: 0; }
 .skills-result h3 { margin-bottom: .5rem; }
 .skills-result-card p:last-child { margin-bottom: 0; }
+.comment-text-input { min-height: 6rem; resize: vertical; }
+.feedback-send-btn { align-self: flex-start; min-height: 3rem; }
+.feedback-sent-message { margin: 0; font-weight: 700; color: var(--success-text, #1b5e20); }
