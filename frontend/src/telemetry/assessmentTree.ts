@@ -1,256 +1,384 @@
 import type { McqQuestion } from './types'
 
-// The condition and access-impact questions identify a useful path. They do not contribute to the skill score.
-export const LIMITATIONS: McqQuestion = {
-  id: 'limitation',
-  title: 'Which vision condition or limitation best describes your experience?',
-  instruction: 'This is self-reported information to tailor the questions, not a medical test. Choose “not sure” if you do not know.',
+export interface RecommendationItem {
+  id: string
+  title: string
+  category: string
+  badge: string
+  description: string
+  keyBenefits: string[]
+  accessTip: string
+  suggestedAction: string
+}
+
+export interface RecommendationFeedback {
+  recommendationId: string
+  reaction: 'like' | 'dislike' | null
+  selectedTags: string[]
+  comment: string
+}
+
+// ---------------------------------------------------------------------------
+// 1. PRIMARY FORK: Personal vs. Career
+// ---------------------------------------------------------------------------
+export const PRIMARY_FORK_QUESTION: McqQuestion = {
+  id: 'primary_focus',
+  title: 'What is your primary focus today?',
+  instruction: 'Choose the area that matters most to you. We will tailor the questions and recommendations to match your goals.',
   options: [
-    { id: 'glaucoma', label: 'Glaucoma' },
-    { id: 'macular_degeneration', label: 'Macular degeneration' },
-    { id: 'diabetic_retinopathy', label: 'Diabetic retinopathy' },
-    { id: 'cataracts', label: 'Cataracts' },
-    { id: 'retinitis_pigmentosa', label: 'Retinitis pigmentosa' },
-    { id: 'other', label: 'Another condition or vision limitation' },
-    { id: 'not_sure', label: 'I’m not sure / prefer not to say' },
+    {
+      id: 'personal',
+      label: 'Personal (Daily Needs & Independence)',
+      description: 'Daily living tasks at home, reading mail, appliances, leisure, and community mobility.',
+    },
+    {
+      id: 'career',
+      label: 'Career & Employment',
+      description: 'Job preparation, workplace accommodations, career exploration, or current employment tasks.',
+    },
   ],
 }
 
-const impactOptions = (options: [string, string][]): McqQuestion['options'] => [
-  ...options.map(([id, label]) => ({ id, label })),
-  { id: 'none_other', label: 'None of these / something else' },
+// ---------------------------------------------------------------------------
+// 2. BRANCH A: Personal (Daily Needs & Independence)
+// ---------------------------------------------------------------------------
+export const PERSONAL_QUESTIONS: McqQuestion[] = [
+  {
+    id: 'personal_home',
+    title: 'Which daily living task at home would you like to make easier?',
+    instruction: 'Select the home activity where low vision causes the most frustration.',
+    options: [
+      { id: 'kitchen', label: 'Kitchen & Cooking', description: 'Reading oven dials, measuring food, and stove safety.' },
+      { id: 'medication', label: 'Medication Management', description: 'Reading prescription bottles, warning labels, and dosage instructions.' },
+      { id: 'mail', label: 'Personal Mail & Bills', description: 'Sorting through printed mail, reading utility bills, and handwriting.' },
+      { id: 'clothing', label: 'Clothing & Housekeeping', description: 'Identifying garment colors, doing laundry, and home organizing.' },
+    ],
+  },
+  {
+    id: 'personal_reading',
+    title: 'How do you currently prefer to read print or personal documents?',
+    instruction: 'Choose the reading method you use most or wish to improve.',
+    options: [
+      { id: 'magnifier', label: 'Optical or Electronic Video Magnifier', description: 'Handheld lighted magnifying glass or digital desktop CCTV monitor.' },
+      { id: 'tts', label: 'Text-to-Speech Audio Reader', description: 'Scanning a printed page with a smartphone app to hear it read aloud.' },
+      { id: 'voice_assistant', label: 'Voice Assistant / Smart Speaker', description: 'Using Siri, Google Assistant, or Alexa for quick answers and reminders.' },
+      { id: 'human', label: 'Family or Sighted Assistance', description: 'Relying on a family member or caregiver to read things aloud.' },
+    ],
+  },
+  {
+    id: 'personal_digital',
+    title: 'Which device do you use most often for personal tasks?',
+    instruction: 'Select your primary digital gadget for staying connected.',
+    options: [
+      { id: 'smartphone', label: 'Smartphone (iPhone or Android)', description: 'Using accessibility features like Large Text, Zoom, or TalkBack / VoiceOver.' },
+      { id: 'computer', label: 'Desktop Computer or Laptop', description: 'Windows PC or Mac with high-contrast themes and screen magnification.' },
+      { id: 'tablet', label: 'Tablet or iPad', description: 'Larger touch screen with pinch-to-zoom for reading and videos.' },
+      { id: 'minimal', label: 'I Rarely Use Digital Devices', description: 'Looking for simple, non-digital or basic push-button accessibility.' },
+    ],
+  },
+  {
+    id: 'personal_mobility',
+    title: 'When moving around your home or community, what would help most?',
+    instruction: 'Choose the accessibility modification that would give you the most confidence.',
+    options: [
+      { id: 'contrast_lighting', label: 'High-Contrast Markers & Task Lighting', description: 'Bright glare-free lamps and bright tactile edge markers on stairs and switches.' },
+      { id: 'talking_gadgets', label: 'Talking Audio Devices', description: 'Talking clocks, audio kitchen scales, and voice-labeled buttons.' },
+      { id: 'magnification_signs', label: 'Portable Monocular or Sign Magnifier', description: 'Spotting street signs, bus route numbers, and aisle labels.' },
+      { id: 'navigation_apps', label: 'GPS Wayfinding & AI Assistant Apps', description: 'Apps like Seeing AI, Be My Eyes, or Soundcraft for real-time guidance.' },
+    ],
+  },
+  {
+    id: 'personal_leisure',
+    title: 'What leisure activities or hobbies do you enjoy or want to resume?',
+    instruction: 'Tell us how you spend your free time so we can recommend adaptive leisure tools.',
+    options: [
+      { id: 'reading_books', label: 'Reading Books & News', description: 'Large print books, Talking Books from the National Library Service (NLS), or Kindle.' },
+      { id: 'crafts_tactile', label: 'Crafts, Gardening, or Hands-On Hobbies', description: 'Tactile measuring tapes, specialized hobby lighting, and bump dots.' },
+      { id: 'social_calls', label: 'Connecting with Family & Friends', description: 'Accessible phone calls, FaceTime/video, and voice messaging.' },
+      { id: 'music_news', label: 'Listening to Audio Entertainment', description: 'Podcasts, radio broadcasts, audiobooks, and musical instruments.' },
+    ],
+  },
 ]
 
-const VISION_IMPACTS: Record<string, McqQuestion> = {
-  glaucoma: {
-    id: 'impact_glaucoma', title: 'With glaucoma, which screen task, if any, is most difficult for you?',
-    options: impactOptions([
-      ['peripheral_items', 'Noticing items near the edge of the screen'],
-      ['scan_layout', 'Scanning a busy page to find a control'],
-      ['small_detail', 'Reading small text or fine detail'],
-      ['contrast_glare', 'Distinguishing content when contrast or glare is difficult'],
-    ]),
-  },
-  macular_degeneration: {
-    id: 'impact_macular_degeneration', title: 'With macular degeneration, which screen task, if any, is most difficult for you?',
-    options: impactOptions([
-      ['central_detail', 'Reading text or detail in the center of the page'],
-      ['magnification_navigation', 'Keeping my place while magnifying content'],
-      ['recognize_items', 'Recognizing icons, images, or short labels'],
-      ['contrast_glare', 'Distinguishing content when contrast or glare is difficult'],
-    ]),
-  },
-  diabetic_retinopathy: {
-    id: 'impact_diabetic_retinopathy', title: 'With diabetic retinopathy, which screen task, if any, is most difficult for you?',
-    options: impactOptions([
-      ['variable_detail', 'Reading when clarity or detail varies'],
-      ['scan_layout', 'Scanning a page to find the information I need'],
-      ['contrast_glare', 'Distinguishing text from its background'],
-      ['small_detail', 'Reading small text or fine detail'],
-    ]),
-  },
-  cataracts: {
-    id: 'impact_cataracts', title: 'With cataracts, which screen task, if any, is most difficult for you?',
-    options: impactOptions([
-      ['glare', 'Reading when the screen or lighting causes glare'],
-      ['contrast', 'Distinguishing text and controls from the background'],
-      ['small_detail', 'Reading small text or fine detail'],
-      ['bright_screen', 'Using a bright screen for more than a short time'],
-    ]),
-  },
-  retinitis_pigmentosa: {
-    id: 'impact_retinitis_pigmentosa', title: 'With retinitis pigmentosa, which screen task, if any, is most difficult for you?',
-    options: impactOptions([
-      ['peripheral_items', 'Noticing items near the edge of the screen'],
-      ['scan_layout', 'Scanning across a wide or busy page'],
-      ['low_light', 'Using a screen when the surrounding area is dim'],
-      ['contrast', 'Distinguishing text and controls from the background'],
-    ]),
-  },
-  other: {
-    id: 'impact_other', title: 'Which screen task, if any, is most affected by your vision?',
-    options: impactOptions([
-      ['small_detail', 'Reading small text or fine detail'],
-      ['scan_layout', 'Scanning a page to find a control or information'],
-      ['contrast_glare', 'Distinguishing content or managing glare'],
-      ['variable_detail', 'Reading when my vision or clarity varies'],
-    ]),
-  },
-  not_sure: {
-    id: 'impact_not_sure', title: 'Which screen task, if any, is most difficult for you?',
-    options: impactOptions([
-      ['small_detail', 'Reading small text or fine detail'],
-      ['scan_layout', 'Finding things on a busy page'],
-      ['contrast_glare', 'Distinguishing content or managing glare'],
-      ['variable_detail', 'Reading when clarity varies'],
-    ]),
-  },
-}
-
-export function getVisionImpactQuestion(limitation: string) {
-  return VISION_IMPACTS[limitation] ?? VISION_IMPACTS.not_sure
-}
-
-export const GOALS: McqQuestion = {
-  id: 'goal',
-  title: 'What would you most like to do more independently?',
-  instruction: 'Choose a task that matters to you. Your answers will guide the next questions and recommendations.',
+// ---------------------------------------------------------------------------
+// 3. BRANCH B: Career & Employment
+// ---------------------------------------------------------------------------
+export const CAREER_FORK_QUESTION: McqQuestion = {
+  id: 'career_path_choice',
+  title: 'Do you have a set career path, or are you exploring options?',
+  instruction: 'Choose whether you need accommodations for an existing field or want to discover new vocational paths.',
   options: [
-    { id: 'documents', label: 'Read a document or find information' },
-    { id: 'communication', label: 'Use email, calendar, or video calls' },
-    { id: 'work_tasks', label: 'Complete a work task or online form' },
-    { id: 'files', label: 'Find, save, and organize files' },
-    { id: 'explore', label: 'I’m not sure yet; help me explore' },
+    {
+      id: 'set_path',
+      label: 'Yes, I have a set career path or current job',
+      description: 'I need assistive tech solutions, workstation ergonomics, and task accommodations for my field.',
+    },
+    {
+      id: 'exploring',
+      label: 'No, I am exploring options and discovering what fits',
+      description: 'I want to discover job areas that match my strengths, interests, and accessible training opportunities.',
+    },
   ],
 }
 
-export const FOLLOW_UPS: Record<string, McqQuestion> = {
-  documents: {
-    id: 'documents', title: 'What kind of material do you most want to work with?',
-    instruction: 'This helps us choose useful reading and document-access practice.',
+// Sub-branch B1: Career Set Path
+export const CAREER_SET_PATH_QUESTIONS: McqQuestion[] = [
+  {
+    id: 'work_environment',
+    title: 'What type of workplace environment best describes your target job?',
+    instruction: 'Select the primary setting where you perform work tasks.',
     options: [
-      { id: 'digital', label: 'A document already on the computer' },
-      { id: 'scanned', label: 'A printed page or scanned document' },
-      { id: 'web', label: 'Articles and information on websites' },
-      { id: 'mixed', label: 'A mix of these' },
+      { id: 'digital_office', label: 'Digital Office / Remote Computer Work', description: 'Desk workstation using computers, email, databases, and digital files.' },
+      { id: 'manufacturing', label: 'Manufacturing / Assembly / Production Floor', description: 'Physical workshop, assembly line, machinery, or warehouse inventory.' },
+      { id: 'customer_service', label: 'Customer Service / Call Center', description: 'Telephone headsets, ticket queues, multi-window screen navigation.' },
+      { id: 'retail_hospitality', label: 'Retail, Hospitality, or Field Work', description: 'Face-to-face service, POS terminals, inventory stocking, and mobility.' },
     ],
   },
-  communication: {
-    id: 'communication', title: 'Which communication task would you like to practice first?',
+  {
+    id: 'work_barriers',
+    title: 'Which daily work task poses the biggest barrier for your vision?',
+    instruction: 'Identify the task that causes the most eye fatigue or slows you down.',
     options: [
-      { id: 'email_read', label: 'Find and read an email' },
-      { id: 'email_write', label: 'Write and send a reply' },
-      { id: 'calendar', label: 'Create or check an appointment' },
-      { id: 'video_call', label: 'Join and participate in a video call' },
+      { id: 'screen_data', label: 'Dense Screen Text & Spreadsheets', description: 'Reading complex spreadsheets, data tables, or small database forms.' },
+      { id: 'machinery_tools', label: 'Operating Machinery & Physical Assembly', description: 'Locating small parts, measuring tolerances, and tactile equipment control.' },
+      { id: 'communication_speed', label: 'Rapid Email & Multitasking Windows', description: 'Keeping up with instant messages, emails, and jumping between apps.' },
+      { id: 'inspection', label: 'Detailed Visual Quality Inspection', description: 'Inspecting printed labels, barcodes, material finishes, or physical flaws.' },
     ],
   },
-  work_tasks: {
-    id: 'work_tasks', title: 'Which work task should we focus on?',
+  {
+    id: 'work_current_tools',
+    title: 'What assistive tools or modifications have you already tried at work?',
+    instruction: 'Choose your current level of workplace assistive technology experience.',
     options: [
-      { id: 'online_form', label: 'Complete an online form' },
-      { id: 'spreadsheet', label: 'Read or update a spreadsheet' },
-      { id: 'upload', label: 'Upload or share a work document' },
-      { id: 'work_document', label: 'Create or edit a work document' },
+      { id: 'screen_magnifier', label: 'Screen Magnification (ZoomText / MagSafe)', description: 'Magnifying screen windows up to 2x–8x with pointer enhancement.' },
+      { id: 'screen_reader', label: 'Screen Readers (JAWS / NVDA / VoiceOver)', description: 'Full speech synthesis and keyboard shortcuts without relying on mouse vision.' },
+      { id: 'large_monitor', label: 'Hardware Upgrades (Large Monitor / Lighting)', description: '32”+ high-contrast display, articulating monitor arm, or task lighting.' },
+      { id: 'none_yet', label: 'None Yet / Looking for Recommendations', description: 'Have not used formal workplace assistive tech; seeking professional guidance.' },
     ],
   },
-  files: {
-    id: 'files', title: 'What is the hardest part of managing files?',
+  {
+    id: 'work_input_method',
+    title: 'How do you navigate and enter information on workplace systems?',
+    instruction: 'Select your preferred method for computer input.',
     options: [
-      { id: 'locate', label: 'Find a file I have already saved' },
-      { id: 'save', label: 'Save a download to the right place' },
-      { id: 'organize', label: 'Name and organize files so I can find them later' },
-      { id: 'share', label: 'Attach or share a file with someone' },
+      { id: 'touch_typing', label: 'Standard Keyboard Touch Typing', description: 'Comfortable typing by muscle memory using home-row locator nubs.' },
+      { id: 'large_keyboard', label: 'High-Contrast, Large-Print Keyboard', description: 'Yellow-on-black or white-on-black high-visibility oversized keys.' },
+      { id: 'mouse_pointer', label: 'Mouse with Extra-Large Glowing Cursor', description: 'High-visibility neon mouse pointer with inverted tracking lines.' },
+      { id: 'voice_dictation', label: 'Speech-to-Text Voice Dictation', description: 'Using dictation tools (Dragon / Windows Speech) to speak input.' },
     ],
   },
-  explore: {
-    id: 'explore', title: 'Which area sounds like a useful place to start?',
+  {
+    id: 'work_support_need',
+    title: 'What type of workplace accommodation or support would help you most?',
+    instruction: 'Tell us how Lions Services staff can best support your employment goals.',
     options: [
-      { id: 'device_basics', label: 'Learn the accessibility features on my device' },
-      { id: 'documents', label: 'Practice reading documents' },
-      { id: 'communication', label: 'Practice email or communication' },
-      { id: 'work_tasks', label: 'Try a common workplace task' },
+      { id: 'software_training', label: 'One-on-One Assistive Software Training', description: 'Personalized coaching on ZoomText, JAWS, or Excel shortcuts.' },
+      { id: 'job_coaching', label: 'Workstation Ergonomic & Task Assessment', description: 'An assessor reviews your physical setup, lighting, and task layout.' },
+      { id: 'checklists', label: 'Accessible Checklists & Tactile Workflow', description: 'Color-coded templates, bump dots, and clear SOPs for daily steps.' },
+      { id: 'equipment_loan', label: 'Equipment Loan & Work Trial', description: 'Testing assistive devices in your actual workspace before purchasing.' },
     ],
   },
-}
-
-export const TOOL_QUESTION: McqQuestion = {
-  id: 'tool_familiarity',
-  title: 'Which tools have you used for this kind of task?',
-  instruction: 'Select the closest match. This helps us tailor practice and recommendations; it does not affect your skill score.',
-  options: [
-    { id: 'magnification', label: 'Screen magnification or zoom' },
-    { id: 'speech', label: 'Read-aloud, text-to-speech, or a screen reader' },
-    { id: 'ocr', label: 'Optical character recognition (OCR) for printed pages' },
-    { id: 'keyboard_braille', label: 'Keyboard access or a refreshable braille display' },
-    { id: 'voice', label: 'Voice control or dictation' },
-    { id: 'staff_help', label: 'I usually ask someone for help' },
-    { id: 'none_yet', label: 'I have not tried these tools yet' },
-  ],
-}
-
-const TASK_LANGUAGE: Record<string, { object: string; setup: string; navigate: string; complete: string; verify: string }> = {
-  documents: { object: 'a document', setup: 'open and prepare', navigate: 'move through it to find a specific detail', complete: 'read the information you need', verify: 'confirm you found the right information' },
-  communication: { object: 'a message or event', setup: 'locate and open', navigate: 'move to the message or event you need', complete: 'finish the communication task', verify: 'confirm the message or event was handled as intended' },
-  work_tasks: { object: 'a workplace task', setup: 'open and start', navigate: 'move through its controls or information', complete: 'complete the task', verify: 'check that the task was completed correctly' },
-  digital: { object: 'a digital document', setup: 'open and prepare', navigate: 'move through it to find a specific detail', complete: 'read the information you need', verify: 'confirm you found the right information' },
-  scanned: { object: 'a printed or scanned page', setup: 'capture and prepare', navigate: 'move through the recognized text to find a specific detail', complete: 'read the information you need', verify: 'check the recognized text against the page' },
-  web: { object: 'a web article', setup: 'open and prepare', navigate: 'move through headings to find information', complete: 'read the information you need', verify: 'confirm you found the right section' },
-  mixed: { object: 'a document', setup: 'open and prepare', navigate: 'move through it to find a specific detail', complete: 'read the information you need', verify: 'confirm you found the right information' },
-  email_read: { object: 'an email', setup: 'locate and open', navigate: 'find and understand the message you need', complete: 'read the message and any attachment', verify: 'confirm you have the correct message' },
-  email_write: { object: 'an email reply', setup: 'open and prepare', navigate: 'move between the message and reply controls', complete: 'write, review, and send the reply', verify: 'confirm the reply was sent to the right person' },
-  calendar: { object: 'a calendar event', setup: 'open and prepare', navigate: 'move between date, time, and event details', complete: 'create or update the event', verify: 'confirm the event details are correct' },
-  video_call: { object: 'a video meeting', setup: 'locate and join', navigate: 'find and use the meeting controls', complete: 'participate in the meeting', verify: 'confirm your audio and meeting status' },
-  online_form: { object: 'an online form', setup: 'open and prepare', navigate: 'move through fields and labels', complete: 'enter information and submit the form', verify: 'confirm the submission or resolve an error' },
-  spreadsheet: { object: 'a spreadsheet', setup: 'open and prepare', navigate: 'find the correct row, column, or cell', complete: 'read or update the cell you need', verify: 'confirm the value in the right location' },
-  upload: { object: 'a work document', setup: 'locate and open', navigate: 'find the file and upload controls', complete: 'attach or share the document', verify: 'confirm the correct file is attached' },
-  work_document: { object: 'a work document', setup: 'open and prepare', navigate: 'move through headings and editing controls', complete: 'make a change and save the document', verify: 'confirm the changes were saved' },
-  locate: { object: 'a saved file', setup: 'open the file browser', navigate: 'find the file you need', complete: 'open the correct file', verify: 'confirm it is the right version' },
-  save: { object: 'a downloaded file', setup: 'open the download and save controls', navigate: 'choose a known folder and descriptive name', complete: 'save the file', verify: 'find it again in the chosen folder' },
-  organize: { object: 'your work files', setup: 'open the folder you use', navigate: 'choose a useful name and location', complete: 'organize the file', verify: 'find it later using its name or location' },
-  share: { object: 'a file attachment', setup: 'locate the file and sharing controls', navigate: 'choose the intended file and recipient', complete: 'attach or share the file', verify: 'confirm the correct file is ready to share' },
-  device_basics: { object: 'an accessibility feature', setup: 'turn on and prepare', navigate: 'find its controls while doing a simple task', complete: 'use it to complete the task', verify: 'confirm it is working as expected' },
-}
-
-const toolLabels: Record<string, string> = {
-  magnification: 'screen magnification', speech: 'speech or screen-reader tools', ocr: 'OCR',
-  keyboard_braille: 'keyboard or braille access', voice: 'voice control or dictation',
-  staff_help: 'staff-supported access tools', none_yet: 'an assistive technology tool',
-}
-
-const scoreOptions = [
-  { id: 'independent', label: 'I can do this independently', description: 'I can complete this step on my own.', score: 100 },
-  { id: 'tools', label: 'I can do this with my tools or occasional help', description: 'I usually succeed with an assistive tool or a little support.', score: 75 },
-  { id: 'guided', label: 'I need step-by-step guidance', description: 'I can take part, but need someone to guide me through it.', score: 45 },
-  { id: 'new', label: 'I have not tried this yet', description: 'I would benefit from an introduction and supported practice.', score: 20 },
 ]
 
-export function getSkillQuestions(goal: string, detail: string, tool = 'none_yet'): McqQuestion[] {
-  const task = TASK_LANGUAGE[detail] ?? TASK_LANGUAGE.device_basics
-  const usingTool = toolLabels[tool] ?? 'an assistive technology tool'
-  const prompts = [
-    { id: 'skill_setup', title: `Can you ${task.setup} ${task.object} using ${usingTool}?`, weight: 1 },
-    { id: 'skill_navigate', title: `Can you ${task.navigate}?`, weight: 1.25 },
-    { id: 'skill_complete', title: `Can you ${task.complete}?`, weight: 1.5 },
-    { id: 'skill_verify', title: `Can you ${task.verify}?`, weight: 1.25 },
-  ]
-  return prompts.map(({ id, title, weight }, index) => ({
-    id,
-    title,
-    instruction: index === 0
-      ? 'Choose the answer that best describes what you can do today.'
-      : 'Think about completing this step using the access method that works for you.',
-    weight,
-    options: scoreOptions,
-  }))
+// Sub-branch B2: Career Exploring
+export const CAREER_EXPLORING_QUESTIONS: McqQuestion[] = [
+  {
+    id: 'interest_bucket',
+    title: 'Which area of work sounds most exciting to you?',
+    instruction: 'Pick the field that best matches your natural curiosity and interests.',
+    options: [
+      { id: 'technology', label: 'Technology & Digital Accessibility', description: 'Testing websites/apps for accessibility, IT helpdesk, and assistive tech support.' },
+      { id: 'office', label: 'Digital Office & Administration', description: 'Customer service, data entry, calendar scheduling, and team communication.' },
+      { id: 'manufacturing', label: 'Hands-On Assembly & Manufacturing', description: 'Tactile manufacturing, precision sewing, packaging, and shipping at Lions Services.' },
+      { id: 'creative', label: 'Art, Creative & Communications', description: 'Audio editing, podcasting, community outreach, and storytelling.' },
+    ],
+  },
+  {
+    id: 'work_setting_pref',
+    title: 'What work setting feels most comfortable for you?',
+    instruction: 'Choose your ideal day-to-day work environment.',
+    options: [
+      { id: 'independent', label: 'Quiet Independent Workstation', description: 'Focused individual tasks with controlled lighting and low distraction.' },
+      { id: 'team', label: 'Collaborative Team Environment', description: 'Working alongside supportive peers with clear team goals and communication.' },
+      { id: 'workshop', label: 'Active Workshop / Production Floor', description: 'Hands-on movement, tactile stations, and structured physical production.' },
+      { id: 'hybrid', label: 'Flexible Hybrid / Remote Option', description: 'Combining remote home office comfort with scheduled on-site collaboration.' },
+    ],
+  },
+  {
+    id: 'learning_pref',
+    title: 'How do you prefer to learn new job skills?',
+    instruction: 'Tell us the learning format that helps you succeed fastest.',
+    options: [
+      { id: 'coached', label: 'Hands-On Guided Practice with an Assessor', description: 'One-on-one coaching with live demonstrations and immediate feedback.' },
+      { id: 'self_paced', label: 'Self-Paced Audio & Video Modules', description: 'Accessible step-by-step guides you can review at your own pace.' },
+      { id: 'peer', label: 'Shadowing an Experienced Peer', description: 'Observing someone in the role and learning practical daily tips.' },
+      { id: 'written', label: 'Structured Written / Braille Guides', description: 'Cheat sheets and reference manuals you can keep at your desk.' },
+    ],
+  },
+  {
+    id: 'six_month_goal',
+    title: 'What is your main goal for the next 6 months?',
+    instruction: 'Select your milestone for career growth.',
+    options: [
+      { id: 'digital_skills', label: 'Master Job-Ready Digital & Computer Skills', description: 'Build strong keyboard navigation, screen magnification, and email proficiency.' },
+      { id: 'competitive_job', label: 'Enter Competitive Integrated Employment', description: 'Prepare for job placement, resume tailoring, and interview accommodations.' },
+      { id: 'independence', label: 'Build Confidence in Daily Independence', description: 'Establish assistive tech routines so you feel self-reliant in any setting.' },
+      { id: 'lions_vocational', label: 'Explore Lions Services Vocational Opportunities', description: 'Tour Lions Services production facilities and join job training tracks.' },
+    ],
+  },
+]
+
+// ---------------------------------------------------------------------------
+// 4. Branch Router Engine
+// ---------------------------------------------------------------------------
+export function getAdaptiveQuestionPath(answers: Record<string, string>): McqQuestion[] {
+  const path: McqQuestion[] = [PRIMARY_FORK_QUESTION]
+  const primaryFocus = answers.primary_focus
+
+  if (primaryFocus === 'personal') {
+    return [...path, ...PERSONAL_QUESTIONS]
+  }
+
+  if (primaryFocus === 'career') {
+    path.push(CAREER_FORK_QUESTION)
+    const careerPathChoice = answers.career_path_choice
+    if (careerPathChoice === 'set_path') {
+      return [...path, ...CAREER_SET_PATH_QUESTIONS]
+    }
+    if (careerPathChoice === 'exploring') {
+      return [...path, ...CAREER_EXPLORING_QUESTIONS]
+    }
+  }
+
+  return path
 }
 
-export const SUPPORT_QUESTION: McqQuestion = {
-  id: 'support_preference',
-  title: 'What kind of next step would be most useful to you?',
-  instruction: 'This guides the recommendation but does not affect your skill score.',
-  options: [
-    { id: 'self_paced', label: 'A self-paced guide I can try on my own' },
-    { id: 'coached_practice', label: 'Practice with a staff member nearby' },
-    { id: 'step_by_step', label: 'A step-by-step lesson with time to repeat it' },
-    { id: 'explore_tools', label: 'Help comparing tools before I choose' },
-  ],
+// ---------------------------------------------------------------------------
+// 5. Tailored Recommendations Engine
+// ---------------------------------------------------------------------------
+export function getAdaptiveRecommendations(answers: Record<string, string>): RecommendationItem[] {
+  const primaryFocus = answers.primary_focus
+  const list: RecommendationItem[] = []
+
+  if (primaryFocus === 'personal') {
+    const homePref = answers.personal_home
+    const readPref = answers.personal_reading
+
+    if (homePref === 'medication' || homePref === 'kitchen') {
+      list.push({
+        id: 'rec_talking_prescriptions',
+        title: 'ScripTalk Talking Prescription Reader & Audio Labels',
+        category: 'Personal Care & Medication',
+        badge: 'High Impact',
+        description: 'RFID-enabled audio labels that speak medication names, dosage, and doctor warnings aloud automatically when placed on the reader.',
+        keyBenefits: ['Eliminates medication mix-ups', 'Zero screen vision required', 'Free service via many pharmacy chains'],
+        accessTip: 'Pair with tactile bump dots on prescription bottle caps for quick recognition.',
+        suggestedAction: 'Ask Lions Services staff for a free ScripTalk demonstration.',
+      })
+    }
+
+    if (readPref === 'magnifier' || homePref === 'mail') {
+      list.push({
+        id: 'rec_electronic_magnifier',
+        title: 'Full-Color HD Electronic Video Magnifier (7”–10”)',
+        category: 'Reading & Documents',
+        badge: 'Essential',
+        description: 'Portable digital magnifier with adjustable 2x–32x magnification, high-contrast false colors (Yellow-on-Black / White-on-Black), and freeze-frame.',
+        keyBenefits: ['Crystal-clear letter clarity without distortion', 'Comfortable stand for reading mail on tables', 'Lightweight portable design'],
+        accessTip: 'Your chosen Yellow-on-Black contrast theme is natively supported on modern digital CCTV magnifiers.',
+        suggestedAction: 'Schedule an equipment trial at Lions Services to test magnification models.',
+      })
+    }
+
+    list.push({
+      id: 'rec_ai_visual_assistant',
+      title: 'Seeing AI & Envision Smart Vision Assistant',
+      category: 'Smart Devices & Mobility',
+      badge: 'Recommended',
+      description: 'Free smartphone app that uses your phone camera to instantly speak short text, scan barcodes, identify currency, and describe your surroundings.',
+      keyBenefits: ['Fast point-and-read capability for product boxes and mail', 'Works instantly on your current phone', 'Offline mode for grocery store aisle labels'],
+      accessTip: 'Use your phone’s high-visibility large text mode alongside the audio reader.',
+      suggestedAction: 'Request a 30-minute coached phone setup session with an assistive tech specialist.',
+    })
+
+    list.push({
+      id: 'rec_tactile_home_kit',
+      title: 'Tactile Home Marking & Glare-Free Task Lighting Kit',
+      category: 'Daily Living & Independence',
+      badge: 'Quick Win',
+      description: 'A complete set of fluorescent orange bump dots, clear tactile locators, and an articulating 5000K daylight task lamp.',
+      keyBenefits: ['Preset microwave and oven dial settings by touch', 'Locate key light switches in the dark', 'Reduces eye fatigue while reading bills'],
+      accessTip: 'Tactile nubs eliminate the need to squint at unlit appliance buttons.',
+      suggestedAction: 'Pick up a complimentary tactile home sample pack from Lions Services.',
+    })
+  } else {
+    // Career Branch
+    const careerPath = answers.career_path_choice
+    const environment = answers.work_environment
+    const interest = answers.interest_bucket
+
+    if (environment === 'digital_office' || interest === 'office' || interest === 'technology') {
+      list.push({
+        id: 'rec_zoomtext_jaws',
+        title: 'ZoomText Magnifier / Reader & Dual-Monitor Rig',
+        category: 'Digital Workplace Suite',
+        badge: 'Professional Standard',
+        description: 'Industry-standard screen magnification and speech synthesis tailored for Microsoft Office, Google Workspace, and enterprise software.',
+        keyBenefits: ['Smooth font smoothing up to 36x without pixelation', 'Mouse radar pointer locator that never gets lost', 'Synchronized speech for long emails'],
+        accessTip: 'Matches your selected large cursor and high-contrast color palette directly on Windows & Mac.',
+        suggestedAction: 'Schedule a vocational technology evaluation for employer accommodation funding.',
+      })
+    }
+
+    if (environment === 'manufacturing' || interest === 'manufacturing') {
+      list.push({
+        id: 'rec_lions_manufacturing_track',
+        title: 'Lions Services Tactile Manufacturing & Precision Assembly Track',
+        category: 'Vocational Training & Employment',
+        badge: 'Career Pathway',
+        description: 'Integrated manufacturing positions at Lions Services Inc. featuring specialized ergonomic workstations, high-contrast parts bins, and tactile jigs.',
+        keyBenefits: ['Competitive pay and comprehensive employee benefits', 'Accessible work floor engineered specifically for low-vision artisans', 'Supportive team environment with peer mentors'],
+        accessTip: 'Tactile templates and high-intensity overhead task lighting eliminate fine-detail eye strain.',
+        suggestedAction: 'Contact Lions Services intake coordinators to schedule an on-site facility tour.',
+      })
+    }
+
+    list.push({
+      id: 'rec_high_contrast_keyboard',
+      title: 'LogicKeyboard High-Contrast Yellow-on-Black Work Keyboard',
+      category: 'Workstation Ergonomics',
+      badge: 'Ergonomic Tool',
+      description: 'Oversized 40pt high-contrast bold lettering printed on durable mechanical keys with textured home-row locator nubs.',
+      keyBenefits: ['Speeds up data entry by over 40%', 'Eliminates hunting and pecking on dim keyboards', 'Zero software installation required'],
+      accessTip: 'The bold yellow keys mirror your selected Braille Institute high-contrast theme.',
+      suggestedAction: 'Request a keyboard demo during your in-person evaluation.',
+    })
+
+    list.push({
+      id: 'rec_job_coaching_services',
+      title: 'Lions Services Vocational Evaluation & Job Placement Assistance',
+      category: 'Vocational Services',
+      badge: 'Staff Supported',
+      description: 'Dedicated one-on-one consultation with certified Assistive Technology Instructional Specialists (CATIS) and vocational rehabilitation counselors.',
+      keyBenefits: ['Workplace accommodation letters for your employer or HR', 'Free equipment loan programs for 30-day work trials', 'Ongoing technical support and skills coaching'],
+      accessTip: 'Staff can directly export your online assessment telemetry to skip redundant testing.',
+      suggestedAction: 'Click below to submit your profile directly for staff review.',
+    })
+  }
+
+  return list
 }
 
-export function getQuestionPath(flow: { limitation?: string | null; goal?: string | null; detail?: string | null; tool?: string | null }) {
-  const limitation = flow.limitation ?? 'not_sure'
-  const goal = flow.goal ?? 'documents'
-  const detail = flow.detail ?? 'digital'
-  return [
-    LIMITATIONS,
-    getVisionImpactQuestion(limitation),
-    GOALS,
-    FOLLOW_UPS[goal] ?? FOLLOW_UPS.explore,
-    TOOL_QUESTION,
-    ...getSkillQuestions(goal, detail, flow.tool ?? 'none_yet'),
-    SUPPORT_QUESTION,
-  ]
+export function calculateAssessmentScore(answers: Record<string, string>): number {
+  const answeredCount = Object.keys(answers).length
+  if (answeredCount <= 1) return 50
+  const base = Math.min(95, 60 + answeredCount * 6)
+  return base
 }
 
+// ---------------------------------------------------------------------------
+// 6. Compatibility & Legacy Schema Bridges (for Demo Data & Staff Dashboard)
+// ---------------------------------------------------------------------------
 export interface ScoredSkillResponse {
   questionId: string
   prompt: string
@@ -260,87 +388,109 @@ export interface ScoredSkillResponse {
   weight: number
 }
 
-export function calculateAbilityScore(responses: ScoredSkillResponse[]) {
-  const scored = responses.filter((response) => Number.isFinite(response.score) && response.weight > 0)
-  const totalWeight = scored.reduce((sum, response) => sum + response.weight, 0)
-  if (!totalWeight) return 0
-  const weightedPoints = scored.reduce((sum, response) => sum + response.score * response.weight, 0)
-  return Math.round(weightedPoints / totalWeight)
+export const LIMITATIONS: McqQuestion = {
+  id: 'limitation',
+  title: 'Which vision condition or limitation best describes your experience?',
+  instruction: 'Choose the closest description.',
+  options: [
+    { id: 'glaucoma', label: 'Glaucoma' },
+    { id: 'macular_degeneration', label: 'Macular degeneration' },
+    { id: 'diabetic_retinopathy', label: 'Diabetic retinopathy' },
+    { id: 'cataracts', label: 'Cataracts' },
+    { id: 'retinitis_pigmentosa', label: 'Retinitis pigmentosa' },
+    { id: 'other', label: 'Other vision limitation' },
+    { id: 'not_sure', label: 'Not sure / Prefer not to say' },
+  ],
 }
 
-const DETAIL_LABELS: Record<string, string> = {
-  digital: 'digital documents', scanned: 'printed and scanned pages', web: 'web content', mixed: 'different document types',
-  email_read: 'finding and reading email', email_write: 'writing and sending email', calendar: 'calendar tasks', video_call: 'video calls',
-  online_form: 'online forms', spreadsheet: 'spreadsheets', upload: 'sharing work files', work_document: 'work documents',
-  locate: 'finding saved files', save: 'saving downloads', organize: 'organizing files', share: 'sharing attachments',
-  device_basics: 'device accessibility basics', documents: 'document access', communication: 'email and communication', work_tasks: 'workplace digital tasks',
-}
-
-export function getFocusLabel(goal: string, detail: string) {
-  return DETAIL_LABELS[detail] ?? (goal === 'documents' ? 'document access' : 'everyday digital tasks')
-}
-
-export function getRecommendation(goal: string, detail: string, score: number, prefs: { fontScale: number; theme: string }, tool = 'none_yet', support = 'coached_practice', impact = 'none_other') {
-  const chosenGoal = goal === 'explore' && ['documents', 'communication', 'work_tasks'].includes(detail) ? detail : goal
-  const accessTip = prefs.fontScale >= 26
-    ? 'Keep the larger text setting from the vision check while practicing.'
-    : prefs.theme !== 'standard'
-      ? 'Keep the contrast and color settings from the vision check while practicing.'
-      : 'Use the display settings that felt most comfortable in the vision check.'
-  const taskPractice: Record<string, string> = {
-    documents: detail === 'scanned'
-      ? 'Practice an OCR and read-aloud workflow: capture a page, check the recognized text, then listen or navigate by headings.'
-      : 'Practice opening a document, using headings to move through it, and choosing magnification or read-aloud for longer passages.',
-    communication: detail === 'video_call'
-      ? 'Practice joining a meeting, locating mute and participant controls, and leaving the meeting safely.'
-      : 'Practice a short communication workflow: locate the message or event, review it, and complete the next action.',
-    work_tasks: detail === 'online_form'
-      ? 'Practice a sample form by moving through labels, required fields, error messages, and the final submit confirmation.'
-      : detail === 'spreadsheet'
-        ? 'Practice moving through a small spreadsheet by row and column, identifying headers, and editing one cell.'
-        : 'Practice a short work task: make one change, save or submit it, and confirm the result.',
-    files: 'Practice a repeatable file routine: download, choose a known folder, use a descriptive name, then locate and attach the file.',
-    explore: 'Start with a guided device-accessibility tour, then choose one everyday task to practice with the settings from the vision check.',
-  }
-  const toolAdvice: Record<string, string> = {
-    magnification: 'Build the practice around screen magnification, then practice moving the magnified view without losing your place.',
-    speech: 'Build the practice around read-aloud or screen-reader navigation, including headings, labels, and reading position.',
-    ocr: 'Include OCR practice and a step for checking that the recognized text matches the original page.',
-    keyboard_braille: 'Include keyboard navigation or braille-display practice so the task can be completed without relying on pointer targeting.',
-    voice: 'Include voice-control or dictation practice, with time to review and correct the recognized input.',
-    staff_help: 'Begin with a staff-supported session and let the participant choose which access tools to try.',
-    none_yet: 'Offer a supported comparison of magnification, read-aloud, screen-reader, and OCR tools for this task.',
-  }
-  const impactAdvice: Record<string, string> = {
-    peripheral_items: 'Use a predictable focus order and landmarks, and practice locating controls without depending on peripheral scanning.',
-    central_detail: 'Keep the chosen text size available and compare magnification with speech for dense detail.',
-    small_detail: 'Keep the chosen text size and zoom settings available during practice.',
-    contrast_glare: 'Use the contrast and color settings selected in the vision check during practice.',
-    contrast: 'Use the contrast and color settings selected in the vision check during practice.',
-    glare: 'Keep screen contrast comfortable and offer a lower-glare display position during practice.',
-    bright_screen: 'Keep the display comfortable and offer breaks or a lower-glare position during practice.',
-    scan_layout: 'Practice with a simple layout and predictable navigation before trying a busier page.',
-    low_light: 'Use the display settings selected in the vision check and avoid relying on low-contrast controls.',
-    variable_detail: 'Practice switching between visual access and speech tools while keeping the task position clear.',
-    magnification_navigation: 'Practice panning and returning to a known point in the document.',
-    recognize_items: 'Practice combining clear labels with magnification or speech for icons and short controls.',
-    none_other: 'Start with the access method the participant already prefers and adjust based on their feedback.',
-  }
-  const nextStep = support === 'self_paced'
-    ? 'Provide an accessible self-paced guide and a sample task the participant can repeat independently.'
-    : support === 'step_by_step'
-      ? 'Offer a step-by-step lesson with time to repeat each part and a short take-home practice plan.'
-      : support === 'explore_tools'
-        ? 'Set up a guided comparison of relevant tools, then let the participant choose what to practice next.'
-        : score >= 80
-          ? 'Offer an independent practice task and let the participant choose when to ask for help.'
-          : score >= 50
-            ? 'Offer a short coached practice, then let the participant repeat the task with less prompting.'
-            : 'Begin with a supported introduction, demonstrate one step at a time, and build a simple take-home practice plan.'
+export function getVisionImpactQuestion(limitation: string): McqQuestion {
   return {
-    title: `Personalized practice: ${getFocusLabel(goal, detail)}`,
-    tool: `${taskPractice[chosenGoal] ?? taskPractice.explore} ${toolAdvice[tool] ?? toolAdvice.none_yet}`,
-    accessTip: `${accessTip} ${impactAdvice[impact] ?? impactAdvice.none_other}`,
-    nextStep,
+    id: `impact_${limitation}`,
+    title: 'Which screen task, if any, is most affected by your vision?',
+    instruction: 'Select the main difficulty.',
+    options: [
+      { id: 'small_detail', label: 'Reading small text or fine detail' },
+      { id: 'scan_layout', label: 'Scanning a page to find controls' },
+      { id: 'contrast_glare', label: 'Distinguishing content or managing glare' },
+      { id: 'none_other', label: 'None of these / something else' },
+    ],
   }
 }
+
+export const GOALS: McqQuestion = {
+  id: 'goal',
+  title: 'What would you most like to do more independently?',
+  options: [
+    { id: 'documents', label: 'Read documents or find information' },
+    { id: 'communication', label: 'Use email, calendar, or video calls' },
+    { id: 'work_tasks', label: 'Complete work tasks or online forms' },
+    { id: 'explore', label: 'Explore available options' },
+  ],
+}
+
+export const FOLLOW_UPS: Record<string, McqQuestion> = {
+  documents: { id: 'documents', title: 'What kind of material?', options: [{ id: 'digital', label: 'Digital documents' }, { id: 'scanned', label: 'Printed or scanned pages' }] },
+  communication: { id: 'communication', title: 'Which communication task?', options: [{ id: 'email_read', label: 'Read emails' }, { id: 'video_call', label: 'Video meetings' }] },
+  work_tasks: { id: 'work_tasks', title: 'Which workplace task?', options: [{ id: 'online_form', label: 'Online forms' }, { id: 'spreadsheet', label: 'Spreadsheets' }] },
+  explore: { id: 'explore', title: 'Where should we start?', options: [{ id: 'device_basics', label: 'Device accessibility basics' }] },
+}
+
+export const TOOL_QUESTION: McqQuestion = {
+  id: 'tool_familiarity',
+  title: 'Which tools have you used for this kind of task?',
+  options: [
+    { id: 'magnification', label: 'Screen magnification' },
+    { id: 'speech', label: 'Text-to-speech or screen reader' },
+    { id: 'none_yet', label: 'Have not tried these tools yet' },
+  ],
+}
+
+export const SUPPORT_QUESTION: McqQuestion = {
+  id: 'support_preference',
+  title: 'What kind of next step would be most useful to you?',
+  options: [
+    { id: 'self_paced', label: 'Self-paced guide' },
+    { id: 'coached_practice', label: 'Coached practice with staff' },
+  ],
+}
+
+export function getSkillQuestions(goal: string, detail: string, tool = 'none_yet'): McqQuestion[] {
+  return [
+    {
+      id: 'skill_setup',
+      title: 'Can you set up accessibility settings for your task?',
+      options: [
+        { id: 'independent', label: 'I can do this independently', score: 100 },
+        { id: 'tools', label: 'I can do this with tools or occasional help', score: 75 },
+        { id: 'guided', label: 'I need step-by-step guidance', score: 45 },
+      ],
+    },
+  ]
+}
+
+export function getQuestionPath(flow: any): McqQuestion[] {
+  return getAdaptiveQuestionPath(flow?.answers ?? flow ?? {})
+}
+
+export function calculateAbilityScore(responses: ScoredSkillResponse[]): number {
+  if (!responses || !responses.length) return 70
+  const valid = responses.filter((r) => typeof r.score === 'number')
+  if (!valid.length) return 70
+  return Math.round(valid.reduce((sum, r) => sum + r.score, 0) / valid.length)
+}
+
+export function getFocusLabel(goal: string, detail: string): string {
+  if (goal === 'personal') return 'Personal Independence & Home Accessibility'
+  if (goal === 'career') return 'Career, Employment & Workplace Accessibility'
+  return 'Accessible Assistive Technology'
+}
+
+export function getRecommendation(goal: string, detail: string, score: number, prefs: any, tool = 'none_yet', support = 'coached_practice', impact = 'none_other') {
+  return {
+    title: `Personalized AT Practice: ${getFocusLabel(goal, detail)}`,
+    tool: 'Explore customized video magnifiers, screen readers, and tactile labeling tools.',
+    accessTip: 'Your selected high-contrast theme and large text settings will be shared with your assessor.',
+    nextStep: 'Request an in-person assessment review with Lions Services assistive technology staff.',
+  }
+}
+

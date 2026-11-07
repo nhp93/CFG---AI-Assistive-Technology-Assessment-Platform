@@ -135,23 +135,7 @@ export default function Assessment() {
     })
   }
 
-  // Tactile shortcuts: F = Yes, J = No (while asking), Space = Next when focus is outside a control.
-  useEffect(() => {
-    function onKey(e) {
-      if (e.altKey || e.ctrlKey || e.metaKey) return
-      if (e.code === 'Space') {
-        if (e.target.closest('button, input, select, textarea, a')) return
-        e.preventDefault()
-        return next()
-      }
-      const key = e.key.toLowerCase()
-      if (confirming || (key !== 'f' && key !== 'j')) return
-      e.preventDefault()
-      answer(key === 'f')
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  })
+
 
   function movePointer(area, x, y) {
     setPos({ x: Math.max(0, Math.min(x, area.clientWidth - 20)), y: Math.max(0, Math.min(y, area.clientHeight - 20)) })
@@ -216,7 +200,7 @@ export default function Assessment() {
       </p>
 
       <p className="progress" aria-live="polite">Module {m + 1} of {MODULES.length}: {mod.name}</p>
-      {!confirming && <p className="shortcut-hint">Keyboard shortcuts: F = Yes, J = No, Space = Next.</p>}
+      {!confirming && <p className="shortcut-hint">Select Yes or No with your mouse or keyboard.</p>}
       {speechChoice !== null && window.speechSynthesis && (
         <>
           <div className="actions">
@@ -334,8 +318,8 @@ export function Results() {
 
       <div className="actions">
         <button type="button" className="button button-secondary" onClick={() => navigate('/assessment')}>Back</button>
-        <button type="button" className="button button-secondary" onClick={startSkillsAssessment}>Continue to Skills Assessment</button>
-        <button type="button" className="button button-primary" onClick={startOver}>Start over</button>
+        <button type="button" className="button button-primary" onClick={startSkillsAssessment}>Continue to Adaptive Assessment →</button>
+        <button type="button" className="button button-secondary" onClick={startOver}>Start over</button>
       </div>
     </main>
   )

@@ -8,7 +8,7 @@ type StruggleSignals = Pick<QuestionTelemetry, 'timeSpentMs' | 'hoverSwitches' |
 export function getStruggleReason(m: StruggleSignals): StruggleReason {
   if (m.misclicks >= 2 || m.uiTweaksMidQuestion > 0) return 'visual_motor'
   if (m.hoverSwitches >= 5 || m.answerChanges >= 2) return 'cognitive_indecision'
-  if (m.timeSpentMs > 60000) return 'slow_reading'
+  if (m.timeSpentMs > 15000) return 'slow_reading'
   return 'none'
 }
 
@@ -59,7 +59,7 @@ export function useQuestionTelemetry(questionId: string) {
       answerChanges,
       misclicks,
       uiTweaksMidQuestion,
-      isStruggling: struggleReason !== 'none',
+      isStruggling: timeSpentMs > 15000 || hoverSwitches >= 5 || answerChanges >= 2 || misclicks >= 2 || uiTweaksMidQuestion > 0,
       struggleReason,
     }
   }, [answerChanges, hoverSwitches, misclicks, questionId, selectedOption, uiTweaksMidQuestion])

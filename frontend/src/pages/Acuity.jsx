@@ -5,70 +5,105 @@ import { patchCurrentVision } from '../sessions/store'
 export default function Acuity() {
   const [answer, setAnswer] = useStored('acuityAtLeast2070', '')
   const [error, setError] = useState(false)
-  const formRef = useRef(null)
+  const headingRef = useRef(null)
   const errorRef = useRef(null)
+
+  useEffect(() => {
+    headingRef.current?.focus()
+  }, [])
 
   useEffect(() => {
     if (answer === 'yes' || answer === 'no') patchCurrentVision({ acuityAtLeast2070: answer })
   }, [answer])
 
-  useEffect(() => {
-    function onKey(e) {
-      if (e.altKey || e.ctrlKey || e.metaKey || e.target.matches('input, textarea, select') || e.target.isContentEditable) return
-      if (e.code === 'Space') {
-        if (e.target.closest('button, a')) return
-        e.preventDefault()
-        formRef.current?.requestSubmit()
-        return
-      }
-      const value = { f: 'yes', j: 'no' }[e.key.toLowerCase()]
-      if (!value) return
-      e.preventDefault()
-      const radio = formRef.current?.querySelector(`input[value="${value}"]`)
-      if (radio) {
-        radio.checked = true
-        setAnswer(value)
-        patchCurrentVision({ acuityAtLeast2070: value })
-        setError(false)
-      }
-    }
-    document.addEventListener('keydown', onKey)
-    return () => document.removeEventListener('keydown', onKey)
-  }, [setAnswer])
+  function selectChoice(value) {
+    setAnswer(value)
+    patchCurrentVision({ acuityAtLeast2070: value })
+    setError(false)
+  }
 
-  function submit(e) {
+  function handleContinue(e) {
     e.preventDefault()
     if (!answer) {
       setError(true)
-      return setTimeout(() => errorRef.current?.focus())
+      setTimeout(() => errorRef.current?.focus(), 50)
+      return
     }
-    navigate(answer === 'yes' ? '/acuity-not-required' : '/visual-settings')
+
+    // 20/70 Triage Gate:
+    // Better than 20/70 ("no"): Bypass low-vision calibration, go directly to Assessment
+    // 20/70 or worse ("yes"): Complete 4-step calibration first
+    if (answer === 'no') {
+      navigate('/telemetry-assessment')
+    } else {
+      navigate('/visual-settings')
+    }
   }
 
   return (
-    <main id="main">
-      <h1 tabIndex={-1}>Is your visual acuity 20/70 or worse?</h1>
-      <p className="intro">For example, 20/200. If you know your visual acuity from an eye-care professional, please answer based on that. This is not a vision test.</p>
-      <form ref={formRef} onSubmit={submit} noValidate>
-        <fieldset className="question" aria-describedby="acuity-shortcuts">
-          <legend>Has an eye-care professional told you that your visual acuity is 20/70 or worse?</legend>
-          <div className="options">
-            {['yes', 'no'].map((value) => (
-              <label key={value} className="option">
-                <input type="radio" name="acuity" value={value} checked={answer === value}
-                      onChange={() => { setAnswer(value); setError(false) }} />
-                <span className="option-text">{value === 'yes' ? 'Yes' : 'No'}</span>
-              </label>
-            ))}
-          </div>
-          <p id="acuity-shortcuts" className="shortcut-hint">Keyboard shortcuts: F = Yes, J = No, Space = Next.</p>
-          <div ref={errorRef} className="message message-error" role="alert" tabIndex={-1} hidden={!error}>Please choose Yes or No to continue.</div>
-        </fieldset>
-        <div className="actions">
-          <button type="button" className="button button-secondary" onClick={() => navigate('/')}>Back to welcome</button>
-          <button type="submit" className="button button-primary">Next</button>
+    <main id="main-content" role="main" className="page-shell">
+      <article className="tactile-card triage-card" aria-labelledby="acuity-heading">
+        <div className="mcq-top-row">
+          <span className="step-badge">Initial Triage Gate</span>
+          <span className="branch-badge">Visual Acuity Check</span>
         </div>
-      </form>
+
+        <h1 id="acuity-heading" ref={headingRef} tabIndex={-1} className="mcq-question-title">
+          Has an eye-care professional told you that your visual acuity is 20/70 or worse?
+        </h1>
+
+        <p className="intro readable">
+          For example, 20/70, 20/200, or legal blindness in your better eye with correction.
+          This helps us decide whether you need a 4-step visual comfort check or can start the questionnaire right away.
+        </p>
+
+        <ul className="mcq-options-list" role="list">
+          <li className="mcq-option-item">
+            <button
+              type="button"
+              className={`tactile-btn mcq-option-btn ${answer === 'yes' ? 'selected' : ''}`}
+              aria-pressed={answer === 'yes'}
+              onClick={() => selectChoice('yes')}
+            >
+              <span className="option-indicator" aria-hidden="true">{answer === 'yes' ? '●' : '○'}</span>
+              <div className="option-content">
+                <span className="option-label">Yes — 20/70 or worse</span>
+                <span className="option-desc">I have moderate to severe low vision. I want to customize my font size, contrast, and speech settings first.</span>
+              </div>
+              {answer === 'yes' && <span className="selection-pill" aria-hidden="true">✓ Selected</span>}
+            </button>
+          </li>
+
+          <li className="mcq-option-item">
+            <button
+              type="button"
+              className={`tactile-btn mcq-option-btn ${answer === 'no' ? 'selected' : ''}`}
+              aria-pressed={answer === 'no'}
+              onClick={() => selectChoice('no')}
+            >
+              <span className="option-indicator" aria-hidden="true">{answer === 'no' ? '●' : '○'}</span>
+              <div className="option-content">
+                <span className="option-label">No — Better than 20/70 (or Not Sure)</span>
+                <span className="option-desc">My vision is better than 20/70, or I want to proceed directly to the assessment questions.</span>
+              </div>
+              {answer === 'no' && <span className="selection-pill" aria-hidden="true">✓ Selected</span>}
+            </button>
+          </li>
+        </ul>
+
+        <div ref={errorRef} className="message message-error" role="alert" tabIndex={-1} hidden={!error}>
+          Please select Yes or No to proceed.
+        </div>
+
+        <div className="mcq-footer-actions">
+          <button type="button" className="tactile-btn secondary-btn" onClick={() => navigate('/')}>
+            ← Back to Home
+          </button>
+          <button type="button" className="tactile-btn primary-btn" onClick={handleContinue}>
+            Continue →
+          </button>
+        </div>
+      </article>
     </main>
   )
 }

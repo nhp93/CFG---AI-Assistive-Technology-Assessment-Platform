@@ -55,9 +55,8 @@ html.home button:hover, html.home a:hover, html.home [role="button"]:hover {
 }
 
 html.home, html.home body {
-  height: 100vh;
-  max-height: 100vh;
-  overflow: hidden; /* Guaranteed no vertical or horizontal scrollbar */
+  min-height: 100vh;
+  overflow-x: hidden; /* Prevent horizontal overflow */
 }
 
 html.home, html.home body {
