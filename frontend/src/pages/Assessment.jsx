@@ -1,24 +1,10 @@
 // Adaptive Vision Assessment: a comfort preference check, not a clinical test.
 import { useEffect, useRef, useState } from 'react'
-import { PALETTES, applyFontSize, load, navigate, save, useStored } from '../prefs.js'
+import { MODULES, PALETTES, applyFontSize, load, navigate, save, useStored } from '../prefs.js'
 
 const TEXT = 'Reading should feel easy, not tiring. This sample helps find a setting that works well for you.'
 const SPEECH = 'Welcome to the assessment. Please listen carefully and choose the speaking speed that feels most comfortable.'
 
-// Ordered modules list options from least to most assistive: No moves forward, Yes moves back.
-// Unordered modules (Contrast) step through every option for comparison.
-const MODULES = [
-  { name: 'Magnification', q: 'Can you read this text comfortably?', ordered: true, start: 1,
-    options: [16, 20, 24, 28, 32].map((px) => [px + 'px', { fontSize: px }]) },
-  { name: 'Contrast', q: 'Can you clearly distinguish this text from its background?', start: 0,
-    options: [['Black text on white', { color: '#000', background: '#fff' }], ['White text on black', { color: '#fff', background: '#000' }],
-      ['Yellow text on black', { color: '#ff0', background: '#000' }], ['Black text on yellow', { color: '#000', background: '#ff0' }],
-      ['Soft dimmed theme', { color: '#ccc', background: '#333' }]] },
-  { name: 'Speech', q: 'Was that speech easy to understand?', ordered: true, start: 2,
-    options: [['1.5×', 1.5], ['1.25×', 1.25], ['1.0×', 1], ['0.75×', 0.75]] },
-  { name: 'Cursor', q: 'Can you easily locate and follow the pointer?', ordered: true, start: 0,
-    options: [['Normal', 'normal'], ['Large', 'large'], ['Extra-large', 'xl'], ['High-visibility', 'high']] },
-]
 const KEY = 'visionAssessment'
 const LAST = MODULES.length - 1
 const fresh = () => ({ m: 0, recs: MODULES.map(() => ({ tested: [], confirm: false, choice: null, draftChoice: null, skipped: false })) })

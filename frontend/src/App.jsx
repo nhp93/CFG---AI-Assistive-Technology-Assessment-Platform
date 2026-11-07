@@ -8,6 +8,7 @@ import ColorVision from './pages/ColorVision.jsx'
 import Assessment, { Results } from './pages/Assessment.jsx'
 import AssessmentScreen from './pages/AssessmentScreen.tsx'
 import SkillsResults from './pages/SkillsResults.tsx'
+import StaffDashboard, { StaffLogin } from './pages/Staff.jsx'
 
 // Hash routes work on refresh and direct links without server configuration or a router dependency.
 const ROUTES = {
@@ -20,6 +21,8 @@ const ROUTES = {
   '/results': Results,
   '/telemetry-assessment': AssessmentScreen,
   '/skills-results': SkillsResults,
+  '/staff-login': StaffLogin,
+  '/staff': StaffDashboard,
 }
 const ZOOMS = [1, 1.2, 1.4, 1.6, 1.8, 2]
 const getPath = () => window.location.hash.slice(1) || '/'
@@ -34,9 +37,10 @@ export default function App() {
   const [announcement, setAnnouncement] = useState('')
   const lastKey = useRef(0)
   const dismissRef = useRef(null)
-  const Page = ROUTES[path] || Home
+  const Page = ROUTES[path] || (path.startsWith('/staff/') ? StaffDashboard : Home)
   const isHome = Page === Home
   const isSkillsAssessment = path === '/telemetry-assessment'
+  const isStaff = Page === StaffDashboard || Page === StaffLogin
 
   useEffect(() => {
     const onHash = () => setPath(getPath())
@@ -48,13 +52,15 @@ export default function App() {
   useEffect(() => {
     const root = document.documentElement
     root.classList.toggle('home', isHome)
+    root.classList.toggle('staff', isStaff)
     if (!['/assessment', '/results', '/telemetry-assessment', '/skills-results'].includes(path)) {
       delete root.dataset.assessmentContrast
       delete root.dataset.assessmentCursor
     }
     window.scrollTo(0, 0)
-    document.querySelector('main h1')?.focus()
-  }, [path, isHome])
+    const heading = document.querySelector('main [data-route-focus]') || document.querySelector('main h1')
+    heading?.focus()
+  }, [path, isHome, isStaff])
 
   useEffect(() => {
     applyZoom(zoom)
@@ -81,7 +87,7 @@ export default function App() {
       if (e.target.matches('input:not([type=range]):not([type=radio]), textarea, select') || e.target.isContentEditable) return
       const key = e.key.toLowerCase()
       let action = null
-      if (key === 'escape' && !isSkillsAssessment) action = () => setHelpOpen((open) => !open)
+      if (key === 'escape' && !isSkillsAssessment && !isStaff) action = () => setHelpOpen((open) => !open)
       else if (helpOpen) { if (key === 'enter') action = () => setHelpOpen(false) }
       else if (key === '+' || key === '=') action = () => { const next = ZOOMS.find((l) => l > zoom + 0.05); if (next) changeZoom(next) }
       else if (key === '-' || key === '_') action = () => { const prev = [...ZOOMS].reverse().find((l) => l < zoom - 0.05); if (prev) changeZoom(prev) }
@@ -93,7 +99,7 @@ export default function App() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [changeZoom, helpOpen, zoom, isHome, isSkillsAssessment])
+  }, [changeZoom, helpOpen, zoom, isHome, isSkillsAssessment, isStaff])
 
   return (
     <>
@@ -115,14 +121,17 @@ export default function App() {
               </button>
             )
           })}
-          <button type="button" className="staff-help-btn" aria-haspopup="dialog"
-            aria-label="Request staff assistance" onClick={() => setHelpOpen(true)}>
-            {!isSkillsAssessment && <span className="key-badge esc" aria-hidden="true">Esc</span>} Staff Help
-          </button>
+          {!isStaff && (
+            <button type="button" className="staff-help-btn" aria-haspopup="dialog"
+              aria-label="Request staff assistance" onClick={() => setHelpOpen(true)}>
+              {!isSkillsAssessment && <span className="key-badge esc" aria-hidden="true">Esc</span>} Staff Help
+            </button>
+          )}
+          {isHome && <a className="staff-login-btn" href="#/staff-login">Staff Login</a>}
         </div>
       </header>
 
-      <Page />
+      <Page path={path} />
 
       {isHome && (
         <footer className="app-footer">
