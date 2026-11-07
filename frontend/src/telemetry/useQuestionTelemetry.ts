@@ -2,6 +2,16 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { MouseEvent, SyntheticEvent } from 'react'
 import type { QuestionTelemetry, StruggleReason } from './types'
 
+type StruggleSignals = Pick<QuestionTelemetry, 'timeSpentMs' | 'hoverSwitches' | 'answerChanges' | 'misclicks' | 'uiTweaksMidQuestion'>
+
+// Struggle rule for one question; also used by the staff dashboard's demo data.
+export function getStruggleReason(m: StruggleSignals): StruggleReason {
+  if (m.misclicks >= 2 || m.uiTweaksMidQuestion > 0) return 'visual_motor'
+  if (m.hoverSwitches >= 5 || m.answerChanges >= 2) return 'cognitive_indecision'
+  if (m.timeSpentMs > 60000) return 'slow_reading'
+  return 'none'
+}
+
 export function useQuestionTelemetry(questionId: string) {
   const startTimeRef = useRef(Date.now())
   const lastHoveredRef = useRef<string | null>(null)
@@ -39,10 +49,7 @@ export function useQuestionTelemetry(questionId: string) {
 
   const finalizeQuestion = useCallback((finalChoice: string | null = selectedOption): QuestionTelemetry => {
     const timeSpentMs = Date.now() - startTimeRef.current
-    let struggleReason: StruggleReason = 'none'
-    if (misclicks >= 2 || uiTweaksMidQuestion > 0) struggleReason = 'visual_motor'
-    else if (hoverSwitches >= 5 || answerChanges >= 2) struggleReason = 'cognitive_indecision'
-    else if (timeSpentMs > 60000) struggleReason = 'slow_reading'
+    const struggleReason = getStruggleReason({ timeSpentMs, hoverSwitches, answerChanges, misclicks, uiTweaksMidQuestion })
 
     return {
       questionId,
