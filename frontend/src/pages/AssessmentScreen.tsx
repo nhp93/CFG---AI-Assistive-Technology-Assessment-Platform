@@ -142,6 +142,25 @@ export default function AssessmentScreen() {
     navigate('/skills-results')
   }
 
+  function handleBack() {
+    if (questionIndex <= 0) {
+      navigate('/acuity')
+      return
+    }
+    const prevQuestion = questionPath[questionIndex - 1]
+    if (prevQuestion) {
+      const nextAnswers = { ...flow.answers }
+      delete nextAnswers[question.id]
+      const nextMetrics = flow.metrics.slice(0, -1)
+      setFlow({
+        ...flow,
+        currentQuestion: prevQuestion.id,
+        answers: nextAnswers,
+        metrics: nextMetrics,
+      })
+    }
+  }
+
   function handleStaffReview() {
     navigate('/contact')
   }
@@ -154,7 +173,9 @@ export default function AssessmentScreen() {
         step={step}
         totalSteps={totalSteps}
         isSubmitting={isSubmitting}
+        initialAnswer={flow.answers[question.id] ?? null}
         onContinue={continueWith}
+        onBack={handleBack}
         onStaffReview={handleStaffReview}
       />
     </main>

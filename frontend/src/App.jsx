@@ -10,7 +10,7 @@ import AssessmentScreen from './pages/AssessmentScreen.tsx'
 import SkillsResults from './pages/SkillsResults.tsx'
 import Contact from './pages/Contact.jsx'
 import StaffDashboard, { StaffLogin } from './pages/Staff.jsx'
-import { getCurrentSession, useSessionDatabaseStatus } from './sessions/store'
+import { getCurrentSession, patchCurrentVision, useSessionDatabaseStatus } from './sessions/store'
 
 const ROUTES = {
   '/': Home,
@@ -76,12 +76,22 @@ export default function App() {
     const root = document.documentElement
     root.classList.toggle('large-text', largeText)
     save('largeText', largeText)
+    try {
+      if (getCurrentSession()) patchCurrentVision({ largeText })
+    } catch {
+      // ignore
+    }
   }, [largeText])
 
   useEffect(() => {
     const root = document.documentElement
     root.dataset.theme = colorTheme
     save('colorTheme', colorTheme)
+    try {
+      if (getCurrentSession()) patchCurrentVision({ colorTheme })
+    } catch {
+      // ignore
+    }
   }, [colorTheme])
 
   // Route changes: manage classes, scroll, and auto-focus <h1> for screen readers

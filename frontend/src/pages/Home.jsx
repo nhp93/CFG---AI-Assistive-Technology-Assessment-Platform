@@ -35,10 +35,22 @@ export default function Home() {
           applyZoom(previous.vision.zoom)
           save('zoom', previous.vision.zoom)
         }
+        if (previous.vision.largeText !== undefined) {
+          save('largeText', !!previous.vision.largeText)
+          document.documentElement.classList.toggle('large-text', !!previous.vision.largeText)
+        }
+        if (previous.vision.colorTheme) {
+          save('colorTheme', previous.vision.colorTheme)
+          document.documentElement.dataset.theme = previous.vision.colorTheme
+        }
       }
     } catch {
       // Graceful fallback to default settings if session query fails
     }
+
+    // Reset previous cached assessment flow for fresh candidate run
+    localStorage.removeItem('skillsAssessment')
+    localStorage.removeItem('recommendationFeedback')
 
     ensureSession(displayName)
     navigate('/acuity')

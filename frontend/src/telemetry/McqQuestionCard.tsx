@@ -9,7 +9,9 @@ interface Props {
   step: number
   totalSteps: number
   isSubmitting: boolean
+  initialAnswer?: string | null
   onContinue: (telemetry: QuestionTelemetry) => void
+  onBack?: () => void
   onStaffReview?: () => void
 }
 
@@ -18,10 +20,12 @@ export default function McqQuestionCard({
   step,
   totalSteps,
   isSubmitting,
+  initialAnswer = null,
   onContinue,
+  onBack,
   onStaffReview,
 }: Props) {
-  const telemetry = useQuestionTelemetry(question.id)
+  const telemetry = useQuestionTelemetry(question.id, initialAnswer)
   const headingRef = useRef<HTMLHeadingElement>(null)
 
   // Auto-focus <h1> on question mount so screen readers automatically announce it
@@ -112,15 +116,27 @@ export default function McqQuestionCard({
         </ul>
 
         <div className="mcq-footer-actions">
-          {onStaffReview && (
-            <button
-              type="button"
-              className="tactile-btn secondary-btn request-staff-btn"
-              onClick={onStaffReview}
-            >
-              👤 Request In-Person Staff Review
-            </button>
-          )}
+          <div className="mcq-footer-left" style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            {onBack && (
+              <button
+                type="button"
+                className="tactile-btn secondary-btn mcq-back-btn"
+                onClick={onBack}
+              >
+                ← Back
+              </button>
+            )}
+
+            {onStaffReview && (
+              <button
+                type="button"
+                className="tactile-btn secondary-btn request-staff-btn"
+                onClick={onStaffReview}
+              >
+                👤 Request In-Person Staff Review
+              </button>
+            )}
+          </div>
 
           <button
             type="button"

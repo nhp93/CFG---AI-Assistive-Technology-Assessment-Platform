@@ -8,19 +8,30 @@ type StruggleSignals = Pick<QuestionTelemetry, 'timeSpentMs' | 'hoverSwitches' |
 export function getStruggleReason(m: StruggleSignals): StruggleReason {
   if (m.misclicks >= 2 || m.uiTweaksMidQuestion > 0) return 'visual_motor'
   if (m.hoverSwitches >= 5 || m.answerChanges >= 2) return 'cognitive_indecision'
-  if (m.timeSpentMs > 15000) return 'slow_reading'
+  if (m.timeSpentMs > 60000) return 'slow_reading'
   return 'none'
 }
 
-export function useQuestionTelemetry(questionId: string) {
+export function useQuestionTelemetry(questionId: string, initialOption: string | null = null) {
   const startTimeRef = useRef(Date.now())
   const lastHoveredRef = useRef<string | null>(null)
-  const selectedOptionRef = useRef<string | null>(null)
-  const [selectedOption, setSelectedOption] = useState<string | null>(null)
+  const selectedOptionRef = useRef<string | null>(initialOption)
+  const [selectedOption, setSelectedOption] = useState<string | null>(initialOption)
   const [hoverSwitches, setHoverSwitches] = useState(0)
   const [answerChanges, setAnswerChanges] = useState(0)
   const [misclicks, setMisclicks] = useState(0)
   const [uiTweaksMidQuestion, setUiTweaksMidQuestion] = useState(0)
+
+  useEffect(() => {
+    setSelectedOption(initialOption)
+    selectedOptionRef.current = initialOption
+    startTimeRef.current = Date.now()
+    lastHoveredRef.current = null
+    setHoverSwitches(0)
+    setAnswerChanges(0)
+    setMisclicks(0)
+    setUiTweaksMidQuestion(0)
+  }, [questionId, initialOption])
 
   useEffect(() => {
     const onTweak = () => setUiTweaksMidQuestion((n) => n + 1)
@@ -59,7 +70,7 @@ export function useQuestionTelemetry(questionId: string) {
       answerChanges,
       misclicks,
       uiTweaksMidQuestion,
-      isStruggling: timeSpentMs > 15000 || hoverSwitches >= 5 || answerChanges >= 2 || misclicks >= 2 || uiTweaksMidQuestion > 0,
+      isStruggling: timeSpentMs > 60000 || hoverSwitches >= 5 || answerChanges >= 2 || misclicks >= 2 || uiTweaksMidQuestion > 0,
       struggleReason,
     }
   }, [answerChanges, hoverSwitches, misclicks, questionId, selectedOption, uiTweaksMidQuestion])

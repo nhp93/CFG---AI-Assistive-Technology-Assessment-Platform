@@ -34,9 +34,16 @@ export function deriveClient(session: AssessmentSession) {
   })
 
   const states = modules.map((module) => module.state)
-  const status = session.skills && session.skills.completedAt === null ? 'In progress' : states.includes('not-started') ? 'In progress' : states.includes('unresolved') ? 'Needs follow-up' : 'Complete'
+  const isSelfServeComplete = session.vision.acuityAtLeast2070 === 'no' && session.skills !== null && session.skills.completedAt !== null
+  const isStandardComplete = !states.includes('not-started') && !states.includes('unresolved')
+  const status = (session.completedAt !== null || isSelfServeComplete || isStandardComplete)
+    ? 'Complete'
+    : states.includes('unresolved')
+      ? 'Needs follow-up'
+      : 'In progress'
+
   const followUp = modules.flatMap((module) => [
-    module.state === 'not-started' && `${module.name}: not started yet`,
+    module.state === 'not-started' && session.vision.acuityAtLeast2070 !== 'no' && `${module.name}: not started yet`,
     module.state === 'unresolved' && (status === 'In progress' ? `${module.name}: started, no setting confirmed yet` : `${module.name}: no comfortable setting found after ${module.trials.length} tries`),
     module.state === 'skipped' && `${module.name}: skipped (${module.skipReason ?? 'not captured'})`,
     module.flagged >= 2 && `${module.name}: ${module.flagged} questions flagged as struggling`,
@@ -45,6 +52,18 @@ export function deriveClient(session: AssessmentSession) {
   const date = new Date(session.startedAt).toISOString().slice(0, 10)
   const onlineMinutes = calculateDurationMinutes(session.startedAt, session.completedAt ?? session.updatedAt)
   const inPersonMinutes = session.staff.inPersonMinutes ?? null
+
+  const visionFlagged = sum(modules.map((module) => module.flagged))
+  const skillsFlagged = (session.skills?.questions ?? []).filter((q: any) => q.isStruggling).length
+  const struggle = visionFlagged + skillsFlagged
+
+  const visionQuestions = sum(modules.map((module) => module.trials.length))
+  const skillsQuestions = (session.skills?.questions ?? []).length
+  const questions = visionQuestions + skillsQuestions
+
+  const visionReasons = modules.flatMap((module) => module.trials.map((trial) => trial.reason)).filter((reason) => reason !== 'none')
+  const skillsReasons = (session.skills?.questions ?? []).map((q: any) => q.struggleReason).filter((r: any) => r && r !== 'none')
+  const reasons = [...new Set([...visionReasons, ...skillsReasons])]
 
   return {
     id: session.id,
@@ -58,13 +77,14 @@ export function deriveClient(session: AssessmentSession) {
     modules,
     status,
     followUp,
-    struggle: sum(modules.map((module) => module.flagged)),
-    questions: sum(modules.map((module) => module.trials.length)),
+    struggle,
+    questions,
     adjustments: sum(modules.map((module) => Math.max(0, module.trials.length - 1))),
     weakPoints: modules.filter((module) => module.flagged || module.state === 'unresolved').map((module) => module.name),
-    reasons: [...new Set(modules.flatMap((module) => module.trials.map((trial) => trial.reason)).filter((reason) => reason !== 'none'))],
+    reasons,
     skills: session.skills,
     scoreBand: session.skills?.scoreBand ?? null,
+    staff: session.staff,
   }
 }
 
