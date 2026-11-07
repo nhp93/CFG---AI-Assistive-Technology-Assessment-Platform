@@ -1,20 +1,66 @@
-/* Visual Settings prototype: high contrast, large text, no animation */
+/* visual Settings prototype */
 
 :root {
   --bg: #ffffff;
+  --surface: #ffffff;
   --text: #000000;
   --muted-border: #000000;
-  --accent: #003a8c;        /* dark blue, ~11:1 contrast on white */
+  --accent: #003a8c;        
   --accent-text: #ffffff;
-  --focus: #ffbf00;         /* amber focus ring */
+  --focus: #ffbf00;         
   --error-bg: #fff0f0;
   --error: #a00000;
   --success-bg: #eefaf0;
   --success: #0a5a1f;
+  --highlight: #ffbf00;     
+}
+
+/* color palettes */
+/* Dark palettes: light text on dark surfaces, bright accents only behind short dark labels */
+[data-palette="blue-orange"],
+[data-palette="blue-yellow"],
+[data-palette="monochrome"] {
+  --text: #ffffff;
+  --accent-text: #000000;
+  --success: #ffffff;
+  --success-bg: var(--surface);
+}
+
+[data-palette="blue-orange"] {
+  --bg: #0A2A4A;
+  --surface: #134B7A;
+  --heading: #FFC266;
+  --accent: #E69F00;
+  --focus: #E69F00;
+  --muted-border: #56B4E9;
+  --highlight: #56B4E9;
+}
+
+[data-palette="blue-yellow"] {
+  --bg: #0B1F4D;
+  --surface: #1E3A8A;
+  --heading: #FACC15;
+  --accent: #FACC15;
+  --focus: #FACC15;
+  --muted-border: #93C5FD;
+  --highlight: #93C5FD;
+}
+
+[data-palette="monochrome"] {
+  --bg: #121212;
+  --surface: #2A2A2A;
+  --accent: #ffffff;
+  --focus: #BDBDBD;
+  --muted-border: #8C8C8C;
+  --highlight: #BDBDBD;
 }
 
 * {
   box-sizing: border-box;
+}
+
+h1, h2, h3 {
+  color: var(--heading, var(--text));
 }
 
 html {
@@ -45,8 +91,8 @@ h1 {
   margin: 0 0 2rem;
 }
 
-/* Questions */
 .question {
+  background: var(--surface);
   border: 3px solid var(--muted-border);
   border-radius: 8px;
   padding: 1.25rem;
@@ -76,14 +122,13 @@ legend {
   padding: 0.75rem 1.25rem;
   border: 3px solid var(--text);
   border-radius: 8px;
-  background: var(--bg);
+  background: var(--surface);
   color: var(--text);
   font-size: 1.3rem;
   font-weight: bold;
   cursor: pointer;
 }
 
-/* Keep the native radio visible: it adds a non-color cue for selection */
 .option input[type="radio"] {
   width: 1.6rem;
   height: 1.6rem;
@@ -93,7 +138,6 @@ legend {
   cursor: pointer;
 }
 
-/* Selected: color change plus thicker border and a checkmark (not color alone) */
 .option:has(input:checked),
 .option.is-selected {
   background: var(--accent);
@@ -103,7 +147,8 @@ legend {
   outline-offset: 2px;
 }
 
-.option.is-selected .option-text::after {
+.option.is-selected .option-text::after,
+.option:has(input:checked) .option-text::after {
   content: " \2713 Selected";
   /* Empty alt text: screen readers already announce "checked" for the radio */
   content: " \2713 Selected" / "";
@@ -147,7 +192,7 @@ input[type="radio"]:focus-visible {
 }
 
 .button-secondary {
-  background: var(--bg);
+  background: var(--surface);
   color: var(--text);
 }
 
@@ -195,13 +240,11 @@ input[type="radio"]:focus-visible {
   padding-left: 1.5rem;
 }
 
-/* Question flagged as unanswered: thicker red border plus text in error box */
 .question.has-error {
   border-color: var(--error);
   border-width: 5px;
 }
 
-/* Color Vision Settings: text size */
 .readable {
   font-size: var(--text-size, 1.1rem);
   overflow-wrap: anywhere;
@@ -247,6 +290,50 @@ a.button {
   align-items: center;
   justify-content: center;
   text-decoration: none;
+}
+
+/* Color Vision Settings: palette tiles and preview */
+.palettes {
+  margin-bottom: 1.5rem;
+}
+
+.palettes .option {
+  flex-wrap: wrap;
+}
+
+.swatches {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.swatch {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid currentColor;
+  border-radius: 4px;
+}
+
+.preview h3 {
+  margin: 0;
+}
+
+.badge {
+  display: inline-block;
+  margin: 0.25rem 0.5rem 0 0;
+  padding: 0.25rem 0.75rem;
+  border: 2px solid var(--text);
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.badge-primary {
+  background: var(--accent);
+  color: var(--accent-text);
+}
+
+.badge-highlight {
+  background: var(--highlight);
+  color: #000000;
 }
 
 .visually-hidden {
