@@ -9,6 +9,7 @@ import Assessment, { Results } from './pages/Assessment.jsx'
 import AssessmentScreen from './pages/AssessmentScreen.tsx'
 import SkillsResults from './pages/SkillsResults.tsx'
 import StaffDashboard, { StaffLogin } from './pages/Staff.jsx'
+import { useSessionDatabaseStatus } from './sessions/store'
 
 // Hash routes work on refresh and direct links without server configuration or a router dependency.
 const ROUTES = {
@@ -32,6 +33,7 @@ applyPalette(load('palette', 'standard'))
 
 export default function App() {
   const [path, setPath] = useState(getPath)
+  const databaseStatus = useSessionDatabaseStatus()
   const [zoom, setZoom] = useState(() => load('zoom', 1))
   const [helpOpen, setHelpOpen] = useState(false)
   const [announcement, setAnnouncement] = useState('')
@@ -130,6 +132,12 @@ export default function App() {
           {isHome && <a className="staff-login-btn" href="#/staff-login">Staff Login</a>}
         </div>
       </header>
+
+      {databaseStatus.state === 'offline' && (
+        <p className="database-warning" role="alert">
+          The assessment database is unavailable. Answers are cached in this browser but have not been saved to the shared database.
+        </p>
+      )}
 
       <Page path={path} />
 

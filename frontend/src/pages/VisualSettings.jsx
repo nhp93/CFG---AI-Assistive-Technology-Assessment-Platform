@@ -1,12 +1,19 @@
 // Color-vision routing gate before the adaptive vision assessment.
 import { useEffect, useRef, useState } from 'react'
 import { applyPalette, navigate, save, useStored } from '../prefs.js'
+import { patchCurrentVision } from '../sessions/store'
 
 export default function VisualSettings() {
   const [flow, setFlow] = useStored('visualFlow', {})
   const [error, setError] = useState(false)
   const formRef = useRef(null)
   const errorRef = useRef(null)
+
+  useEffect(() => {
+    if (flow.colorblind === 'yes' || flow.colorblind === 'no') {
+      patchCurrentVision({ colorVisionDifference: flow.colorblind })
+    }
+  }, [flow.colorblind])
 
   // F selects Yes, J selects No, and Space advances when focus is outside a control.
   useEffect(() => {

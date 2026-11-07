@@ -204,6 +204,15 @@ html.home #root {
   border-style: solid;
 }
 
+.database-warning {
+  padding: 0.65rem 1rem;
+  background: #5c1f00;
+  border-bottom: 2px solid #ffb000;
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+}
+
 /* 
    CHUNK 5: MAIN CENTERED CARD (FITS 100vh)
 */
@@ -260,9 +269,40 @@ html.home #root {
 .instruction-paragraph {
   font-size: clamp(0.98rem, 2.1vh, 1.15rem);
   line-height: 1.55;
-  margin-bottom: clamp(1.2rem, 3vh, 2.2rem);
+  margin-bottom: clamp(0.8rem, 2vh, 1.4rem);
   color: #e6c800;
   max-width: 760px;
+}
+
+.participant-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.8rem;
+}
+
+.participant-field label {
+  font-weight: 700;
+}
+
+.participant-field input {
+  min-height: 2.8rem;
+  padding: 0.55rem 0.75rem;
+  border: 2px solid var(--border-primary);
+  border-radius: 6px;
+  background: #000;
+  color: var(--text-primary);
+  font: inherit;
+}
+
+.participant-field p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.participant-field .participant-error {
+  color: #ff8a80;
+  font-weight: 700;
 }
 
 /* 

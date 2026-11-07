@@ -1,16 +1,18 @@
-# React + Vite
+# Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Run locally
 
-Currently, two official plugins are available:
+Use Node.js 22.5 or newer (the development API uses Node's built-in SQLite module):
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```sh
+npm install
+npm run dev
+```
 
-## React Compiler
+Open the Vite URL printed in the terminal, then use **Staff Login** in the header to view the staff dashboard. The prototype credentials are shown on the login page.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Assessment storage
 
-## Expanding the ESLint configuration
+The Vite development server exposes `/api/sessions` and stores live assessment sessions in `frontend/.data/sessions.sqlite`. Vision answers are saved as the participant progresses; skills answers are saved after each response. The staff dashboard reads the same sessions and its advanced view displays the captured answers. Existing browser-local session records are imported into SQLite when the app connects.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The SQLite database is local to the machine running the development server. This prototype does not provide production authentication, encryption, or remote/cloud database hosting; do not use it to store real client information.

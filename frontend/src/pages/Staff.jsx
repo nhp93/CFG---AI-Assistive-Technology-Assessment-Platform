@@ -1,7 +1,11 @@
 // Staff login (demo only) and staff dashboard. All data shown is fictional demonstration data.
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { navigate } from '../prefs.js'
-import { BASELINE_MIN, REASONS, clients, findClient, fmtMin, initials, settingStats, struggleStats, timeStats } from '../staff/data.js'
+import { buildDemoSessions } from '../sessions/demo'
+import { computeStats, deriveClient } from '../sessions/derive'
+import { useSessions } from '../sessions/store'
+import { BASELINE_MIN, REASONS, fmtMin, initials } from '../staff/data.js'
+import { FOLLOW_UPS, GOALS, LIMITATIONS, SUPPORT_QUESTION, TOOL_QUESTION, getVisionImpactQuestion } from '../telemetry/assessmentTree'
 import { Bars, LineChart, Swatch } from '../staff/charts.jsx'
 import '../staff/staff.css'
 
@@ -16,10 +20,16 @@ const SERIES = [
   { key: 'inPerson', label: 'In-person assessment', color: '#d95926', shape: 'square', dash: '7 5' },
 ]
 const TABS = [['time', 'Time'], ['struggle', 'Struggle Score'], ['settings', 'Recommended Settings']]
-const pct = (n) => `${Math.round((n / clients.length) * 100)}%`
+const getClientRows = (sessions = []) => {
+  const live = sessions.map((session) => deriveClient(session))
+  const demo = buildDemoSessions().map((session) => deriveClient(session))
+  return [...live, ...demo]
+}
+const pct = (n, total) => `${Math.round((n / total) * 100)}%`
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`
 const scoreText = (c) => `${c.struggle} of ${c.questions} questions`
-const settingText = (m) => m.choiceLabel ?? (m.state === 'skipped' ? `Skipped: ${m.skip}` : m.state === 'not-started' ? 'Not started' : 'No setting confirmed')
+const settingText = (m) => m.choiceLabel ?? (m.state === 'skipped' ? `Skipped: ${m.skipReason ?? 'not captured'}` : m.state === 'not-started' ? 'Not started' : 'No setting confirmed')
+const answerLabel = (question, answer) => question?.options.find((option) => option.id === answer)?.label ?? answer
 
 export function StaffLogin() {
   const [form, setForm] = useState({ username: '', password: '' })
@@ -72,8 +82,11 @@ export default function StaffDashboard({ path }) {
   const [tab, setTab] = useState('time')
   const signedIn = isSignedIn()
   const [, , id, view] = path.split('/')
-  const client = findClient(id)
+  const sessions = useSessions()
+  const clients = useMemo(() => getClientRows(sessions), [sessions])
+  const client = useMemo(() => clients.find((item) => item.id === id), [clients, id])
   const advanced = client && view === 'advanced'
+  const stats = computeStats(clients)
 
   useEffect(() => { if (!signedIn) navigate('/staff-login') }, [signedIn])
   if (!signedIn) return null
@@ -119,7 +132,7 @@ export default function StaffDashboard({ path }) {
         </nav>
 
         <section className="staff-content" aria-labelledby="view-title">
-          {advanced ? <Advanced c={client} /> : client ? <Summary c={client} /> : <Overview tab={tab} setTab={setTab} />}
+          {advanced ? <Advanced c={client} /> : client ? <Summary c={client} /> : <Overview tab={tab} setTab={setTab} clients={clients} stats={stats} />}
         </section>
       </div>
     </main>
@@ -140,7 +153,8 @@ function Kpi({ label, value, note }) {
   )
 }
 
-function Overview({ tab, setTab }) {
+function Overview({ tab, setTab, clients, stats }) {
+  const { timeStats, struggleStats, settingStats } = stats
   const tabRefs = useRef([])
   function onKey(e, i) {
     const n = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: TABS.length - 1 }[e.key]
@@ -154,7 +168,7 @@ function Overview({ tab, setTab }) {
     <>
       <div className="view-head">
         <h2 id="view-title" tabIndex={-1} data-route-focus>All clients</h2>
-        <p className="s-muted">{clients.length} clients · fictional demonstration records</p>
+        <p className="s-muted">{clients.length} clients · live and demo session records</p>
       </div>
       <div className="s-tabs" role="tablist" aria-label="Analytics category">
         {TABS.map(([key, label], i) => (
@@ -164,26 +178,31 @@ function Overview({ tab, setTab }) {
         ))}
       </div>
       <div id="tab-panel" role="tabpanel" aria-labelledby={`tab-${tab}`} tabIndex={0} className="tab-panel">
-        {tab === 'time' ? <TimeTab /> : tab === 'struggle' ? <StruggleTab /> : <SettingsTab />}
+        {tab === 'time' ? <TimeTab clients={clients} timeStats={timeStats} /> : tab === 'struggle' ? <StruggleTab clients={clients} struggleStats={struggleStats} /> : <SettingsTab clients={clients} settingStats={settingStats} />}
       </div>
     </>
   )
 }
 
-function TimeTab() {
-  const rows = clients.map((c) => ({ ...c, note: c.status === 'In progress' ? 'online assessment in progress' : '' }))
+function TimeTab({ clients, timeStats }) {
+  const rows = clients.map((c) => ({
+    ...c,
+    inPerson: c.inPerson ?? 0,
+    note: c.inPerson === null ? 'in-person time not recorded' : c.status === 'In progress' ? 'online assessment in progress' : '',
+  }))
   return (
     <>
       <div className="kpi-row">
         <Kpi label="Avg. online assessment" value={fmtMin(timeStats.online)} note={`Self-guided · ${timeStats.n} finished clients`} />
-        <Kpi label="Avg. in-person assessment" value={fmtMin(timeStats.inPerson)} note={`Staff time · ${timeStats.n} finished clients`} />
-        <Kpi label="Est. staff time saved / client" value={fmtMin(timeStats.savedAvg)} note={`vs. assumed ${BASELINE_MIN}-min baseline`} />
-        <Kpi label="Est. staff time saved, total" value={fmtMin(timeStats.savedTotal)} note={`${timeStats.n} clients · demo estimate`} />
+        <Kpi label="Avg. in-person assessment" value={timeStats.inPersonN ? fmtMin(timeStats.inPerson) : 'Not recorded'} note={`Staff time · ${timeStats.inPersonN} clients with recorded minutes`} />
+        <Kpi label="Est. staff time saved / client" value={timeStats.inPersonN ? fmtMin(timeStats.savedAvg) : 'Not recorded'} note={`vs. assumed ${BASELINE_MIN}-min baseline`} />
+        <Kpi label="Est. staff time saved, total" value={timeStats.inPersonN ? fmtMin(timeStats.savedTotal) : 'Not recorded'} note={`${timeStats.inPersonN} clients · demo estimate`} />
       </div>
       <article className="s-card">
         <h3>Assessment time by client</h3>
         <p className="s-muted">Minutes per client for the self-guided online assessment and the staff-led in-person session.
-          Averages above: online {fmtMin(timeStats.online)}, in-person {fmtMin(timeStats.inPerson)}.</p>
+          Averages above: online {fmtMin(timeStats.online)}, in-person {timeStats.inPersonN ? fmtMin(timeStats.inPerson) : 'not recorded'}.
+          Missing in-person times appear at zero in the chart and are labeled as not recorded.</p>
         <ul className="legend" aria-label="Legend">
           {SERIES.map((s) => <li key={s.key}><Swatch color={s.color} shape={s.shape} dash={s.dash} /> {s.label}</li>)}
         </ul>
@@ -208,7 +227,7 @@ function TimeTab() {
   )
 }
 
-function StruggleTab() {
+function StruggleTab({ clients, struggleStats }) {
   const ranked = [...clients].sort((a, b) => b.struggle - a.struggle || a.name.localeCompare(b.name))
   const modules = [...struggleStats.byModule].sort((a, b) => b.clients - a.clients || b.flagged - a.flagged)
   return (
@@ -250,7 +269,7 @@ function StruggleTab() {
   )
 }
 
-function SettingsTab() {
+function SettingsTab({ clients, settingStats }) {
   return (
     <>
       <div className="kpi-row">
@@ -346,8 +365,43 @@ function Advanced({ c }) {
           <div><dt>Online duration</dt><dd>{fmtMin(c.online)}</dd></div>
           <div><dt>In-person duration</dt><dd>{fmtMin(c.inPerson)}</dd></div>
           <div><dt>Struggle score</dt><dd>{c.struggle} ({scoreText(c)} flagged)</dd></div>
+          <div><dt>Visual acuity response</dt><dd>{c.vision.acuityAtLeast2070 ?? 'Not answered'}</dd></div>
+          <div><dt>Color vision response</dt><dd>{c.vision.colorVisionDifference ?? 'Not answered'}</dd></div>
         </dl>
       </article>
+
+      {c.skills && (
+        <article className="s-card">
+          <h3>Skills assessment answers</h3>
+          <dl className="s-dl cols">
+            {[
+              [LIMITATIONS, c.skills.limitation],
+              [getVisionImpactQuestion(c.skills.limitation ?? 'not_sure'), c.skills.impact],
+              [GOALS, c.skills.goal],
+              [FOLLOW_UPS[c.skills.goal ?? ''], c.skills.detail],
+              [TOOL_QUESTION, c.skills.tool],
+              [SUPPORT_QUESTION, c.skills.support],
+            ].filter(([, answer]) => answer).map(([question, answer]) => (
+              <div key={question.id}><dt>{question.title}</dt><dd>{answerLabel(question, answer)}</dd></div>
+            ))}
+          </dl>
+          <h4>Skill questions and responses</h4>
+          {c.skills.responses.length ? (
+            <table className="s-table">
+              <caption className="sr-only">Skill assessment answers</caption>
+              <thead><tr><th scope="col">Question</th><th scope="col">Answer</th><th scope="col">Score</th></tr></thead>
+              <tbody>{c.skills.responses.map((response) => (
+                <tr key={response.questionId}>
+                  <th scope="row">{response.prompt}</th>
+                  <td>{response.answerLabel}</td>
+                  <td>{response.score}</td>
+                </tr>
+              ))}</tbody>
+            </table>
+          ) : <p>No skill questions have been answered yet.</p>}
+          <p className="s-footnote">Assessment status: {c.skills.completedAt ? 'Completed' : 'In progress'} · Score: {c.skills.score ?? 'Not available'} · {c.skills.scoreBand ?? 'No recommendation band yet'}</p>
+        </article>
+      )}
 
       {c.modules.map((m) => {
         const failed = [...new Set(m.trials.filter((t) => !t.yes).map((t) => t.label))]
@@ -362,16 +416,16 @@ function Advanced({ c }) {
                   <tr key={i}>
                     <td>{i + 1}</td><th scope="row">{t.label}</th>
                     <td><span className={`answer ${t.yes ? 'yes' : 'no'}`}>{t.yes ? '✓ Yes' : '✕ No'}</span></td>
-                    <td>{t.sec}s</td>
+                    <td>{t.sec ?? Number(((t.telemetry?.timeSpentMs ?? 0) / 1000).toFixed(1))}s</td>
                     <td>{t.struggling ? REASONS[t.reason] : '—'}</td>
                   </tr>
                 ))}</tbody>
               </table>
-            ) : <p>No questions answered{m.skip ? '' : ' yet'}.</p>}
+            ) : <p>No questions answered{m.state === 'skipped' ? '' : ' yet'}.</p>}
             <dl className="s-dl cols">
               <div><dt>Final preference</dt><dd>{settingText(m)}</dd></div>
               <div><dt>Not comfortable</dt><dd>{failed.join(', ') || 'None'}</dd></div>
-              {m.name === 'Speech' && <div><dt>Audio</dt><dd>{m.skip ? `Skipped: ${m.skip}` : m.trials.length ? 'Played' : 'Not reached'}</dd></div>}
+              {m.name === 'Speech' && <div><dt>Audio</dt><dd>{m.skipReason ?? m.skip ? `Skipped: ${m.skipReason ?? m.skip}` : m.trials.length ? 'Played' : 'Not reached'}</dd></div>}
               <div><dt>Unresolved difficulties</dt><dd>{m.state === 'unresolved' ? 'No comfortable setting confirmed' : m.flagged ? plural(m.flagged, 'flagged question') : 'None'}</dd></div>
             </dl>
           </details>

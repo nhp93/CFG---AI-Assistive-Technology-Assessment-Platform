@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { applyFontSize, load, navigate, save, useStored } from '../prefs.js'
-import { mockDb } from '../telemetry/db'
+import { ensureSession, sessionRepository } from '../sessions/store'
+import { projectSkills } from '../sessions/project'
 import { calculateAbilityScore, getQuestionPath, getRecommendation } from '../telemetry/assessmentTree'
 import McqQuestionCard from '../telemetry/McqQuestionCard'
 import type { McqQuestion, QuestionTelemetry } from '../telemetry/types'
@@ -113,6 +114,20 @@ export default function AssessmentScreen() {
     if (nextQuestion) {
       next.currentQuestion = nextQuestion.id
       setFlow(next)
+      const session = ensureSession()
+      const projectedSkills = projectSkills({
+        ...next,
+        startedAt: session.skills?.startedAt ?? new Date().toISOString(),
+        submitted: false,
+        completedAt: null,
+        fontScale,
+        theme,
+      })
+      sessionRepository.patch(session.id, (current) => ({
+        ...current,
+        updatedAt: new Date().toISOString(),
+        skills: projectedSkills,
+      }))
       return
     }
 
@@ -127,30 +142,34 @@ export default function AssessmentScreen() {
     setFlow(next)
     setIsSubmitting(true)
 
-    const visionPrefs = {
-      fontScale: flow.initialFontScale,
-      theme: flow.initialTheme,
-      assessmentFontScale: fontScale,
-      assessmentTheme: theme,
-      palette: load('palette', 'standard'),
-      zoom: load('zoom', 1),
-      speechRate: load('speechRate', null),
-      contrast: document.documentElement.dataset.assessmentContrast ?? null,
-      cursor: document.documentElement.dataset.assessmentCursor ?? null,
-      visionAssessment: load('visionAssessment', null),
-      reportedVisionLimitation: next.limitation,
-      reportedScreenImpact: next.impact,
-      toolsUsed: next.tool,
-    }
     const completedTelemetry = next.metrics
     save('assessmentTelemetry', completedTelemetry)
-    try {
-      await mockDb.insert({ timestamp: new Date().toISOString(), candidatePrefs: visionPrefs, metrics: completedTelemetry })
-    } catch (error) {
-      console.error('Unable to save skills assessment telemetry', error)
-    } finally {
-      setIsSubmitting(false)
-    }
+    const session = ensureSession()
+    const projectedSkills = projectSkills({
+      ...flow,
+      startedAt: session.skills?.startedAt ?? new Date().toISOString(),
+      submitted: true,
+      completedAt: new Date().toISOString(),
+      score,
+      recommendation,
+      skillResponses: skillResponses,
+      metrics: completedTelemetry,
+      limitation: next.limitation,
+      impact: next.impact,
+      goal,
+      detail,
+      tool: next.tool ?? null,
+      support: next.support ?? null,
+      fontScale,
+      theme,
+    })
+    sessionRepository.patch(session.id, (current) => ({
+      ...current,
+      updatedAt: new Date().toISOString(),
+      completedAt: new Date().toISOString(),
+      skills: projectedSkills,
+    }))
+    setIsSubmitting(false)
     navigate('/skills-results')
   }
 

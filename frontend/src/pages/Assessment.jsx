@@ -1,6 +1,8 @@
 // Adaptive Vision Assessment: a comfort preference check, not a clinical test.
 import { useEffect, useRef, useState } from 'react'
 import { MODULES, PALETTES, applyFontSize, load, navigate, save, useStored } from '../prefs.js'
+import { ensureSession, sessionRepository } from '../sessions/store'
+import { projectVision } from '../sessions/project'
 
 const TEXT = 'Reading should feel easy, not tiring. This sample helps find a setting that works well for you.'
 const SPEECH = 'Welcome to the assessment. Please listen carefully and choose the speaking speed that feels most comfortable.'
@@ -45,6 +47,25 @@ export default function Assessment() {
   const [state, setState] = useStored(KEY, fresh())
   const [baseFontSize] = useState(() => load('fontSize', 20))
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    const current = ensureSession()
+    const projected = projectVision(state, load('visualFlow', {}), {
+      palette: load('palette', 'standard'),
+      baseFontSizePx: baseFontSize,
+      zoom: load('zoom', 1),
+    })
+    sessionRepository.patch(current.id, (session) => ({
+      ...session,
+      updatedAt: new Date().toISOString(),
+      vision: {
+        ...session.vision,
+        ...projected,
+        acuityAtLeast2070: projected.acuityAtLeast2070 ?? session.vision.acuityAtLeast2070,
+        colorVisionDifference: projected.colorVisionDifference ?? session.vision.colorVisionDifference,
+      },
+    }))
+  }, [state, baseFontSize])
   const [pos, setPos] = useState({ x: 40, y: 40 })
   const titleRef = useRef(null)
   const bodyRef = useRef(null)

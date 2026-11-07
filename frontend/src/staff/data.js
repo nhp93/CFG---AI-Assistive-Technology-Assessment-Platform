@@ -101,10 +101,15 @@ function derive(client) {
   }
 }
 
+export { CLIENTS, MODULES }
 export const clients = CLIENTS.map(derive)
 export const findClient = (id) => clients.find((c) => c.id === id)
 export const initials = (name) => name.split(' ').map((w) => w[0]).join('')
-export const fmtMin = (n) => `${Number.isInteger(n) ? n : n.toFixed(1)} min`
+export const fmtMin = (n) => {
+  if (n === null || n === undefined || !Number.isFinite(Number(n))) return 'Not recorded'
+  const value = Number(n)
+  return `${Number.isInteger(value) ? value : value.toFixed(1)} min`
+}
 
 // Time: averages use clients whose online assessment is finished, so a partial session doesn't skew them.
 const finished = clients.filter((c) => c.status !== 'In progress')
