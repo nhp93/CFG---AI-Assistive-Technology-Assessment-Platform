@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { applyFontSize, applyPalette, applyZoom, load, navigate, save } from './prefs.js'
 import Home from './pages/Home.jsx'
+import Acuity from './pages/Acuity.jsx'
+import AcuityNotRequired from './pages/AcuityNotRequired.jsx'
 import VisualSettings from './pages/VisualSettings.jsx'
 import ColorVision from './pages/ColorVision.jsx'
 import Assessment, { Results } from './pages/Assessment.jsx'
@@ -8,6 +10,8 @@ import Assessment, { Results } from './pages/Assessment.jsx'
 // Hash routes work on refresh and direct links without server configuration or a router dependency.
 const ROUTES = {
   '/': Home,
+  '/acuity': Acuity,
+  '/acuity-not-required': AcuityNotRequired,
   '/visual-settings': VisualSettings,
   '/color-vision': ColorVision,
   '/assessment': Assessment,
@@ -75,7 +79,7 @@ export default function App() {
       else if (helpOpen) { if (key === 'enter') action = () => setHelpOpen(false) }
       else if (key === '+' || key === '=') action = () => { const next = ZOOMS.find((l) => l > zoom + 0.05); if (next) changeZoom(next) }
       else if (key === '-' || key === '_') action = () => { const prev = [...ZOOMS].reverse().find((l) => l < zoom - 0.05); if (prev) changeZoom(prev) }
-      else if (key === 'j' && isHome) action = () => navigate('/visual-settings')
+      else if (key === 'j' && isHome) action = () => navigate('/acuity')
       if (!action) return
       e.preventDefault()
       lastKey.current = Date.now()

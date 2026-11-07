@@ -59,7 +59,7 @@ export default function VisualSettings() {
           <div ref={errorRef} className="message message-error" role="alert" tabIndex={-1} hidden={!error}>Please choose Yes or No to continue.</div>
         </fieldset>
         <div className="actions">
-          <button type="button" className="button button-secondary" onClick={() => navigate('/')}>Back to welcome</button>
+          <button type="button" className="button button-secondary" onClick={() => navigate('/acuity')}>Back</button>
           <button type="submit" className="button button-primary">Next</button>
         </div>
       </form>

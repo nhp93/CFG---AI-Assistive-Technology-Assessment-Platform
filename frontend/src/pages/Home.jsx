@@ -5,7 +5,7 @@ export default function Home() {
     <main className="main-viewport" id="main-content">
       <section className="card-container" aria-labelledby="page-heading">
         <div className="card-badge-row">
-          <span className="step-pill">Screen 1 of 4 &bull; Sensory Baseline</span>
+          <span className="step-pill">Welcome</span>
         </div>
         <h1 id="page-heading" className="welcome-heading" tabIndex={-1}>
           Welcome to Your Assistive Technology Check
@@ -14,7 +14,7 @@ export default function Home() {
           This is not an exam. There are no right or wrong answers. We are finding the screen settings, colors, text sizes, and tools that fit you best.
         </p>
         <div className="action-group" role="group" aria-label="Primary Actions">
-          <button type="button" className="btn-primary-action" aria-label="Start comfort check" onClick={() => navigate('/visual-settings')}>
+          <button type="button" className="btn-primary-action" aria-label="Start comfort check" onClick={() => navigate('/acuity')}>
             <div className="btn-content-left">
               <span className="btn-title">Start Comfort Check</span>
               <span className="btn-subtitle">Find your ideal text size, contrast &amp; screen settings</span>
