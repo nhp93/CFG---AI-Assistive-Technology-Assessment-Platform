@@ -26,16 +26,10 @@
         <div class="step-pip" data-step="5" title="Summary Telemetry">✓</div>
       </div>
 
-      <!-- Routing Simulator & Staff Emergency Button -->
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <button type="button" class="staff-btn" id="route-force-suite" title="Simulate Candidate with 20/70 or worse acuity">
-          [ 20/70 Route ]
-        </button>
-        <button type="button" class="staff-btn" id="route-force-bypass" title="Simulate Candidate with better than 20/70 acuity">
-          [ Bypass Route ]
-        </button>
+      <!-- Staff Emergency Button -->
+      <div>
         <button type="button" class="staff-btn" id="btn-staff-help" aria-haspopup="dialog" style="border-color: #39FF14; color: #39FF14;">
-          [ Esc ] Staff Help
+          <span class="key-cap" style="border-color: #39FF14; color: #39FF14;">Esc</span> Staff Help
         </button>
       </div>
     </header>
@@ -214,17 +208,17 @@
       </section>
 
       <!-- ====================================================================
-           STEP 5: TELEMETRY SUMMARY & ASSESSOR COCKPIT PAYLOAD
+           STEP 5: PERSONALIZED VISUAL SETTINGS SUMMARY
            ==================================================================== -->
       <section class="test-card" id="card-test-5" aria-labelledby="t5-heading">
         <div>
           <div class="test-meta">
-            <span class="test-pill" style="border-color: #39FF14; color: #39FF14;">Calibration Complete</span>
-            <span class="audio-hint">Assessor Cockpit Telemetry Synchronized</span>
+            <span class="test-pill" style="border-color: #39FF14; color: #39FF14;">Settings Configured</span>
+            <span class="audio-hint">Personalized Profile Ready</span>
           </div>
-          <h1 class="test-heading" id="t5-heading">Low-Vision Calibration Results</h1>
+          <h1 class="test-heading" id="t5-heading">Your Personalized Visual Settings</h1>
           <p class="test-instruction">
-            The candidate's visual accommodation baseline has been determined and packaged for the assessor cockpit.
+            Your screen settings, colors, text size, and tools have been customized to fit you best.
           </p>
         </div>
 
@@ -235,24 +229,20 @@
             <span class="telemetry-val" id="sum-contrast">yellow-on-black</span>
           </div>
           <div class="telemetry-box">
-            <span class="telemetry-label">Reading Font Scale</span>
+            <span class="telemetry-label">Comfortable Text Size</span>
             <span class="telemetry-val" id="sum-font">24px (1.5x)</span>
           </div>
           <div class="telemetry-box">
-            <span class="telemetry-label">20/70 Threshold</span>
-            <span class="telemetry-val" id="sum-threshold">NO (&lt; 20/70)</span>
-          </div>
-          <div class="telemetry-box">
-            <span class="telemetry-label">Cursor Profile</span>
+            <span class="telemetry-label">Mouse Cursor</span>
             <span class="telemetry-val" id="sum-cursor">giant-green-48px</span>
           </div>
           <div class="telemetry-box">
-            <span class="telemetry-label">Tracking Difficulty</span>
+            <span class="telemetry-label">Tracking Mode</span>
             <span class="telemetry-val" id="sum-tracking">Normal</span>
           </div>
           <div class="telemetry-box">
-            <span class="telemetry-label">Amsler Distortion</span>
-            <span class="telemetry-val" id="sum-amsler">Normal</span>
+            <span class="telemetry-label">Grid Distortion</span>
+            <span class="telemetry-val" id="sum-amsler">None</span>
           </div>
           <div class="telemetry-box">
             <span class="telemetry-label">Hover-to-Speech</span>

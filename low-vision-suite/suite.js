@@ -129,14 +129,6 @@
       // Staff Assistance Trigger
       document.getElementById('btn-staff-help').addEventListener('click', () => StaffModal.open());
       document.getElementById('btn-staff-dismiss').addEventListener('click', () => StaffModal.close());
-
-      // Routing Gate Simulator Buttons
-      document.getElementById('route-force-suite').addEventListener('click', () => {
-        this.goToTest(1);
-      });
-      document.getElementById('route-force-bypass').addEventListener('click', () => {
-        this.bypassSuite();
-      });
     },
 
     goToTest(testNumber) {
@@ -338,16 +330,15 @@
 
       document.getElementById('sum-contrast').textContent = store.contrast_theme;
       document.getElementById('sum-font').textContent = `${store.confirmed_font_px}px (${store.zoom_scale}x)`;
-      document.getElementById('sum-threshold').textContent = store.at_or_worse_than_20_70 ? "YES (>= 20/70)" : "NO (< 20/70)";
       document.getElementById('sum-cursor').textContent = store.cursor_profile;
-      document.getElementById('sum-tracking').textContent = store.mouse_tracking_difficulty ? "FLAGGED (Difficulty)" : "Normal";
-      document.getElementById('sum-amsler').textContent = store.metamorphopsia_detected ? "DISTORTION PRESENT" : "Normal";
-      document.getElementById('sum-hoverspeech').textContent = store.hover_speech_enabled ? "ACTIVE" : "Disabled";
+      document.getElementById('sum-tracking').textContent = store.mouse_tracking_difficulty ? "Keyboard Assisted" : "Normal";
+      document.getElementById('sum-amsler').textContent = store.metamorphopsia_detected ? "Distortion Noted" : "Normal";
+      document.getElementById('sum-hoverspeech').textContent = store.hover_speech_enabled ? "Active" : "Disabled";
 
       document.getElementById('telemetry-json-display').textContent = JSON.stringify(store, null, 2);
 
       AudioEngine.speak(
-        "Low vision calibration complete. All telemetry data has been compiled for the staff assessor cockpit."
+        "Personalized visual settings saved. Your screen settings, text size, and tools have been customized."
       );
     },
 
