@@ -4,6 +4,7 @@ import { navigate } from '../prefs.js'
 import { buildDemoSessions } from '../sessions/demo'
 import { computeStats, deriveClient } from '../sessions/derive'
 import { useSessions } from '../sessions/store'
+import { getStaffNotesData } from '../sessions/notes.js'
 import { BASELINE_MIN, REASONS, fmtMin, initials } from '../staff/data.js'
 import { FOLLOW_UPS, GOALS, LIMITATIONS, SUPPORT_QUESTION, TOOL_QUESTION, getVisionImpactQuestion } from '../telemetry/assessmentTree'
 import { Bars, LineChart, Swatch } from '../staff/charts.jsx'
@@ -30,14 +31,6 @@ const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`
 const scoreText = (c) => `${c.struggle} of ${c.questions} questions`
 const settingText = (m) => m.choiceLabel ?? (m.state === 'skipped' ? `Skipped: ${m.skipReason ?? 'not captured'}` : m.state === 'not-started' ? 'Not started' : 'No setting confirmed')
 const answerLabel = (question, answer) => question?.options?.find((option) => option.id === answer)?.label ?? answer
-export function getStaffNotesData(staff) {
-  try {
-    return staff?.notes ? JSON.parse(staff.notes) : {}
-  } catch {
-    return {}
-  }
-}
-
 export function StaffLogin() {
   const [form, setForm] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
@@ -442,7 +435,9 @@ function Advanced({ c }) {
         <article className="s-card">
           <h3>Skills assessment answers</h3>
           <dl className="s-dl cols">
-            {[
+            {c.skills.answers?.length ? c.skills.answers.map((answer) => (
+              <div key={answer.questionId}><dt>{answer.prompt}</dt><dd>{answer.answerLabel}</dd></div>
+            )) : [
               [LIMITATIONS, c.skills.limitation],
               [getVisionImpactQuestion(c.skills.limitation ?? 'not_sure'), c.skills.impact],
               [GOALS, c.skills.goal],

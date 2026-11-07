@@ -6,12 +6,14 @@ import {
   getAdaptiveQuestionPath,
   getAdaptiveRecommendations,
   calculateAssessmentScore,
+  LIMITATIONS,
 } from '../telemetry/assessmentTree'
 import McqQuestionCard from '../telemetry/McqQuestionCard'
 import type { McqQuestion, QuestionTelemetry } from '../telemetry/types'
 
 type FlowState = {
   schemaVersion: number
+  contextComplete: boolean
   currentQuestion: string
   answers: Record<string, string>
   metrics: QuestionTelemetry[]
@@ -21,7 +23,8 @@ type FlowState = {
 }
 
 const createFlow = (): FlowState => ({
-  schemaVersion: 3,
+  schemaVersion: 4,
+  contextComplete: false,
   currentQuestion: 'primary_focus',
   answers: {},
   metrics: [],
@@ -30,13 +33,28 @@ const createFlow = (): FlowState => ({
   recommendations: [],
 })
 
+function buildAnswerDetails(answers: Record<string, string>, path: McqQuestion[]) {
+  const contextOption = LIMITATIONS.options.find((option) => option.id === answers.limitation)
+  const context = contextOption ? [{
+    questionId: LIMITATIONS.id,
+    prompt: LIMITATIONS.title,
+    answerId: contextOption.id,
+    answerLabel: contextOption.label,
+  }] : []
+  const decisionAnswers = path.flatMap((item) => {
+    const option = item.options.find((candidate) => candidate.id === answers[item.id])
+    return option ? [{ questionId: item.id, prompt: item.title, answerId: option.id, answerLabel: option.label }] : []
+  })
+  return [...context, ...decisionAnswers]
+}
+
 export default function AssessmentScreen() {
   const [storedFlow, setFlow] = useStored('skillsAssessment', createFlow())
-  const flow: FlowState = storedFlow?.schemaVersion === 3 ? storedFlow : createFlow()
+  const flow: FlowState = storedFlow?.schemaVersion === 4 ? storedFlow : createFlow()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
-    if (storedFlow?.schemaVersion !== 3) {
+    if (storedFlow?.schemaVersion !== 4) {
       setFlow(flow)
     }
   }, [flow, setFlow, storedFlow?.schemaVersion])
@@ -47,6 +65,17 @@ export default function AssessmentScreen() {
   const question: McqQuestion = questionPath[questionIndex] || questionPath[0]
   const step = questionIndex + 1
   const totalSteps = questionPath.length
+
+  function continueFromContext() {
+    if (!flow.answers.limitation) return
+    setFlow({
+      ...flow,
+      answers: { limitation: flow.answers.limitation },
+      metrics: [],
+      contextComplete: true,
+      currentQuestion: 'primary_focus',
+    })
+  }
 
   async function continueWith(metrics: QuestionTelemetry) {
     if (isSubmitting) return
@@ -77,10 +106,13 @@ export default function AssessmentScreen() {
           startedAt: session.skills?.startedAt ?? new Date().toISOString(),
           submitted: false,
           completedAt: null,
+          limitation: nextAnswers.limitation ?? null,
+          impact: nextAnswers[`impact_${nextAnswers.limitation}`] ?? null,
           answers: nextAnswers,
+          answerDetails: buildAnswerDetails(nextAnswers, nextPath),
           metrics: nextMetrics,
-          goal: nextAnswers.primary_focus ?? 'explore',
-          detail: nextAnswers.career_path_choice ?? 'personal',
+          goal: nextAnswers.goal ?? nextAnswers.primary_focus ?? 'explore',
+          detail: nextAnswers.task ?? 'personal',
         }),
       }))
       return
@@ -103,14 +135,19 @@ export default function AssessmentScreen() {
 
     const now = new Date().toISOString()
     const session = ensureSession()
-    const skillResponses = Object.entries(nextAnswers).map(([qId, ans]) => ({
-      questionId: qId,
-      prompt: nextPath.find((q) => q.id === qId)?.title ?? qId,
-      answerId: ans,
-      answerLabel: nextPath.find((q) => q.id === qId)?.options.find((o) => o.id === ans)?.label ?? ans,
-      score: 85,
-      weight: 1,
-    }))
+    const skillResponses = nextPath.flatMap((item) => {
+      const answerId = nextAnswers[item.id]
+      const option = item.options.find((candidate) => candidate.id === answerId)
+      if (!option || typeof option.score !== 'number') return []
+      return [{
+        questionId: item.id,
+        prompt: item.title,
+        answerId,
+        answerLabel: option.label,
+        score: option.score,
+        weight: item.weight ?? 1,
+      }]
+    })
 
     const projectedSkills = projectSkills({
       startedAt: session.skills?.startedAt ?? now,
@@ -118,9 +155,14 @@ export default function AssessmentScreen() {
       completedAt: now,
       score: finalScore,
       skillResponses,
+      answerDetails: buildAnswerDetails(nextAnswers, nextPath),
       metrics: nextMetrics,
-      goal: nextAnswers.primary_focus ?? 'personal',
-      detail: nextAnswers.career_path_choice ?? nextAnswers.personal_home ?? 'general',
+      limitation: nextAnswers.limitation ?? null,
+      impact: nextAnswers[`impact_${nextAnswers.limitation}`] ?? null,
+      goal: nextAnswers.goal ?? 'personal',
+      detail: nextAnswers.task ?? 'general',
+      tool: nextAnswers.current_tools ?? null,
+      support: nextAnswers.support_preference ?? null,
       recommendation: {
         title: recommendations[0]?.title ?? 'Personalized Assistive Technology Plan',
         tool: recommendations[0]?.description ?? 'Review adaptive tools with an assessor.',
@@ -144,14 +186,22 @@ export default function AssessmentScreen() {
 
   function handleBack() {
     if (questionIndex <= 0) {
-      navigate('/acuity')
+      setFlow({
+        ...flow,
+        answers: { limitation: flow.answers.limitation },
+        metrics: [],
+        contextComplete: false,
+        currentQuestion: 'primary_focus',
+      })
       return
     }
     const prevQuestion = questionPath[questionIndex - 1]
     if (prevQuestion) {
-      const nextAnswers = { ...flow.answers }
-      delete nextAnswers[question.id]
-      const nextMetrics = flow.metrics.slice(0, -1)
+      const retainedQuestionIds = new Set(questionPath.slice(0, questionIndex - 1).map((item) => item.id))
+      const nextAnswers = Object.fromEntries(
+        Object.entries(flow.answers).filter(([id]) => id === 'limitation' || retainedQuestionIds.has(id)),
+      )
+      const nextMetrics = flow.metrics.slice(0, Math.max(0, questionIndex - 1))
       setFlow({
         ...flow,
         currentQuestion: prevQuestion.id,
@@ -163,6 +213,42 @@ export default function AssessmentScreen() {
 
   function handleStaffReview() {
     navigate('/contact')
+  }
+
+  if (!flow.contextComplete) {
+    const selectedLimitation = flow.answers.limitation ?? null
+    return (
+      <main id="main-content" role="main" className="page-shell">
+        <article className="tactile-card mcq-card" aria-labelledby="vision-context-heading">
+          <div className="mcq-top-row">
+            <span className="step-badge">Vision context</span>
+            <span className="branch-badge">Before the 10-question assessment</span>
+          </div>
+          <h1 id="vision-context-heading" className="mcq-question-title">{LIMITATIONS.title}</h1>
+          <p className="mcq-instruction-text">{LIMITATIONS.instruction} This helps staff understand your experience; it does not affect your ability score.</p>
+          <ul className="mcq-options-list" role="radiogroup" aria-labelledby="vision-context-heading">
+            {LIMITATIONS.options.map((option) => {
+              const active = selectedLimitation === option.id
+              return (
+                <li key={option.id} className="mcq-option-item">
+                  <button type="button" className={`tactile-btn mcq-option-btn ${active ? 'selected' : ''}`} aria-pressed={active}
+                    onClick={() => setFlow({ ...flow, answers: { ...flow.answers, limitation: option.id } })}>
+                    <span className="option-indicator" aria-hidden="true">{active ? '●' : '○'}</span>
+                    <span className="option-content"><span className="option-label">{option.label}</span></span>
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+          <div className="mcq-footer-actions">
+            <button type="button" className="tactile-btn secondary-btn" onClick={() => navigate('/acuity')}>← Back</button>
+            <button type="button" className="tactile-btn primary-btn mcq-next-btn" disabled={!selectedLimitation} onClick={continueFromContext}>
+              Continue to assessment →
+            </button>
+          </div>
+        </article>
+      </main>
+    )
   }
 
   return (

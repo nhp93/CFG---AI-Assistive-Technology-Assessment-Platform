@@ -11,6 +11,7 @@ const KEY = 'visionAssessment'
 const LAST = MODULES.length - 1
 const fresh = () => ({ m: 0, recs: MODULES.map(() => ({ tested: [], confirm: false, choice: null, draftChoice: null, skipped: false })) })
 const stopSpeech = () => window.speechSynthesis?.cancel()
+const currentTimeMs = () => Date.now()
 const selected = (rec) => rec.draftChoice ?? rec.choice ?? null
 const paletteLabel = () => PALETTES.find((p) => p[0] === load('palette', 'standard'))?.[1] ?? 'Standard'
 
@@ -36,9 +37,9 @@ function applyAssessment(state, baseFontSize) {
     const fallback = load('cursorPreference', 'high')
     root.dataset.assessmentCursor = fallback
   } else {
-    const cursorVal = MODULES[3].options[cursor][1]
-    root.dataset.assessmentCursor = cursorVal
-    save('cursorPreference', cursorVal)
+    const cursorValue = MODULES[3].options[cursor][1]
+    root.dataset.assessmentCursor = cursorValue
+    save('cursorPreference', cursorValue)
   }
 }
 
@@ -53,6 +54,7 @@ export default function Assessment() {
   const [state, setState] = useStored(KEY, fresh())
   const [baseFontSize] = useState(() => load('fontSize', 20))
   const [error, setError] = useState('')
+  const [pos, setPos] = useState({ x: 40, y: 40 })
 
   useEffect(() => {
     const current = ensureSession()
@@ -74,11 +76,10 @@ export default function Assessment() {
       },
     }))
   }, [state, baseFontSize])
-  const [pos, setPos] = useState({ x: 40, y: 40 })
   const titleRef = useRef(null)
   const bodyRef = useRef(null)
   const errorRef = useRef(null)
-  const trialStartRef = useRef(Date.now())
+  const trialStartRef = useRef(0)
 
   const m = Math.min(state.m, LAST), mod = MODULES[m], rec = state.recs[m]
   const i = nextIndex(mod, rec), confirming = rec.confirm || i < 0
@@ -112,7 +113,7 @@ export default function Assessment() {
   }
 
   const answer = (yes) => {
-    const elapsed = Date.now() - trialStartRef.current
+    const elapsed = currentTimeMs() - trialStartRef.current
     update((s, r) => r.tested.push([cur, yes, { timeSpentMs: elapsed }]))
   }
 
@@ -148,8 +149,6 @@ export default function Assessment() {
     })
   }
 
-
-
   function movePointer(area, x, y) {
     setPos({ x: Math.max(0, Math.min(x, area.clientWidth - 20)), y: Math.max(0, Math.min(y, area.clientHeight - 20)) })
   }
@@ -165,6 +164,8 @@ export default function Assessment() {
     e.preventDefault()
     movePointer(e.currentTarget, pos.x + d[0], pos.y + d[1])
   }
+
+
 
   // "Progress and saved settings": palette (color path) plus each module's status and trials.
   const progress = MODULES.map((mod, k) => {
@@ -199,7 +200,7 @@ export default function Assessment() {
           <path d="M1 1v19l5-5 3 8 3-1-3-8h7z" />
         </svg>
       </div>
-      <p id="cursor-help">Move your mouse inside the box, or select the box and press the arrow keys, to move the pointer.</p>
+      <p id="cursor-help">Move your mouse inside the box, or focus the box and use the arrow keys, to move the pointer.</p>
     </>
   )
   else sample = <p className="sample" style={option[1]}>{TEXT}</p>
@@ -332,7 +333,6 @@ export function Results() {
     sessionRepository.patch(current.id, (session) => ({
       ...session,
       updatedAt: now,
-      completedAt: session.completedAt ?? now,
       vision: {
         ...session.vision,
         completedAt: session.vision?.completedAt ?? now,
@@ -359,7 +359,7 @@ export function Results() {
 
   function startSkillsAssessment() {
     localStorage.removeItem('skillsAssessment')
-    navigate('/telemetry-assessment')
+    navigate('/participant-sign-in')
   }
 
   return (
@@ -386,7 +386,7 @@ export function Results() {
             <button type="button" className="tactile-btn secondary-btn" onClick={startOver}>Start over</button>
           </div>
           <button type="button" className="tactile-btn primary-btn mcq-next-btn" onClick={startSkillsAssessment}>
-            Continue to Adaptive Assessment →
+            Save Preferences & Continue →
           </button>
         </div>
       </article>

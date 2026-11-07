@@ -16,6 +16,15 @@ interface CardFeedback {
 const LIKE_TAGS = ['Looks helpful', 'Excited to try', 'Already use this', 'Want staff training']
 const DISLIKE_TAGS = ['Too hard to use', 'Not my interest', 'Too complex', 'Need different option']
 
+function parseNotes(raw: string) {
+  try {
+    const parsed = JSON.parse(raw || '{}')
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
 export default function SkillsResults() {
   const session = getCurrentSession()
   const flow = session?.skills ? {
@@ -26,6 +35,7 @@ export default function SkillsResults() {
   const answers = flow.answers ?? {}
   const recommendations: RecommendationItem[] = getAdaptiveRecommendations(answers)
   const [feedback, setFeedback] = useStored<Record<string, CardFeedback>>('recommendationFeedback', {})
+  const [feedbackSent, setFeedbackSent] = useState<Record<string, boolean>>({})
 
   function toggleReaction(recId: string, reaction: 'like' | 'dislike') {
     const current = feedback[recId] || { reaction: null, tags: [], comment: '' }
@@ -35,7 +45,7 @@ export default function SkillsResults() {
       [recId]: { ...current, reaction: nextReaction, tags: [] },
     }
     setFeedback(next)
-    saveFeedbackToSession(next)
+    setFeedbackSent((sent) => ({ ...sent, [recId]: false }))
   }
 
   function toggleTag(recId: string, tag: string) {
@@ -48,7 +58,7 @@ export default function SkillsResults() {
       [recId]: { ...current, tags },
     }
     setFeedback(next)
-    saveFeedbackToSession(next)
+    setFeedbackSent((sent) => ({ ...sent, [recId]: false }))
   }
 
   function updateComment(recId: string, comment: string) {
@@ -58,25 +68,34 @@ export default function SkillsResults() {
       [recId]: { ...current, comment },
     }
     setFeedback(next)
-    saveFeedbackToSession(next)
+    setFeedbackSent((sent) => ({ ...sent, [recId]: false }))
   }
 
   function saveFeedbackToSession(updatedFeedback: Record<string, CardFeedback>) {
-    if (!session) return
+    if (!session) return false
     sessionRepository.patch(session.id, (curr) => ({
       ...curr,
       updatedAt: new Date().toISOString(),
       staff: {
         ...curr.staff,
-        notes: JSON.stringify({ feedback: updatedFeedback }),
+        notes: JSON.stringify({ ...parseNotes(curr.staff.notes), feedback: updatedFeedback }),
       },
     }))
+    return true
+  }
+
+  function sendFeedback(recId: string) {
+    const saved = saveFeedbackToSession(feedback)
+    setFeedbackSent((sent) => ({ ...sent, [recId]: true }))
+    if (!saved) {
+      setFeedbackSent((sent) => ({ ...sent, [recId]: false }))
+    }
   }
 
   function restart() {
     localStorage.removeItem('skillsAssessment')
     localStorage.removeItem('recommendationFeedback')
-    navigate('/acuity')
+    navigate('/')
   }
 
   const focusLabel = answers.primary_focus === 'career' ? 'Career & Employment' : 'Personal Independence & Home'
@@ -183,16 +202,22 @@ export default function SkillsResults() {
                       </div>
 
                       <label className="comment-input-label" htmlFor={`comment-${rec.id}`}>
-                        Optional note for your assessor:
-                        <input
+                        Optional message for your assessor:
+                        <textarea
                           id={`comment-${rec.id}`}
-                          type="text"
+                          rows={3}
+                          maxLength={1000}
                           className="comment-text-input"
                           placeholder="e.g., I want to try this with large print"
                           value={cardFb.comment}
                           onChange={(e) => updateComment(rec.id, e.target.value)}
                         />
                       </label>
+                      <button type="button" className="tactile-btn primary-btn feedback-send-btn" onClick={() => sendFeedback(rec.id)}>
+                        Send Feedback
+                      </button>
+                      {feedbackSent[rec.id] && <p className="feedback-sent-message" role="status">Feedback sent for staff review.</p>}
+                      {!session && <p className="feedback-sent-message" role="status">Feedback is saved on this device. Sign in to send it for staff review.</p>}
                     </div>
                   )}
                 </div>

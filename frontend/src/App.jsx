@@ -9,6 +9,7 @@ import Assessment, { Results } from './pages/Assessment.jsx'
 import AssessmentScreen from './pages/AssessmentScreen.tsx'
 import SkillsResults from './pages/SkillsResults.tsx'
 import Contact from './pages/Contact.jsx'
+import ParticipantSignIn from './pages/ParticipantSignIn.jsx'
 import StaffDashboard, { StaffLogin } from './pages/Staff.jsx'
 import { getCurrentSession, patchCurrentVision, useSessionDatabaseStatus } from './sessions/store'
 
@@ -20,6 +21,7 @@ const ROUTES = {
   '/color-vision': ColorVision,
   '/assessment': Assessment,
   '/results': Results,
+  '/participant-sign-in': ParticipantSignIn,
   '/telemetry-assessment': AssessmentScreen,
   '/skills-results': SkillsResults,
   '/contact': Contact,

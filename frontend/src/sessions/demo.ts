@@ -30,7 +30,7 @@ function moduleToVision(module: any, index: number): VisionModuleRecord {
   })
   const choiceIndex = module.choice ?? null
   return {
-    moduleKey: ['magnification', 'contrast', 'speech', 'cursor'][index] ?? 'magnification',
+    moduleKey: ['magnification', 'contrast', 'speech'][index] ?? 'magnification',
     name: MODULES[index]?.name ?? `Module ${index + 1}`,
     trials,
     choiceIndex,
@@ -98,7 +98,7 @@ export function buildDemoSessions(): AssessmentSession[] {
   return CLIENTS.map((client: any, index: number) => {
     const startedAt = new Date(`${client.date}T09:00:00Z`).toISOString()
     const visionCompletedAt = new Date(new Date(startedAt).getTime() + Number(client.online || 0) * 60000).toISOString()
-    const modules = client.modules.map((module: any, moduleIndex: number) => moduleToVision(module, moduleIndex))
+    const modules = client.modules.slice(0, MODULES.length).map((module: any, moduleIndex: number) => moduleToVision(module, moduleIndex))
     const skills = client.status === 'In progress' ? null : buildSkills(client, index)
     const completedAt = skills ? new Date(Math.max(new Date(visionCompletedAt).getTime(), new Date(skills.completedAt ?? visionCompletedAt).getTime())).toISOString() : null
     return {

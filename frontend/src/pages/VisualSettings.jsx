@@ -1,10 +1,10 @@
 // Color-vision routing gate before the adaptive vision assessment.
 import { useEffect, useRef, useState } from 'react'
-import { applyPalette, navigate, save } from '../prefs.js'
+import { applyPalette, load, navigate, save } from '../prefs.js'
 import { patchCurrentVision } from '../sessions/store'
 
 export default function VisualSettings() {
-  const [choice, setChoice] = useState('')
+  const [choice, setChoice] = useState(() => load('visualFlow', {}).colorblind ?? '')
   const [error, setError] = useState(false)
   const headingRef = useRef(null)
   const errorRef = useRef(null)
@@ -15,6 +15,7 @@ export default function VisualSettings() {
 
   function selectChoice(value) {
     setChoice(value)
+    save('visualFlow', { ...load('visualFlow', {}), colorblind: value })
     patchCurrentVision({ colorVisionDifference: value })
     setError(false)
   }

@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { navigate, useStored } from '../prefs.js'
+import { load, navigate, save } from '../prefs.js'
 import { patchCurrentVision } from '../sessions/store'
 
 export default function Acuity() {
-  const [answer, setAnswer] = useState('')
+  const [answer, setAnswer] = useState(() => load('visualFlow', {}).acuityAtLeast2070 ?? '')
   const [error, setError] = useState(false)
   const headingRef = useRef(null)
   const errorRef = useRef(null)
@@ -18,6 +18,7 @@ export default function Acuity() {
 
   function selectChoice(value) {
     setAnswer(value)
+    save('visualFlow', { ...load('visualFlow', {}), acuityAtLeast2070: value })
     patchCurrentVision({ acuityAtLeast2070: value })
     setError(false)
   }
@@ -31,10 +32,10 @@ export default function Acuity() {
     }
 
     // 20/70 Triage Gate:
-    // Better than 20/70 ("no"): Bypass low-vision calibration, go directly to Assessment
-    // 20/70 or worse ("yes"): Complete 4-step calibration first
+    // Better than 20/70 ("no"): bypass the low-vision calibration, then identify the session.
+    // 20/70 or worse ("yes"): complete the 3-step visual calibration first.
     if (answer === 'no') {
-      navigate('/telemetry-assessment')
+      navigate('/participant-sign-in')
     } else {
       navigate('/visual-settings')
     }
@@ -54,7 +55,7 @@ export default function Acuity() {
 
         <p className="intro readable">
           For example, 20/70, 20/200, or legal blindness in your better eye with correction.
-          This helps us decide whether you need a 4-step visual comfort check or can start the questionnaire right away.
+          This helps us decide whether you need a 3-step visual comfort check before signing in and starting the questionnaire.
         </p>
 
         <ul className="mcq-options-list" role="list">
@@ -84,7 +85,7 @@ export default function Acuity() {
               <span className="option-indicator" aria-hidden="true">{answer === 'no' ? '●' : '○'}</span>
               <div className="option-content">
                 <span className="option-label">No — Better than 20/70 (or Not Sure)</span>
-                <span className="option-desc">My vision is better than 20/70, or I want to proceed directly to the assessment questions.</span>
+                <span className="option-desc">I can skip the extra visual calibration and continue to participant sign-in.</span>
               </div>
               {answer === 'no' && <span className="selection-pill" aria-hidden="true">✓ Selected</span>}
             </button>
