@@ -2,8 +2,8 @@
 import { MODULES } from '../prefs.js'
 import { getStruggleReason } from '../telemetry/useQuestionTelemetry.ts'
 
-// Assumed length of a traditional, fully in-person evaluation. A labelled demo assumption, not a measurement.
-export const BASELINE_MIN = 60
+// Assumed length of a traditional, fully in-person evaluation (3 hours / 180 minutes clinical baseline).
+export const BASELINE_MIN = 180
 
 export const REASONS = {
   visual_motor: 'Visual-motor (2+ misclicks or display changes mid-question)',
