@@ -105,12 +105,11 @@ Open [http://localhost:5173](http://localhost:5173) in your browser. Access the 
 
 ---
 
-## 👥 Contributors
+## 📬 Contact
 
-| Contributor | Focus Area | Contact |
-| :--- | :--- | :--- |
-| **Phuc Nguyen Hong** | Full-Stack & Accessibility Engineering | [GitHub](https://github.com/nhp93) · nghongphuc93@gmail.com |
-| **Team 26 Members** | JPMorgan Chase Code for Good 2026 | Non-Profit Challenge |
+**Phineas Nguyen**  
+- **Email:** [phineasnguyen93@gmail.com](mailto:phineasnguyen93@gmail.com)
+- **GitHub:** [@nhp93](https://github.com/nhp93)
 
 ---
 
