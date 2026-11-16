@@ -27,10 +27,15 @@ Traditional assistive technology evaluations for individuals with low vision or 
 
 ## Preview
 
-| 1. Initial 20/70 Acuity Gate & Calibration | 2. Adaptive Branching Assessment | 3. Tailored AT Recommendations |
-| :---: | :---: | :---: |
-| ![Welcome & Acuity Triage](assets/ss1.png) | ![Adaptive Branching Assessment](assets/ss2.png) | ![Tailored Recommendations & Staff Handoff](assets/ss3.png) |
-| *Visual Acuity Triage & Braille Institute high-visibility styling.* | *Tactile MCQ cards with live Segmented Progress Pill Bar.* | *Personalized assistive tools, reaction feedback & staff review.* |
+| 1. Candidate Intake (Welcome) | 2. Tailored AT Recommendations |
+| :---: | :---: |
+| ![Candidate Intake Welcome](assets/ss1.png) | ![Tailored AT Recommendations](assets/ss2.png) |
+| *Braille Institute neo-brutalist styling & accessible intake.* | *Adaptive evaluation summary with staff review intake CTA.* |
+
+| 3. Interactive Feedback & Quick Tags | 4. Staff Analytics & Telemetry Dashboard |
+| :---: | :---: |
+| ![Interactive Feedback & Tags](assets/ss3.png) | ![Staff Analytics Dashboard](assets/ss4.png) |
+| *Candidate Like/Dislike reactions, tags & assessor notes.* | *Real-time client roster, struggle score & time saved analytics.* |
 
 ---
 
