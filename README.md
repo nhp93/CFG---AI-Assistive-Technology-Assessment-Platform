@@ -27,20 +27,10 @@ Traditional assistive technology evaluations for individuals with low vision or 
 
 ## Preview
 
-| 1. Welcome & Initial 20/70 Triage Gate | 2. Adaptive Visual Comfort & Calibration |
-| :---: | :---: |
-| ![Welcome & Acuity Triage](assets/ss1.png) | ![Visual Comfort Calibration](assets/ss2.png) |
-| *Initial candidate intake with 20/70 visual acuity triage gate.* | *Live text scaling slider, high-contrast themes & cursor practice area.* |
-
-| 3. Mouse-Driven Branching Assessment | 4. Personalized Recommendations & Feedback |
-| :---: | :---: |
-| ![Adaptive Assessment](assets/ss3.png) | ![Recommendations & Reactions](assets/ss4.png) |
-| *Tactile MCQ cards with Segmented Progress Pill Bar.* | *Tailored assistive tools with Like/Dislike feedback & Staff handoff.* |
-
-| 5. Lions Services Staff Review Dashboard |
-| :---: |
-| ![Staff Dashboard & Telemetry](assets/ss5.png) |
-| *Real-time candidate intake, struggle detection flags, and session history.* |
+| 1. Initial 20/70 Acuity Gate & Calibration | 2. Adaptive Branching Assessment | 3. Tailored AT Recommendations |
+| :---: | :---: | :---: |
+| ![Welcome & Acuity Triage](assets/ss1.png) | ![Adaptive Branching Assessment](assets/ss2.png) | ![Tailored Recommendations & Staff Handoff](assets/ss3.png) |
+| *Visual Acuity Triage & Braille Institute high-visibility styling.* | *Tactile MCQ cards with live Segmented Progress Pill Bar.* | *Personalized assistive tools, reaction feedback & staff review.* |
 
 ---
 
